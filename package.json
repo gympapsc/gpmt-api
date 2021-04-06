@@ -1,0 +1,25 @@
+{
+  "name": "gpmt-api",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gympapsc/gpmt-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gympapsc/gpmt-api/issues"
+  },
+  "homepage": "https://github.com/gympapsc/gpmt-api#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.12.3",
+    "socket.io": "^4.0.1"
+  }
+}
