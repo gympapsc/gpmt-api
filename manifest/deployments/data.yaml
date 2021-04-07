@@ -15,6 +15,7 @@ spec:
             containers:
             - name: gpmt-api-data
               image: gpmtregistry.azurecr.io/gpmt-api-data:v1
+              imagePullPolicy: IfNotPresent
               ports:
               - containerPort: 80
             imagePullSecrets:
