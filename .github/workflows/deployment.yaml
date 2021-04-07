@@ -73,6 +73,7 @@ jobs:
             manifests: |
                 manifest/deployments.yaml
                 manifest/services.yaml
+                manifest/nginx-ingress.yaml
                 manifest/ingress.yaml
             imagepullsecrets: |
                 ${{ env.REGISTRY_SECRET_NAME }}
