@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: gpmt-api-auth
+    namespace: api
+spec:
+    selector:
+        matchLabels:
+            app: gpmt-api-auth
+    replicas: 1
+    template:
+        metadata:
+            labels:
+                app: gpmt-api-auth
+        spec:
+            containers:
+            - name: gpmt-api-auth
+              image: gpmtregistry.azurecr.io/gpmt-api-auth:v1
+              ports:
+              - containerPort: 80
+            imagePullSecrets:
+            - name: registry-token 
