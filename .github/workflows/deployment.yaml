@@ -69,7 +69,7 @@ jobs:
             namespace: ${{ env.NAMESPACE }}
 
         - name: Deploy services
-        - uses: azure/k8s-deploy@v1
+          uses: azure/k8s-deploy@v1
           with:
             manifests: |
                 manifest/deployments.yaml
@@ -80,7 +80,7 @@ jobs:
             namespace: ${{ env.NAMESPACE }}
         
         - name: Deploy ingress
-        - uses: azure/k8s-deploy@v1
+          uses: azure/k8s-deploy@v1
           with:
             manifests: |
                 manifest/ingress.yaml
