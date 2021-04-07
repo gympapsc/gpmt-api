@@ -69,8 +69,9 @@ jobs:
             namespace: ${{ env.NAMESPACE }}
 
         - name: Setup cert-manager and nginx-ingress
-          run: kubectl apply -f manifest/cert-manager.yaml
-          run: kubectl apply -f manifest/nginx-ingress.yaml
+          run: | 
+            kubectl apply -f manifest/cert-manager.yaml
+            kubectl apply -f manifest/nginx-ingress.yaml
 
         - name: Deploy api services
           uses: azure/k8s-deploy@v1
