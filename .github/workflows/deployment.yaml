@@ -10,7 +10,7 @@ env:
     CLUSTER_RESOURCE_GROUP: GPMTGroup
     NAMESPACE: api
     REGISTRY_SECRET_NAME: registry-token
-    VERSION: alpha1
+    VERSION: v1
     
 jobs:
     build:
