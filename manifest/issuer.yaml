@@ -1,0 +1,19 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+    name: letsencrypt
+    namespace: "default"
+spec:
+    acme:
+        server: https://acme-v02.api.letsencrypt.org/directory
+        email: hakim.rachidi@gym-papenburg.de
+        privateKeySecretRef:
+            name: letsencrypt
+        solvers:
+        - http01:
+            ingress:
+                class: nginx
+                podTemplate:
+                    spec:
+                        nodeSelector:
+                            "kubernetes.io/os": linux

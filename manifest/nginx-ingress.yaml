@@ -114,7 +114,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: nginx-ingress-ingress-nginx
-    namespace: "api"
+    namespace: "default"
 ---
 # Source: ingress-nginx/templates/controller-role.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -220,7 +220,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: nginx-ingress-ingress-nginx
-    namespace: "api"
+    namespace: "default"
 ---
 # Source: ingress-nginx/templates/controller-service-webhook.yaml
 apiVersion: v1
@@ -422,7 +422,7 @@ webhooks:
       - v1beta1
     clientConfig:
       service:
-        namespace: "api"
+        namespace: "default"
         name: nginx-ingress-ingress-nginx-controller-admission
         path: /networking/v1beta1/ingresses
 ---
@@ -488,7 +488,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: nginx-ingress-ingress-nginx-admission
-    namespace: "api"
+    namespace: "default"
 ---
 # Source: ingress-nginx/templates/admission-webhooks/job-patch/role.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -536,7 +536,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: nginx-ingress-ingress-nginx-admission
-    namespace: "api"
+    namespace: "default"
 ---
 # Source: ingress-nginx/templates/admission-webhooks/job-patch/job-createSecret.yaml
 apiVersion: batch/v1

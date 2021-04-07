@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
     name: gpmt-api-chat
-    namespace: api
+    namespace: "default"
 spec:
     selector:
         matchLabels:
@@ -25,7 +25,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
     name: gpmt-api-data
-    namespace: api
+    namespace: "default"
 spec:
     selector:
         matchLabels:
@@ -48,7 +48,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
     name: gpmt-api-auth
-    namespace: api
+    namespace: "default"
 spec:
     selector:
         matchLabels:

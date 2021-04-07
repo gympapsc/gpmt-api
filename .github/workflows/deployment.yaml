@@ -6,7 +6,7 @@ env:
     REGISTRY_NAME: gpmtregistry
     CLUSTER_NAME: GPMTCluster
     CLUSTER_RESOURCE_GROUP: GPMTGroup
-    NAMESPACE: api
+    NAMESPACE: default
     REGISTRY_SECRET_NAME: registry-token
     VERSION: v1
     
@@ -68,18 +68,24 @@ jobs:
             secret-name: ${{ env.REGISTRY_SECRET_NAME }}
             namespace: ${{ env.NAMESPACE }}
 
-        - name: Deploy services
+        - name: Setup cert-manager and nginx-ingress
+          uses: azure/k8s-deploy@v1
+          with:
+            manifests: |
+                manifest/cert-manager.yaml
+                manifest/nginx-ingress.yaml
+
+        - name: Deploy api services
           uses: azure/k8s-deploy@v1
           with:
             manifests: |
                 manifest/deployments.yaml
                 manifest/services.yaml
-                manifest/nginx-ingress.yaml
             imagepullsecrets: |
                 ${{ env.REGISTRY_SECRET_NAME }}
             namespace: ${{ env.NAMESPACE }}
-        
-        - name: Deploy ingress
+
+        - name: Deploy api ingress
           uses: azure/k8s-deploy@v1
           with:
             manifests: |
