@@ -75,7 +75,7 @@ jobs:
                 manifest/deployments
                 manifest/services
                 manifest/ingress
-            imagepullsecret: {{ env.REGISTRY_SECRET_NAME }}
+            imagepullsecret: ${{ env.REGISTRY_SECRET_NAME }}
             namespace: ${{ env.NAMESPACE }}
 
 
