@@ -1,3 +1,7 @@
+on:
+    release:
+        types: [ published ]
+
 name: Deployment to AKS
 
 env:
@@ -16,29 +20,29 @@ jobs:
         - uses: actions/checkout@v2
         
         - name: ACR login
-        - uses: azure/docker-login@v1
+          uses: azure/docker-login@v1
           with:
             login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
             username: ${{ secrets.ACR_ID }}
             password: ${{ secrets.ACR_CREDENTIALS }}
         
         - name: gpmt-api-data container build
-        - run: docker build ./data -t ${{ env.REGISTRY_NAME }}.azurecr.io/gpmt-api-data:${{ env.VERSION }}
+          run: docker build ./data -t ${{ env.REGISTRY_NAME }}.azurecr.io/gpmt-api-data:${{ env.VERSION }}
         
         - name: gpmt-api-chat container build
-        - run: docker build ./chat -t ${{ env.REGISTRY_NAME }}.azurecr.io/gpmt-api-chat:${{ env.VERSION }}
+          run: docker build ./chat -t ${{ env.REGISTRY_NAME }}.azurecr.io/gpmt-api-chat:${{ env.VERSION }}
         
         - name: gpmt-api-auth container build
-        - run: docker build ./auth -t ${{ env.REGISTRY_NAME }}.azurecr.io/gpmt-api-auth:${{ env.VERSION }}
+          run: docker build ./auth -t ${{ env.REGISTRY_NAME }}.azurecr.io/gpmt-api-auth:${{ env.VERSION }}
         
         - name: gpmt-api-data container push
-        - run: docker push ${{env.REGISTRY_NAME}}.azurecr.io/gpmt-api-data:${{ env.VERSION }}
+          run: docker push ${{env.REGISTRY_NAME}}.azurecr.io/gpmt-api-data:${{ env.VERSION }}
        
         - name: gpmt-api-chat container push
-        - run: docker push ${{env.REGISTRY_NAME}}.azurecr.io/gpmt-api-chat:${{ env.VERSION }}
+          run: docker push ${{env.REGISTRY_NAME}}.azurecr.io/gpmt-api-chat:${{ env.VERSION }}
 
         - name: gpmt-api-auth container push
-        - run: docker push ${{env.REGISTRY_NAME}}.azurecr.io/gpmt-api-auth:${{ env.VERSION }}
+          run: docker push ${{env.REGISTRY_NAME}}.azurecr.io/gpmt-api-auth:${{ env.VERSION }}
         
     deploy:
         name: Deploy to AKS
@@ -46,17 +50,17 @@ jobs:
         runs-on: ubuntu-latest
         steps:
         - name: Set AKS cluster
-        - uses: azure/aks-set-context@v1
+          uses: azure/aks-set-context@v1
           with:
             creds: '${{ secrets.AZURE_CREDENTIALS }}'
             cluster-name: ${{ env.CLUSTER_NAME }}
             resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
         
         - name: Create Kubernetes namespace ${{ env.NAMESPACE }}
-        - run: kubectl create namespace ${{ env.NAMESPACE }} --dry-run -o json | kubectl apply -f -
+          run: kubectl create namespace ${{ env.NAMESPACE }} --dry-run -o json | kubectl apply -f -
         
         - name: Create kubernetes registry secret
-        - uses: azure/k8s-create-secret@v1
+          uses: azure/k8s-create-secret@v1
           with:
             container-registry-url: ${{ env.REGISTRY_NAME }}.azurecr.io
             container-registry-name: ${{ secrets.ACR_ID }}
