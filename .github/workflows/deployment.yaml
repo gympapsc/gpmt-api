@@ -68,6 +68,7 @@ jobs:
             secret-name: ${{ env.REGISTRY_SECRET_NAME }}
             namespace: ${{ env.NAMESPACE }}
 
+        - name: Deploy services
         - uses: azure/k8s-deploy@v1
           with:
             manifests: |
@@ -78,5 +79,10 @@ jobs:
             imagepullsecrets: |
                 ${{ env.REGISTRY_SECRET_NAME }}
             namespace: ${{ env.NAMESPACE }}
-
-
+        
+        - name: Deploy ingress
+        - uses: azure/k8s-deploy@v1
+          with:
+            manifests: |
+                manifest/ingress.yaml
+            namespace: ${{ env.NAMESPACE }}
