@@ -63,11 +63,10 @@ jobs:
           uses: azure/k8s-create-secret@v1
           with:
             container-registry-url: ${{ env.REGISTRY_NAME }}.azurecr.io
-            container-registry-name: ${{ secrets.ACR_ID }}
+            container-registry-username: ${{ secrets.ACR_ID }}
             container-registry-password: ${{ secrets.ACR_CREDENTIALS }}
             secret-name: ${{ env.REGISTRY_SECRET_NAME }}
             namespace: ${{ env.NAMESPACE }}
-            force: true
 
         - uses: azure/k8s-deploy@v1
           with:
