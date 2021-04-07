@@ -1,6 +1,4 @@
-on:
-    release:
-        types: [ published ]
+on: [release, push]
 
 name: Deployment to AKS
 
@@ -71,9 +69,9 @@ jobs:
         - uses: azure/k8s-deploy@v1
           with:
             manifests: |
-                manifest/deployments
-                manifest/services
-                manifest/ingress
+                manifest/deployments.yaml
+                manifest/services.yaml
+                manifest/ingress.yaml
             imagepullsecret: ${{ env.REGISTRY_SECRET_NAME }}
             namespace: ${{ env.NAMESPACE }}
 
