@@ -66,4 +66,4 @@ spec:
               ports:
               - containerPort: 80
             imagePullSecrets:
-            - name: registry-token 
+            - name: registry-token
