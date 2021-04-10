@@ -89,10 +89,10 @@ jobs:
 
         - name: Deploy certificate manager
           run: |
-            helm install cert-manager jetstack/cert-manager \
+            helm upgrade --install cert-manager jetstack/cert-manager \
             --values ./manifest/cert-manager.values.yaml \
             --set installCRDs=true \
-            --namespace ${{ env.NAMESPACE }}
+            --namespace cert-manager --create-namespace 
 
         - name: Deploy api services
           uses: azure/k8s-deploy@v1
