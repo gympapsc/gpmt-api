@@ -99,6 +99,7 @@ jobs:
             manifests: |
                 manifest/deployments.yaml
                 manifest/services.yaml
+                manifest/statefulsets.yaml
             imagepullsecrets: |
                 ${{ env.REGISTRY_SECRET_NAME }}
             namespace: ${{ env.NAMESPACE }}

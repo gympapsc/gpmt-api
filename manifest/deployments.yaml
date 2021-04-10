@@ -15,7 +15,7 @@ spec:
             containers:
             - name: gpmt-api-chat
               image: gpmtregistry.azurecr.io/gpmt-api-chat:v1
-              imagePullPolicy: IfNotPresent
+              imagePullPolicy: Always
               ports:
               - containerPort: 80
             imagePullSecrets:
@@ -38,7 +38,7 @@ spec:
             containers:
             - name: gpmt-api-data
               image: gpmtregistry.azurecr.io/gpmt-api-data:v1
-              imagePullPolicy: IfNotPresent
+              imagePullPolicy: Always
               ports:
               - containerPort: 80
             imagePullSecrets:
@@ -62,7 +62,7 @@ spec:
             containers:
             - name: gpmt-api-auth
               image: gpmtregistry.azurecr.io/gpmt-api-auth:v1
-              imagePullPolicy: IfNotPresent
+              imagePullPolicy: Always
               ports:
               - containerPort: 80
             imagePullSecrets:

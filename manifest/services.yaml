@@ -33,3 +33,19 @@ spec:
     - port: 80
     selector:
         app: gpmt-api-auth
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: gpmt-mongodb
+    labels:
+        app: gpmt-mongodb
+spec:
+    clusterIP: None
+    ports:
+    - port: 27017
+      name: mongodb
+    selector:
+        app: gpmt-mongodb
+
+
