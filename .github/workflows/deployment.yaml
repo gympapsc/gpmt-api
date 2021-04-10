@@ -68,10 +68,31 @@ jobs:
             secret-name: ${{ env.REGISTRY_SECRET_NAME }}
             namespace: ${{ env.NAMESPACE }}
 
-        - name: Setup cert-manager and nginx-ingress
-          run: | 
-            kubectl apply -f manifest/cert-manager.yaml
-            kubectl apply -f manifest/nginx-ingress.yaml
+        - uses: azure/setup-helm@v1
+          with:
+            version: '3.5.3'
+          id: install
+
+        - name: Fetch helm repositories
+          run: |
+            helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+            helm repo add jetstack https://charts.jetstack.io
+            helm repo update
+
+        - name: Deploy nginx ingress controller
+          run: |
+            helm upgrade nginx-ingress ingress-nginx/ingress-nginx \
+            --install \
+            --values ./manifest/nginx.values.yaml \
+            --values ./manifest/prod/nginx.values.yaml \
+            --namespace ${{ env.NAMESPACE }} 
+
+        - name: Deploy certificate manager
+          run: |
+            helm install cert-manager jetstack/cert-manager \
+            --values ./manifest/cert-manager.values.yaml \
+            --set installCRDs=true \
+            --namespace ${{ env.NAMESPACE }}
 
         - name: Deploy api services
           uses: azure/k8s-deploy@v1

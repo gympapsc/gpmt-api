@@ -1,0 +1,14 @@
+controller:
+    replicaCount: 1 
+    nodeSelector:
+        beta.kubernetes.io/os: linux
+    
+    admissionWebhooks:
+        patch:
+            nodeSelector:
+                beta.kubernetes.io/os: linux
+
+defaultBackend:
+    nodeSelector:
+        beta.kubernetes.io/os: linux
+
