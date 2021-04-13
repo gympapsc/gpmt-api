@@ -1,35 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-    name: gpmt-api-chat
+    name: gpmt-api
     namespace: "default"
 spec:
     type: ClusterIP
     ports:
     - port: 80
     selector:
-        app: gpmt-api-chat
----
-apiVersion: v1
-kind: Service
-metadata:
-    name: gpmt-api-data
-    namespace: "default"
-spec:
-    type: ClusterIP
-    ports:
-    - port: 80    
-    selector:
-        app: gpmt-api-data
----
-apiVersion: v1
-kind: Service
-metadata:
-    name: gpmt-api-auth
-    namespace: "default"
-spec:
-    type: ClusterIP
-    ports:
-    - port: 80
-    selector:
-        app: gpmt-api-auth
+        app: gpmt-api

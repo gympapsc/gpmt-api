@@ -1,70 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: gpmt-api-chat
+    name: gpmt-api
     namespace: "default"
 spec:
     selector:
         matchLabels:
-            app: gpmt-api-chat
+            app: gpmt-api
     template:
         metadata:
             labels:
-                app: gpmt-api-chat
+                app: gpmt-api
         spec:
             containers:
-            - name: gpmt-api-chat
-              image: gpmtregistry.azurecr.io/gpmt-api-chat:v1
+            - name: gpmt-api
+              image: gpmtregistry.azurecr.io/gpmt-api:v1
               imagePullPolicy: Always
               ports:
               - containerPort: 80
             imagePullSecrets:
             - name: registry-token
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-    name: gpmt-api-data
-    namespace: "default"
-spec:
-    selector:
-        matchLabels:
-            app: gpmt-api-data
-    template:
-        metadata:
-            labels:
-                app: gpmt-api-data
-        spec:
-            containers:
-            - name: gpmt-api-data
-              image: gpmtregistry.azurecr.io/gpmt-api-data:v1
-              imagePullPolicy: Always
-              ports:
-              - containerPort: 80
-            imagePullSecrets:
-            - name: registry-token
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-    name: gpmt-api-auth
-    namespace: "default"
-spec:
-    selector:
-        matchLabels:
-            app: gpmt-api-auth
-    replicas: 1
-    template:
-        metadata:
-            labels:
-                app: gpmt-api-auth
-        spec:
-            containers:
-            - name: gpmt-api-auth
-              image: gpmtregistry.azurecr.io/gpmt-api-auth:v1
-              imagePullPolicy: Always
-              ports:
-              - containerPort: 80
-            imagePullSecrets:
-            - name: registry-token
- 

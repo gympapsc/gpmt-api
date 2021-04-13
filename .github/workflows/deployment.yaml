@@ -24,23 +24,12 @@ jobs:
             username: ${{ secrets.ACR_ID }}
             password: ${{ secrets.ACR_CREDENTIALS }}
         
-        - name: gpmt-api-data container build
+        - name: gpmt-api container build
           run: docker build ./data -t ${{ env.REGISTRY_NAME }}.azurecr.io/gpmt-api-data:${{ env.VERSION }}
         
-        - name: gpmt-api-chat container build
-          run: docker build ./chat -t ${{ env.REGISTRY_NAME }}.azurecr.io/gpmt-api-chat:${{ env.VERSION }}
-        
-        - name: gpmt-api-auth container build
-          run: docker build ./auth -t ${{ env.REGISTRY_NAME }}.azurecr.io/gpmt-api-auth:${{ env.VERSION }}
-        
-        - name: gpmt-api-data container push
+        - name: gpmt-api container push
           run: docker push ${{env.REGISTRY_NAME}}.azurecr.io/gpmt-api-data:${{ env.VERSION }}
-       
-        - name: gpmt-api-chat container push
-          run: docker push ${{env.REGISTRY_NAME}}.azurecr.io/gpmt-api-chat:${{ env.VERSION }}
 
-        - name: gpmt-api-auth container push
-          run: docker push ${{env.REGISTRY_NAME}}.azurecr.io/gpmt-api-auth:${{ env.VERSION }}
         
     deploy:
         name: Deploy to AKS

@@ -1,0 +1,33 @@
+{
+  "name": "gpmt-api",
+  "version": "0.0.1",
+  "description": "[![Deployment to AKS](https://github.com/gympapsc/gpmt-api/actions/workflows/deployment.yaml/badge.svg)](https://github.com/gympapsc/gpmt-api/actions/workflows/deployment.yaml)",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --config unit.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gympapsc/gpmt-api.git"
+  },
+  "author": "Hakim Rachidi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gympapsc/gpmt-api/issues"
+  },
+  "homepage": "https://github.com/gympapsc/gpmt-api#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "bcrypt": "^5.0.1",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.12.3",
+    "passport": "^0.4.1",
+    "passport-http-bearer": "^1.0.1",
+    "socket.io": "^4.0.1"
+  },
+  "devDependencies": {
+    "jest": "^26.6.3"
+  }
+}

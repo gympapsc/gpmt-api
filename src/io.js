@@ -2,15 +2,13 @@ const socketio = require("socket.io")
 const createIngress = require("./ingress")
 const createEgress = require("./egress")
 
-const createIOServer = (httpServer, middlewares=[]) => {
-    const io = socketio(httpServer, {
-        // options
-    })
+const createIOServer = (httpServer, middlewares=[], options={}) => {
+    const io = socketio(httpServer, options)
     
-    for (let middleware of middlewares) {
+    for(let middleware of middlewares) {
         io.use(middleware)
     }
-
+    
     io.on("connection", socket => {
 
         createIngress(socket)

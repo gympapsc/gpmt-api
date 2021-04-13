@@ -1,13 +1,28 @@
-const mongoose = require("mongoose")
 const {
+    Message,
+    Conversation,
+    User,
     Micturition,
-    Drinking,
-    User
+    Drinking
 } = require("./models")
 
 
-const dispatch = (type, payload, ack) => {
-    switch(type) {
+const dispatch = (action, payload, ack) => {
+    switch(action) {
+        case "ADD_USER_MESSAGE":
+            Message.create({
+                text: payload.text,
+                sender: "user",
+                user: payload.user
+            }, ack)
+            break
+        case "ADD_BOT_MESSAGE":
+            Message.create({
+                text: payload.text,
+                sender: "bot",
+                user: payload.user
+            }, ack)
+            break
         case "CREATE_MICTURITION":
             console.log("CREATE_MICTURITION")
             Micturition.create({
@@ -20,29 +35,38 @@ const dispatch = (type, payload, ack) => {
         case "CREATE_DRINKING":
             console.log("CREATE_DRINKING")
             Drinking.create({
-                // inject user id
                 amount: payload.amount,
                 type: payload.type
             }, (err, doc) => {
                 if (err) return ack(err)
             })
             break
+        case "CREATE_USER":
+            User.create({
+                ...payload
+            }, ack)
+            break
         default:
-            console.warn("Unkown action type dispatched: " + type)
-            ack()
+            ack(new Error('Unknown action ' + action), null)
     }
 }
 
 const query = (model, selector, cb) => {
     switch(model) {
+        case "MESSAGE":
+            Message.find(selector, cb)
+            break
+        case "CONVERSATION":
+            Conversation.find(selector, cb)
+            break
         case "USER":
-            User.findOne(selector, cb)
+            User.find(selector, cb)
             break
         case "DRINKING":
-            Drinking.findOne(selector, cb)
+            Drinking.find(selector, cb)
             break
         case "MICTURITION":
-            Micturition.findOne(selector, cb)
+            Micturition.find(selector, cb)
             break
         default:
             console.warn("Unkown model")
