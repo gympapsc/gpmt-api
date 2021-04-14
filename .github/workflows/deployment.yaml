@@ -11,90 +11,112 @@ env:
     VERSION: v1
     
 jobs:
+    test:
+      name: Unittest
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v2
+      - name: Install Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      
+      - name: Install gpmt-api dependencies
+        run: npm ci
+      
+      - name: Run jest tests
+        run: npm run test
+
+      - name: Upload coverage data
+        uses: actions/upload-articat@v2
+        with:
+          name: coverage
+          path: ./coverage
+
     build:
-        name: Build and push containers to ACR
-        runs-on: ubuntu-latest
-        steps:
-        - uses: actions/checkout@v2
-        
-        - name: ACR login
-          uses: azure/docker-login@v1
-          with:
-            login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
-            username: ${{ secrets.ACR_ID }}
-            password: ${{ secrets.ACR_CREDENTIALS }}
-        
-        - name: gpmt-api container build
-          run: docker build ./data -t ${{ env.REGISTRY_NAME }}.azurecr.io/gpmt-api-data:${{ env.VERSION }}
-        
-        - name: gpmt-api container push
-          run: docker push ${{env.REGISTRY_NAME}}.azurecr.io/gpmt-api-data:${{ env.VERSION }}
+      name: Build and push containers to ACR
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v2
+      
+      - name: ACR login
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
+          username: ${{ secrets.ACR_ID }}
+          password: ${{ secrets.ACR_CREDENTIALS }}
+      
+      - name: gpmt-api container build
+        run: docker build ./data -t ${{ env.REGISTRY_NAME }}.azurecr.io/gpmt-api-data:${{ env.VERSION }}
+      
+      - name: gpmt-api container push
+        run: docker push ${{env.REGISTRY_NAME}}.azurecr.io/gpmt-api-data:${{ env.VERSION }}
 
         
-    deploy:
-        name: Deploy to AKS
-        needs: build
-        runs-on: ubuntu-latest
-        steps:
-        - uses: actions/checkout@v2 
+#     deploy:
+#         name: Deploy to AKS
+#         needs: build
+#         runs-on: ubuntu-latest
+#         steps:
+#         - uses: actions/checkout@v2 
         
-        - name: Set AKS cluster
-          uses: azure/aks-set-context@v1
-          with:
-            creds: '${{ secrets.AZURE_CREDENTIALS }}'
-            cluster-name: ${{ env.CLUSTER_NAME }}
-            resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
+#         - name: Set AKS cluster
+#           uses: azure/aks-set-context@v1
+#           with:
+#             creds: '${{ secrets.AZURE_CREDENTIALS }}'
+#             cluster-name: ${{ env.CLUSTER_NAME }}
+#             resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
         
-        - name: Create Kubernetes namespace ${{ env.NAMESPACE }}
-          run: kubectl create namespace ${{ env.NAMESPACE }} --dry-run -o json | kubectl apply -f -
+#         - name: Create Kubernetes namespace ${{ env.NAMESPACE }}
+#           run: kubectl create namespace ${{ env.NAMESPACE }} --dry-run -o json | kubectl apply -f -
         
-        - name: Create kubernetes registry secret
-          uses: azure/k8s-create-secret@v1
-          with:
-            container-registry-url: ${{ env.REGISTRY_NAME }}.azurecr.io
-            container-registry-username: ${{ secrets.ACR_ID }}
-            container-registry-password: ${{ secrets.ACR_CREDENTIALS }}
-            secret-name: ${{ env.REGISTRY_SECRET_NAME }}
-            namespace: ${{ env.NAMESPACE }}
+#         - name: Create kubernetes registry secret
+#           uses: azure/k8s-create-secret@v1
+#           with:
+#             container-registry-url: ${{ env.REGISTRY_NAME }}.azurecr.io
+#             container-registry-username: ${{ secrets.ACR_ID }}
+#             container-registry-password: ${{ secrets.ACR_CREDENTIALS }}
+#             secret-name: ${{ env.REGISTRY_SECRET_NAME }}
+#             namespace: ${{ env.NAMESPACE }}
 
-        - uses: azure/setup-helm@v1
-          with:
-            version: '3.5.3'
-          id: install
+#         - uses: azure/setup-helm@v1
+#           with:
+#             version: '3.5.3'
+#           id: install
 
-        - name: Fetch helm repositories
-          run: |
-            helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-            helm repo add jetstack https://charts.jetstack.io
-            helm repo update
+#         - name: Fetch helm repositories
+#           run: |
+#             helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+#             helm repo add jetstack https://charts.jetstack.io
+#             helm repo update
 
-        - name: Deploy nginx ingress controller
-          run: |
-            helm template nginx-ingress ingress-nginx/ingress-nginx \
-            --values ./manifest/nginx.values.yaml \
-            --values ./manifest/prod/nginx.values.yaml \
-            --namespace ${{ env.NAMESPACE }} | kubectl apply -n ${{ env.NAMESPACE }} -f -
+#         - name: Deploy nginx ingress controller
+#           run: |
+#             helm template nginx-ingress ingress-nginx/ingress-nginx \
+#             --values ./manifest/nginx.values.yaml \
+#             --values ./manifest/prod/nginx.values.yaml \
+#             --namespace ${{ env.NAMESPACE }} | kubectl apply -n ${{ env.NAMESPACE }} -f -
 
-        - name: Deploy certificate manager
-          run: |
-            helm upgrade --install cert-manager jetstack/cert-manager \
-            --values ./manifest/cert-manager.values.yaml \
-            --set installCRDs=true \
-            --namespace cert-manager --create-namespace 
+#         - name: Deploy certificate manager
+#           run: |
+#             helm upgrade --install cert-manager jetstack/cert-manager \
+#             --values ./manifest/cert-manager.values.yaml \
+#             --set installCRDs=true \
+#             --namespace cert-manager --create-namespace 
 
-        - name: Deploy api services
-          uses: azure/k8s-deploy@v1
-          with:
-            manifests: |
-                manifest/deployments.yaml
-                manifest/services.yaml
-            imagepullsecrets: |
-                ${{ env.REGISTRY_SECRET_NAME }}
-            namespace: ${{ env.NAMESPACE }}
+#         - name: Deploy api services
+#           uses: azure/k8s-deploy@v1
+#           with:
+#             manifests: |
+#                 manifest/deployments.yaml
+#                 manifest/services.yaml
+#             imagepullsecrets: |
+#                 ${{ env.REGISTRY_SECRET_NAME }}
+#             namespace: ${{ env.NAMESPACE }}
 
-        - name: Deploy api ingress
-          uses: azure/k8s-deploy@v1
-          with:
-            manifests: |
-                manifest/ingress.yaml
-            namespace: ${{ env.NAMESPACE }}
+#         - name: Deploy api ingress
+#           uses: azure/k8s-deploy@v1
+#           with:
+#             manifests: |
+#                 manifest/ingress.yaml
+#             namespace: ${{ env.NAMESPACE }}

@@ -1,6 +1,8 @@
 FROM node:latest
 WORKDIR app/
-COPY . .
+COPY package.json .
+COPY package-lock.json .
+COPY ./src .
 RUN npm install
 EXPOSE 80
 

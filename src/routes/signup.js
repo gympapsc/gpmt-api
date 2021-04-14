@@ -7,16 +7,20 @@ const { dispatch, query } = require("../store")
 
 
 router.post("/signup", (req, res) => {
-    const user = req.body
-    
-    console.log(new Date(user.birthDate))
+    const {user} = req.body
 
     if(!user) {
         return res.status(400)
     }
  
-    bcrypt.hash(user.password, process.env.HASH_SALT_ROUNDS, (err, hash) => {
-        console.log(hash)
+
+    bcrypt.hash(user.password, parseInt(process.env.HASH_SALT_ROUNDS), (err, hash) => {
+        if(err) {
+            return res
+                .status(500)
+                .json({ err: "Server error"})
+        }
+
         dispatch(
             "CREATE_USER",
             {
@@ -31,8 +35,11 @@ router.post("/signup", (req, res) => {
                 role: 'client'
             },
             (err, user) => {
-                console.log(err, user)
-                if (err) return res.status(400)
+                // TODO validate incoming data
+
+                if (err) {
+                    return res.status(400)
+                }
                 jwt.sign({
                     user_id: user._id 
                 }, process.env.AUTH_SIGN_SECRET, (err, token) => {

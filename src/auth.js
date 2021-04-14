@@ -4,19 +4,19 @@ const { dispatch, query } = require("./store")
 const BearerStrategy = require("passport-http-bearer").Strategy
 
 
-passport.use(
-    new BearerStrategy(
-        (token, done) => {
-            jwt.verify(token, process.env.AUTH_SIGN_SECRET, (err, decoded) => {
-                if(err) return done(err)
-                query("USER", {_id: decoded.user_id}, (err, users) => {
-                    if(err) return done(err)
-                    done(null, users[0])
-                })
-            })
-        }
-    )
-)
+// passport.use(
+//     new BearerStrategy(
+//         (token, done) => {
+//             jwt.verify(token, process.env.AUTH_SIGN_SECRET, (err, decoded) => {
+//                 if(err) return done(err)
+//                 query("USER", {_id: decoded.user_id}, (err, users) => {
+//                     if(err) return done(err)
+//                     done(null, users[0])
+//                 })
+//             })
+//         }
+//     )
+// )
 
 const socketAuthMiddleware = (socket, next) => {
     const token = socket.handshake.auth.bearer
@@ -30,7 +30,6 @@ const socketAuthMiddleware = (socket, next) => {
             })
         })
     } else {
-        console.warn("Unauthenticated request")
         next(new Error("Invalid credentials"))
     }
 }
@@ -39,7 +38,7 @@ module.exports = {
     socketio: () =>  {
         return socketAuthMiddleware
     },
-    http: () => {
-        return passport.authenticate('bearer', {session: false})
-    }
+    // http: () => {
+    //     return passport.authenticate('bearer', {session: false})
+    // }
 }

@@ -8,11 +8,11 @@ const { dispatch, query } = require("../store")
 
 router.post("/signin", (req, res) => {
     const {email, password} = req.body
-    console.log(email, password)
     query(
         "USER",
         { email },
         (err, users) => {
+            if (err) return res.status(401)
             const user = users[0]
             bcrypt.compare(password, user.passwordHash)
                 .then(result => {

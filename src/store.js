@@ -24,22 +24,17 @@ const dispatch = (action, payload, ack) => {
             }, ack)
             break
         case "CREATE_MICTURITION":
-            console.log("CREATE_MICTURITION")
             Micturition.create({
-                // inject user id
-            }, (err, doc) => {
-                if (err) return ack(err)
-                ack(doc)
-            })
+                user: payload.user,
+                date: payload.date
+            }, ack)
             break
         case "CREATE_DRINKING":
-            console.log("CREATE_DRINKING")
             Drinking.create({
                 amount: payload.amount,
-                type: payload.type
-            }, (err, doc) => {
-                if (err) return ack(err)
-            })
+                date: payload.date,
+                user: payload.user
+            }, ack)
             break
         case "CREATE_USER":
             User.create({
@@ -47,7 +42,7 @@ const dispatch = (action, payload, ack) => {
             }, ack)
             break
         default:
-            ack(new Error('Unknown action ' + action), null)
+            throw new Error('Unknown action ' + action)
     }
 }
 
@@ -55,9 +50,6 @@ const query = (model, selector, cb) => {
     switch(model) {
         case "MESSAGE":
             Message.find(selector, cb)
-            break
-        case "CONVERSATION":
-            Conversation.find(selector, cb)
             break
         case "USER":
             User.find(selector, cb)
@@ -69,11 +61,7 @@ const query = (model, selector, cb) => {
             Micturition.find(selector, cb)
             break
         default:
-            console.warn("Unkown model")
-            cb({
-                err: "Query for unknown model type " + model
-            }, null)
-            break
+            throw new Error("Unknown model type " + model)
     }
 }
 
