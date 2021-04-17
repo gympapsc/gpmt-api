@@ -10,7 +10,12 @@ describe("rasa api", () => {
         app.post("/webhooks/rest/webhook", (req, res) => {
             const { message, sender } = req.body
             // echo back POST request
-            res.json(req.body)
+            res.json([
+                {
+                    text: message,
+                    recipient_id: sender
+                }
+            ])
         })
 
         server = app.listen(() => done())
@@ -28,6 +33,6 @@ describe("rasa api", () => {
             },
             text: "Hello"
         })
-        expect(res.data.message).toEqual("Hello")
+        expect(res).toEqual("Hello")
     })
 })

@@ -6,14 +6,14 @@ const userSchema = new Schema({
     passwordHash: { type: String, required: true },
     firstname: { type: String, required: true },
     surname: {type: String, required: true },
-    sex: { type: String, enum: ['m', 'w', 'd'], required: true },
+    sex: { type: String, enum: ["m", "w", "d"], required: true },
     weight: { type: Number, required: true },
     birthDate: { type: Date, required: true },
     height: { type: Number, required: true, min: 20, max: 300},
-    role: { type: String, enum: ['client', 'admin'], default: 'client' }
+    role: { type: String, enum: ["client", "admin"], default: "client" }
 }, {
     timestamps: {
-        createdAt: 'timestamp'
+        createdAt: "timestamp"
     }
 })
 

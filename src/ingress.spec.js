@@ -64,7 +64,7 @@ describe("socket ingress", () => {
         })
 
         clientSocket.on("ADD_MESSAGE", message => {
-            expect(dispatch)
+            expect(dispatch).toHaveBeenCalled()
         })
     })
 

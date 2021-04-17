@@ -19,6 +19,11 @@ module.exports = {
                 sender: user._id,
                 message: text
             })
+                .then(res => res.data)
+                .then(messages => {
+                    if(messages.length === 0) return ""
+                    if(messages[0].recipient_id == user._id) return messages[0].text
+                })
         }   
     }
 }

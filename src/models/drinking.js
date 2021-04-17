@@ -3,14 +3,14 @@ const { Schema } = mongoose
 
 
 const drinkingSchema = new Schema({
-    user: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
+    user: { type: Schema.Types.ObjectId, required: true, ref: "User" },
     date: { type: Date, default: Date.now },
     amount: { type: Number, required: true }
 }, {
     timestamps: {
-        createdAt: 'timestamp'
+        createdAt: "timestamp"
     }
 })
 
 
-module.exports = mongoose.model('Drinking', drinkingSchema, 'drinking')
+module.exports = mongoose.model("Drinking", drinkingSchema, "drinking")

@@ -30,9 +30,9 @@ router.post("/signup", (req, res) => {
                 email: user.email,
                 birthDate: new Date(user.birthDate),
                 weight: user.weight,
-                sex: 'm',
+                sex: "m",
                 height: user.height,
-                role: 'client'
+                role: "client"
             },
             (err, user) => {
                 // TODO validate incoming data

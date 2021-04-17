@@ -42,7 +42,7 @@ const dispatch = (action, payload, ack) => {
             }, ack)
             break
         default:
-            throw new Error('Unknown action ' + action)
+            throw new Error("Unknown action " + action)
     }
 }
 

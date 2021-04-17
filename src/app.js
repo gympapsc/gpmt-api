@@ -22,8 +22,8 @@ createIOServer(httpServer, [
 ], {
     cors: {
         // TODO set cors origin via env variable
-        origin: "http://localhost:5000",
-        methods: ["GET", "POST", "OPTIONS"],
+        origins: ["http://localhost:5000"],
+        methods: ["GET", "POST"],
         transports: ["polling", "websocket"]
     },
 })

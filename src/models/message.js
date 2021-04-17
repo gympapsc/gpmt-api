@@ -3,12 +3,12 @@ const { Schema } = mongoose
 
 
 const messageSchema = new Schema({
-    sender: { type: String, enum: ['user', 'bot'], default: 'user'},
+    sender: { type: String, enum: ["user", "bot"], default: "user"},
     text: { type: String, required: true },
-    user: { type: Schema.Types.ObjectId, ref: 'User' }
+    user: { type: Schema.Types.ObjectId, ref: "User" }
 }, {
     timestamps: {
-        createdAt: 'timestamp'
+        createdAt: "timestamp"
     }
 })
 
