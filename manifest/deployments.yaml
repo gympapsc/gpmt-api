@@ -14,9 +14,19 @@ spec:
         spec:
             containers:
             - name: gpmt-api
-              image: gpmtregistry.azurecr.io/gpmt-api:v1
+              # image: gpmtregistry.azurecr.io/gpmt-api:v1
+              image: hakrac/gpmt-api:v1
               imagePullPolicy: Always
+              env:
+              - name: AUTH_SIGN_SECRET 
+                value: "abc"
+              - name: HASH_SALT_ROUNDS
+                value: "10"
+              - name: PORT
+                value: "80"
+              - name: MONGO_URL
+                value: "gpmt-mongodb.default.svc.cluster.local"
               ports:
               - containerPort: 80
-            imagePullSecrets:
-            - name: registry-token
+            # imagePullSecrets:
+            # - name: registry-token

@@ -1,11 +1,24 @@
 const axios = require("axios")
 
+let client
+
 module.exports = {
-    init: () => {
+    init: baseURL => {
         // create axios client
+        client = axios.create({
+            baseURL: baseURL || process.env.RASA_URL,
+            headers: {
+                // TODO add AUTHENTICATION
+            }
+        }) 
     },
     addMessage: message => {
         const { user, text } = message
-        // get user id and send text to rasa rest api
+        if(client) {
+            return client.post("/webhooks/rest/webhook", {
+                sender: user._id,
+                message: text
+            })
+        }   
     }
 }

@@ -1,7 +1,7 @@
 controller:
     replicaCount: 2
     service:
-        # aquired through azure
+        # aquired through azure public ip service
         loadBalancerIP: "137.135.217.22"
         annotations:
             service.beta.kubernetes.io/azure-dns-label-name: "api-gpmt"

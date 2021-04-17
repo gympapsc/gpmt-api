@@ -20,6 +20,7 @@ const BearerStrategy = require("passport-http-bearer").Strategy
 
 const socketAuthMiddleware = (socket, next) => {
     const token = socket.handshake.auth.bearer
+    console.log(socket.handshake.auth.bearer + new Date())
     if (token) {
         jwt.verify(token, process.env.AUTH_SIGN_SECRET, (err, decoded) => {
             if (err) return console.log("Invalid JWT")

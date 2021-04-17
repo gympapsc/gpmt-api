@@ -13,6 +13,7 @@ router.post("/signin", (req, res) => {
         { email },
         (err, users) => {
             if (err) return res.status(401)
+            if (users.length === 0) return res.status(400)
             const user = users[0]
             bcrypt.compare(password, user.passwordHash)
                 .then(result => {
