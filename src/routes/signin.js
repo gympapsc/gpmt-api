@@ -16,8 +16,8 @@ router.post("/signin", (req, res) => {
             if (users.length === 0) return res.status(400)
             const user = users[0]
             bcrypt.compare(password, user.passwordHash)
-                .then(result => {
-                    if(result) {
+                .then(valid => {
+                    if(valid) {
                         jwt.sign({
                             user_id: user._id
                         },
@@ -28,8 +28,11 @@ router.post("/signin", (req, res) => {
                             })
                         })
                     } else {
-                        res.status(401)
+                        res
+                            .status(400)
+                            .json({ err: "Invalid credentials" })
                     }
+                    
                 })
         }
     )

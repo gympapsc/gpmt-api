@@ -23,3 +23,17 @@ spec:
       name: mongodb
     selector:
         app: gpmt-mongodb
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: gpmt-redis
+    labels:
+        app: gpmt-redis
+spec:
+    clusterIP: None
+    ports:
+    - port: 6379
+      name: redis
+    selector:
+        app: gpmt-redis

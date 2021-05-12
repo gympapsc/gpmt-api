@@ -89,6 +89,19 @@ describe("store dispatch", () => {
         })
     })
 
+    it("should UPDATE_USER", done => {
+        User.updateOne.mockImplementation((selector, update, cb) => cb())
+        dispatch("UPDATE_USER", {
+            _id: userMock._id,
+            user: {
+                email: "timmy@testing.com"
+            }
+        }, () => {
+            expect(User.updateOne).toHaveBeenCalledTimes(1)
+            done()
+        })
+    })
+
     it("should throw on unknown action", () => {
         expect(() => dispatch("DO_NOTHING", {})).toThrow()
     })

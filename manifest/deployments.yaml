@@ -15,7 +15,7 @@ spec:
             containers:
             - name: gpmt-api
               # image: gpmtregistry.azurecr.io/gpmt-api:v1
-              image: hakrac/gpmt-api:v2
+              image: hakrac/gpmt-api:latest
               imagePullPolicy: Always
               env:
               - name: AUTH_SIGN_SECRET 
@@ -28,6 +28,8 @@ spec:
                 value: "gpmt-mongodb.default.svc.cluster.local"
               - name: RASA_URL
                 value: "http://rasa-x-rasa-production.rasa.svc.cluster.local:5005"
+              - name: REDIS_URL
+                value: "redis://gpmt-redis.default.svc.cluster.local"
               ports:
               - containerPort: 80
             # imagePullSecrets:

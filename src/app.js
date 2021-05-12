@@ -8,7 +8,6 @@ const createIOServer = require("./io")
 const bearerAuth = require("./auth")
 const signinRouter = require("./routes/signin")
 const signupRouter = require("./routes/signup")
-
 const PORT = parseInt(process.env.PORT)
 
 const app = express()

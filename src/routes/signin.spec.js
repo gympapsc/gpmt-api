@@ -17,7 +17,7 @@ const userMock = {
     email: "timmy@taylor.com"
 }
 
-describe("sign in route", () => {
+describe("/signin route", () => {
     let app
 
     beforeAll(() => {
@@ -58,5 +58,22 @@ describe("sign in route", () => {
                 expect(res.body.bearer).toBeDefined()
                 done()
             })
+    })
+
+    it("should respond with err for invalid credentials", done => {
+        query.mockImplementation((model, selector, cb) => {
+            expect(selector.email).toBeDefined()
+            expect(selector.email).toEqual("timmy@taylor.com")
+            cb(null, [userMock])
+        })
+
+        request(app)
+            .post("/signin")
+            .send({ email: "timmy@taylor.com", password: "incorrect_password" })
+            .end((err, res) => {
+                expect(err).toBeNull()
+                expect(res.body.err).toBeDefined()
+                done()
+            })  
     })
 })

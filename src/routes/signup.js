@@ -7,13 +7,14 @@ const { dispatch, query } = require("../store")
 
 
 router.post("/signup", (req, res) => {
-    const {user} = req.body
-
-    if(!user) {
-        return res.status(400)
+    if(!req.body.user) {
+        return res
+            .status(400)
+            .json({ err: "user object is required"})
     }
- 
 
+    const {user} = req.body
+ 
     bcrypt.hash(user.password, parseInt(process.env.HASH_SALT_ROUNDS), (err, hash) => {
         if(err) {
             return res

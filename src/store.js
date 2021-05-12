@@ -1,10 +1,14 @@
+const {RedisPubSub} = require("@hakrac/redisutils")
 const {
     Message,
-    Conversation,
     User,
     Micturition,
     Drinking
 } = require("./models")
+
+const broker = new RedisPubSub({
+    redisUrl: process.env.REDIS_URL
+})
 
 
 const dispatch = (action, payload, ack) => {
@@ -24,12 +28,14 @@ const dispatch = (action, payload, ack) => {
             }, ack)
             break
         case "CREATE_MICTURITION":
+            console.log("CREATE_MICTURITION")
             Micturition.create({
                 user: payload.user,
                 date: payload.date
             }, ack)
             break
         case "CREATE_DRINKING":
+            console.log("CREATE_DRINKING")
             Drinking.create({
                 amount: payload.amount,
                 date: payload.date,
@@ -39,6 +45,13 @@ const dispatch = (action, payload, ack) => {
         case "CREATE_USER":
             User.create({
                 ...payload
+            }, ack)
+            break
+        case "UPDATE_USER":
+            User.updateOne({
+                _id: payload._id
+            }, {
+                ...payload.user
             }, ack)
             break
         default:
@@ -67,5 +80,6 @@ const query = (model, selector, cb) => {
 
 module.exports = {
     dispatch,
-    query
+    query,
+    broker
 }

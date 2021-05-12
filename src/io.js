@@ -10,9 +10,11 @@ const createIOServer = (httpServer, middlewares=[], options={}) => {
     }
     
     io.on("connection", socket => {
+        console.log("Socket connected")
+        socket.emit("test")
 
-        createIngress(socket)
-        createEgress(socket)
+        socket.on("disconnect", createIngress(socket))
+        socket.on("disconnect", createEgress(socket))
     
     })
 }

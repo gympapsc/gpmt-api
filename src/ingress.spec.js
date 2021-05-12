@@ -3,8 +3,10 @@ const { Server } = require("socket.io")
 const Client = require("socket.io-client")
 
 const { dispatch, query } = require("./store")
+const rasa = require("./rasa")
 
 jest.mock("./store")
+jest.mock("./rasa")
 
 const userMock = {
     firstname: "timmy",
@@ -21,7 +23,7 @@ const createIngress = require("./ingress")
 describe("socket ingress", () => {
     let io, serverSocket, clientSocket
 
-    beforeAll(done => {
+    beforeEach(done => {
         const httpServer = http.createServer()
         io = new Server(httpServer)
 
@@ -42,17 +44,20 @@ describe("socket ingress", () => {
         })
     })
 
-    afterAll(() => {
-        io.close()
-        clientSocket.close()
-    })
 
     afterEach(() => {
+        io.close()
+        clientSocket.close()
         dispatch.mockClear()
         query.mockClear()
+        rasa.init.mockClear()
+        rasa.addMessage.mockClear()
     })
 
     it("should dispatch ADD_USER_MESSAGE", done => {
+        rasa.addMessage.mockResolvedValue("hello from rasa")
+        dispatch.mockImplementation((action, payload, ack) => ack(null, {}))
+
         clientSocket.emit("ADD_MESSAGE", {
             text: "hello world"
         }, message => {
@@ -60,12 +65,10 @@ describe("socket ingress", () => {
             expect(dispatch.mock.calls[0][0]).toEqual("ADD_USER_MESSAGE")
             expect(dispatch.mock.calls[0][1].text).toEqual("hello world")
             expect(dispatch.mock.calls[0][1].user).toEqual(userMock)
+            expect(dispatch.mock.calls[1][0]).toEqual("ADD_BOT_MESSAGE")
             done()
         })
 
-        clientSocket.on("ADD_MESSAGE", message => {
-            expect(dispatch).toHaveBeenCalled()
-        })
     })
 
     it("should query USER for user info", done => {
@@ -91,6 +94,31 @@ describe("socket ingress", () => {
             expect(query).toHaveBeenCalled()
             expect(query.mock.calls[0][0]).toEqual("MICTURITION")
             expect(query.mock.calls[0][1].user).toBeDefined()
+            done()
+        })
+    })
+
+    it("should update user on UPDATE_USER", done => {
+        let userUpdate = {
+            email: "timmy@testing.com"
+        }
+        dispatch.mockImplementation((action, payload, ack) => ack())
+        query.mockImplementation((model, selection, cb) => cb(null, [{ ...userMock, ...userUpdate }]))
+
+        clientSocket.emit("UPDATE_USER", userUpdate, () => {
+            expect(query).toHaveBeenCalled()
+            expect(dispatch).toHaveBeenCalled()
+            done()
+        })
+    })
+
+    it("should update password on UPDATE_PASSWORD", done => {
+        let passwordUpdate = "password"
+        dispatch.mockImplementation((action, payload, ack) => ack())
+
+        clientSocket.emit("UPDATE_PASSWORD", passwordUpdate, () => {
+            expect(query).toHaveBeenCalled()
+            expect(dispatch).toHaveBeenCalled()
             done()
         })
     })

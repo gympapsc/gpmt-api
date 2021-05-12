@@ -27,7 +27,7 @@ const userMock = {
     email: "timmy@taylor.com"
 }
 
-describe("sign up route", () => {
+describe("/signup route", () => {
     let app
 
     beforeAll(() => {
@@ -68,6 +68,17 @@ describe("sign up route", () => {
                 expect(err).toBeNull()
                 expect(dispatch).toBeCalledTimes(1)
                 expect(dispatch.mock.calls[0][0]).toEqual("CREATE_USER")
+                done()
+            })
+    })
+
+    it("should return bad request (400) on missing user", done => {
+        request(app)
+            .post("/signup")
+            .end((err, res) => {
+                expect(err).toBeNull()
+                expect(dispatch).toBeCalledTimes(0)
+                expect(res.status).toEqual(400)
                 done()
             })
     })
