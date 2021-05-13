@@ -3,13 +3,14 @@ const {
     Message,
     User,
     Micturition,
-    Drinking
+    Drinking,
+    Questionnaire,
+    Answer
 } = require("./models")
 
 const broker = new RedisPubSub({
     redisUrl: process.env.REDIS_URL
 })
-
 
 const dispatch = (action, payload, ack) => {
     switch(action) {
@@ -54,6 +55,14 @@ const dispatch = (action, payload, ack) => {
                 ...payload.user
             }, ack)
             break
+        case "ANSWER_QUESTION":
+            // TODO if answer for user for question exists update answer
+            Answer.create({
+                user: payload.user,
+                answer: payload.answer,
+                question: payload.question
+            }, ack)
+            break
         default:
             throw new Error("Unknown action " + action)
     }
@@ -73,6 +82,9 @@ const query = (model, selector, cb) => {
         case "MICTURITION":
             Micturition.find(selector, cb)
             break
+        case "QUESTIONNAIRE":
+            Questionnaire.find(selector, cb)
+            break 
         default:
             throw new Error("Unknown model type " + model)
     }

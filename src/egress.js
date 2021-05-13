@@ -35,6 +35,15 @@ broker.on("ADD_MICTURITION", micturition => {
     })
 })
 
+broker.on("SET_MICTURITION_PREDICTION", p => {
+    let {predicitions, user} = JSON.parse(p)
+    query("USER", {_id: user}, (err, users) => {
+        dispatch("SET_MICTURITION_PREDICTION", predicitions, (err, inserted) => {
+            // load and send inserted predictions
+        })
+    })
+})
+
 module.exports = socket => {
     // register socket to user event
     console.log(socket.user._id)
@@ -69,6 +78,10 @@ module.exports = socket => {
                     ...message
                 })
                 break
+            case "SET_MICTURITION_PREDICTION":
+                socket.emit("SET_MICTURITION_PREDICTION", {
+                    predictions: message.predicitions
+                })
             default:
                 return
         }

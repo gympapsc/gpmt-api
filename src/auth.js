@@ -1,4 +1,6 @@
 const jwt = require("jsonwebtoken")
+const passport = require("passport")
+const BearerStrategy = require("passport-http-bearer").Strategy
 const { dispatch, query } = require("./store")
 
 const socketAuthMiddleware = (socket, next) => {
@@ -18,6 +20,7 @@ const socketAuthMiddleware = (socket, next) => {
         next(new Error("Invalid credentials"))
     }
 }
+
 
 module.exports = {
     socketio: () =>  {

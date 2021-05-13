@@ -8,6 +8,8 @@ const createIOServer = require("./io")
 const bearerAuth = require("./auth")
 const signinRouter = require("./routes/signin")
 const signupRouter = require("./routes/signup")
+const questionnaireRouter = require("./routes/questionnaire")
+
 const PORT = parseInt(process.env.PORT)
 
 const app = express()
@@ -35,6 +37,7 @@ app.use(express.json())
 
 app.use(signinRouter)
 app.use(signupRouter)
+app.use(questionnaireRouter)
 
 httpServer.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`)

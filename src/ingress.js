@@ -54,6 +54,15 @@ module.exports = socket => {
         })
     })
 
+    socket.on("GET_MICTURITION_PREDICTION", ({startDate}, ack) => {
+        console.log("Received GET_MICTURITION_PREDICTION")
+        query("MICTURITION_PREDICTION", { user: socket.user }, (err, predictions) => {
+            if(err) return ack({ err })
+            console.log("MICTURITION predictions", predictions)
+            ack(predictions)
+        })
+    })
+
     socket.on("GET_DRINKING", ({ startDate }, ack) => {
         console.log("Received GET_DRINKING")
         query("DRINKING", { user: socket.user }, (err, entries) => {
