@@ -88,6 +88,9 @@ const dispatch = (action, payload, ack) => {
         case "DELETE_ALL_PHOTOS":
             Photo.remove({}, ack)
             break
+        case "UPDATE_DRINKING":
+            Drinking.updateOne(payload.q, payload.u, {}, ack)
+            break
         default:
             throw new Error("Unknown action " + action)
     }

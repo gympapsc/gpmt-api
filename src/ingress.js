@@ -49,7 +49,6 @@ module.exports = socket => {
         console.log("Received GET_MICTURITION")
         query("MICTURITION", { user: socket.user }, (err, entries) => {
             if(err) return ack({err})
-            console.log("MICTURITION entries ", entries)
             ack(entries)
         })
     })
@@ -58,7 +57,6 @@ module.exports = socket => {
         console.log("Received GET_MICTURITION_PREDICTION")
         query("MICTURITION_PREDICTION", { user: socket.user }, (err, predictions) => {
             if(err) return ack({ err })
-            console.log("MICTURITION predictions", predictions)
             ack(predictions)
         })
     })
@@ -67,7 +65,6 @@ module.exports = socket => {
         console.log("Received GET_DRINKING")
         query("DRINKING", { user: socket.user }, (err, entries) => {
             if(err) return ack({err})
-            console.log("DRINKING entries ", entries)
             ack(entries)
         })
     })
@@ -75,6 +72,14 @@ module.exports = socket => {
     socket.on("GET_USER_INFO", ack => {
         console.log("Received GET_USER_INFO")
         ack(socket.user)
+    })
+
+    socket.on("UPDATE_DRINKING", ({ date, amount, _id}, ack) => {
+        console.log("UPDATE_DRINKING")
+        dispatch("UPDATE_DRINKING", { q: {user: socket.user, _id}, u: { date, amount }}, (err, doc) => {
+            if(err) return ack({ok: false})
+            ack({ok:true})
+        })
     })
 
     socket.on("UPDATE_USER", (user, ack) => {
