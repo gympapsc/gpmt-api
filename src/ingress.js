@@ -1,7 +1,8 @@
 const socketio = require("socket.io")
-const bcrypt = require("bcrypt")
 const rasa = require("./rasa")
-const { dispatch, query, broker} = require("./store")
+const bcrypt = require("bcrypt")
+const { dispatch, query } = require("./store")
+
 
 rasa.init()
 
@@ -9,31 +10,30 @@ module.exports = socket => {
 
     socket.on("ADD_MESSAGE", ({ text }, ack) => {
         console.log("Received ADD_MESSAGE")
-        dispatch("ADD_USER_MESSAGE", { text, user: socket.user }, (err, doc) => {
-            if (err) return ack({err})
-            ack({
-                ok: true
+        dispatch("ADD_USER_MESSAGE", { user: socket.user,  text }, (err, doc) => {
+            
+            socket.emit("ADD_MESSAGE", {
+                sender: "user",
+                text: doc.text,
+                timestamp: doc.timestamp
             })
 
-            broker.emit(socket.user._id.toString(), JSON.stringify({
-                type: "ADD_MESSAGE",
-                timestamp: doc.timestamp,
-                text: doc.text,
-                sender: doc.sender
-            }))
-
-            rasa.addMessage({ text, user: socket.user })
-                .then(botMessage => {
-                    if(botMessage === "") return console.log(socket.user._id, " BOT had no respone")
-                    dispatch("ADD_BOT_MESSAGE", { text: botMessage, user: socket.user }, (err, doc) => {
-                        broker.emit(socket.user._id.toString(), JSON.stringify({
-                            type: "ADD_MESSAGE",
-                            timestamp: doc.timestamp,
-                            text: doc.text,
-                            sender: doc.sender
-                        }))
-                    })
+            rasa.addMessage({user: doc.user, text})
+                .then(messages => {
+                    if(messages) {
+                        // TODO make async
+                        for(let m of messages) {
+                            dispatch("ADD_BOT_MESSAGE", {user: socket.user, text: m}, (err, doc) => {
+                                socket.emit("ADD_MESSAGE", {
+                                    sender: "bot",
+                                    text: doc.text,
+                                    timestamp: doc.timestamp
+                                })
+                            })
+                        }
+                    }
                 })
+
         })
     })
 

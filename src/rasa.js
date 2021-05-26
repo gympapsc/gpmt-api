@@ -10,7 +10,7 @@ module.exports = {
             headers: {
                 // TODO add AUTHENTICATION
             }
-        }) 
+        })
     },
     addMessage: message => {
         const { user, text } = message
@@ -22,7 +22,7 @@ module.exports = {
                 .then(res => res.data)
                 .then(messages => {
                     if(messages.length === 0) return ""
-                    if(messages[0].recipient_id == user._id) return messages[0].text
+                    if(messages.every(m => m.recipient_id == user._id)) return messages.map(m => m.text)
                 })
         }   
     }

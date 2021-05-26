@@ -4,6 +4,7 @@ const Micturition = require("./micturition")
 const Drinking = require("./drinking")
 const Questionnaire = require("./questionnaire")
 const Answer = require("./answer")
+const Photo = require("./photo")
 // const Nutrition = require("./nutrition")
 
 module.exports = { 
@@ -13,5 +14,6 @@ module.exports = {
     Answer,
     Questionnaire,
     Drinking,
-    Message
+    Message,
+    Photo
 }

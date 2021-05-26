@@ -2,7 +2,8 @@ const mongoose = require("mongoose")
 
 // tree structure of questions
 const questionnaireSchema = new mongoose.Schema({
-    question: { type: String, required: true },
+    name: {type: String, unique: true, required: true },
+    root: {type: Boolean, default: false },
     type: { type: String, enum: ["numerical", "radio", "string"], required: true },
     options: [{
         text: { type: String, required: true }

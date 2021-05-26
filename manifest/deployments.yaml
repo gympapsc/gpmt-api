@@ -32,5 +32,13 @@ spec:
                 value: "redis://gpmt-redis.default.svc.cluster.local"
               ports:
               - containerPort: 80
-            # imagePullSecrets:
-            # - name: registry-token
+              volumeMounts:
+              - name: "gpmt-photo"
+                mountPath: /data/gpmt-photo
+              # imagePullSecrets:
+              # - name: registry-token
+            volumes:
+            - name: gpmt-photo
+              persistentVolumeClaim:
+                claimName: gpmt-photo-pvc
+            

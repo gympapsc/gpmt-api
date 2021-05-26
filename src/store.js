@@ -1,16 +1,25 @@
-const {RedisPubSub} = require("@hakrac/redisutils")
+const {RedisPubSub, RedisStream} = require("@hakrac/redisutils")
+const EventEmitter = require("events")
 const {
     Message,
     User,
     Micturition,
     Drinking,
     Questionnaire,
-    Answer
+    Answer,
+    Photo
 } = require("./models")
 
-const broker = new RedisPubSub({
-    redisUrl: process.env.REDIS_URL
-})
+const actionStream = new RedisStream(
+    "actions",
+    "gpmt-api",
+    process.env.HOSTNAME,
+    {
+        redisUrl: process.env.REDIS_URL
+    }
+)
+
+const userStream = new EventEmitter()
 
 const dispatch = (action, payload, ack) => {
     switch(action) {
@@ -55,6 +64,13 @@ const dispatch = (action, payload, ack) => {
                 ...payload.user
             }, ack)
             break
+        case "USER_SETUP_COMPLETE":
+            User.updateOne({
+                _id: payload._id
+            }, {
+                setupCompleted: true
+            }, ack)
+            break
         case "ANSWER_QUESTION":
             // TODO if answer for user for question exists update answer
             Answer.create({
@@ -62,6 +78,15 @@ const dispatch = (action, payload, ack) => {
                 answer: payload.answer,
                 question: payload.question
             }, ack)
+            break
+        case "CREATE_PHOTO":
+            Photo.create({
+                user: payload.user,
+                name: payload.name
+            }, ack)
+            break
+        case "DELETE_ALL_PHOTOS":
+            Photo.remove({}, ack)
             break
         default:
             throw new Error("Unknown action " + action)
@@ -85,13 +110,38 @@ const query = (model, selector, cb) => {
         case "QUESTIONNAIRE":
             Questionnaire.find(selector, cb)
             break 
+        case "PHOTO":
+            Photo.find(selector, cb)
+            break
         default:
             throw new Error("Unknown model type " + model)
     }
 }
 
+Questionnaire.deleteMany({})
+    .then(() => {
+        Questionnaire.create({
+            root: true,
+            type: "string",
+            name: "disease",
+            next: [
+                // {
+                //     condition: "ms",
+                //     question: new Questionnaire({
+                //         type: "string",
+                //         name: "form_stress",
+                //         next: [],
+                //         options: []
+                //     })
+                // }
+            ],
+            options: []
+        })
+    })
+
 module.exports = {
     dispatch,
     query,
-    broker
+    actionStream,
+    userStream
 }

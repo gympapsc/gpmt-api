@@ -26,4 +26,3 @@ spec:
                 name: gpmt-api
                 port:
                   number: 80
-        
