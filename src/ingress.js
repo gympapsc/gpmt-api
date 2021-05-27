@@ -1,7 +1,7 @@
 const socketio = require("socket.io")
 const rasa = require("./rasa")
 const bcrypt = require("bcrypt")
-const { dispatch, query } = require("./store")
+const { dispatch, query, userStream} = require("./store")
 
 
 rasa.init()
@@ -76,9 +76,18 @@ module.exports = socket => {
 
     socket.on("UPDATE_DRINKING", ({ date, amount, _id}, ack) => {
         console.log("UPDATE_DRINKING")
-        dispatch("UPDATE_DRINKING", { q: {user: socket.user, _id}, u: { date, amount }}, (err, doc) => {
+        dispatch("UPDATE_DRINKING", { user: socket.user, _id, date, amount }, (err, doc) => {
             if(err) return ack({ok: false})
             ack({ok:true})
+        })
+    })
+
+
+    socket.on("UPDATE_MICTURITION", ({ date, _id }, ack) => {
+        console.log("UPDATE_MICTURITION")
+        dispatch("UPDATE_MICTURITION", { user: socket.user, _id, date}, (err, doc) => {
+            if(err) return ack({ok: false})
+            ack({ok: true})
         })
     })
 
@@ -91,7 +100,7 @@ module.exports = socket => {
                     ok: true
                 })
 
-                broker.emit(socket.user._id, JSON.stringify({
+                userStream.emit(socket.user._id, JSON.stringify({
                     type: "UPDATE_USER",
                     ...socket.user
                 }))

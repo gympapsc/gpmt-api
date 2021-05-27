@@ -89,7 +89,21 @@ const dispatch = (action, payload, ack) => {
             Photo.remove({}, ack)
             break
         case "UPDATE_DRINKING":
-            Drinking.updateOne(payload.q, payload.u, {}, ack)
+            Drinking.updateOne({
+                user: payload.user,
+                _id: payload._id
+            }, {
+                amount: payload.amount,
+                date: payload.date
+            }, ack)
+            break
+        case "UPDATE_MICTURITION":
+            Micturition.updateOne({
+                user: payload.user,
+                _id: payload._id
+            }, {
+                date: payload.date
+            }, ack)
             break
         default:
             throw new Error("Unknown action " + action)
