@@ -12,6 +12,9 @@ const emailRouter = require("./routes/email")
 const photoRouter = require("./routes/photo")
 const questionnaireRouter = require("./routes/questionnaire")
 
+const adminSigninRouter = require("./admin/signin")
+const adminQuestionnaireRouter = require("./admin/questionnaire")
+
 const PORT = parseInt(process.env.PORT)
 
 const app = express()
@@ -26,7 +29,7 @@ createIOServer(httpServer, [
     cors: {
         // TODO set redis adapter
         // TODO set cors origin via env variable
-        origins: ["http://localhost:5000"],
+        origins: ["http://localhost:5000", "http://localhost:4000"],
         methods: ["GET", "POST"],
         transports: ["polling", "websocket"]
     },
@@ -34,7 +37,8 @@ createIOServer(httpServer, [
 
 app.use(cors({
     // TODO set cors origin via env variable
-    origin: "http://localhost:5000"
+    // origin: "http://localhost:5000"
+    origin: "http://localhost:4000"
 }))
 app.use(express.json())
 app.use(passport.initialize())
@@ -42,8 +46,11 @@ app.use(passport.initialize())
 app.use(signinRouter)
 app.use(signupRouter)
 app.use("/email", emailRouter)
-app.use("/photo", bearerAuth.http, photoRouter)
-app.use("/questionnaire", bearerAuth.http, questionnaireRouter)
+app.use("/photo", bearerAuth.http("user"), photoRouter)
+app.use("/questionnaire", bearerAuth.http("user"), questionnaireRouter)
+
+app.use("/admin/signin", adminSigninRouter)
+app.use("/admin/questionnaire", bearerAuth.http("admin"), adminQuestionnaireRouter)
 
 httpServer.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`)

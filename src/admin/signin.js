@@ -4,15 +4,16 @@ const bcrypt = require("bcrypt")
 const router = express.Router()
 const { dispatch, query } = require("../store")
 
+// TEMPORARY
 
-router.post("/signin", (req, res) => {
-    const {email, password} = req.body
+router.post("/", (req, res) => {
+    const {password} = req.body
     query(
-        "USER",
-        { email },
+        "ADMIN",
+        {},
         (err, users) => {
-            if (err) return res.status(401)
-            if (users.length === 0) return res.status(400)
+            if (err) return res.status(403)
+            if (users.length === 0) return res.status(403)
             const user = users[0]
             bcrypt.compare(password, user.passwordHash)
                 .then(valid => {
@@ -29,7 +30,7 @@ router.post("/signin", (req, res) => {
                     } else {
                         res
                             .status(400)
-                            .json({ err: "Invalid credentials" })
+                            .json({ err: "Invalid credentials", ok: false })
                     }
                     
                 })

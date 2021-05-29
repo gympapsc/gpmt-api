@@ -31,11 +31,29 @@ actionStream.on("ADD_MICTURITION", micturition => {
                 console.log("Egress emiting ADD_MICTURITION")
     
                 // emit user event
-                broker.emit(doc.user._id.toString(), {
+                userStream.emit(doc.user._id.toString(), {
                     type: "ADD_MICTURITION",
                     date: doc.date,
                     timestamp: doc.timestamp,
                     _id: doc._id
+                })
+            })
+        }
+    })
+})
+
+actionStream.on("ADD_STRESS", stress => {
+    console.log("ADD_STRESS", stress)
+    query("USER", {_id: stress.user}, (err, users) => {
+        if(users && users[0]) {
+            dispatch("CREATE_STRESS", {user: users[0], date: new Date(stress.date), level: stress.level}, (err, doc) => {
+                
+                userStream.emit(doc.user._id.toString(), {
+                    type: "ADD_STRESS",
+                    date: doc.date,
+                    timestamp: doc.timestamp,
+                    _id: doc._id,
+                    level: doc.level
                 })
             })
         }
@@ -88,6 +106,14 @@ module.exports = socket => {
             case "UPDATE_USER":
                 socket.emit("UPDATE_USER", {
                     ...message
+                })
+                break
+            case "ADD_STRESS":
+                socket.emit("ADD_STRESS", {
+                    timestamp: message.timestamp,
+                    level: message.level,
+                    date: message.date,
+                    _id: message._id
                 })
                 break
             case "SET_MICTURITION_PREDICTION":

@@ -17,6 +17,7 @@ passport.use(
     )
 )
 
+
 const socketAuthMiddleware = (socket, next) => {
     const token = socket.handshake.auth.bearer
     console.log("Socket auth handshake ", socket.handshake.auth)
@@ -40,5 +41,26 @@ module.exports = {
     socketio: () =>  {
         return socketAuthMiddleware
     },
-    http: passport.authenticate("bearer", { session: false })
+    http: role => {
+        return (req, res, next) => {
+            passport.authenticate("bearer", (err, user, info) => {
+                if(err) return next(err)
+                if(user) {
+                    if(user.role === role) {
+                        req.user = user
+                        return next()
+                    } else {
+                        return res.json(403, {
+                            err: "Unauthorized request",
+                            ok: false
+                        })
+                    }
+                } 
+                return res.json(403, {
+                    err: "Unauthorized request",
+                    ok: false
+                })
+            })(req, res, next)
+        }
+    }
 }

@@ -69,9 +69,37 @@ module.exports = socket => {
         })
     })
 
+    socket.on("GET_STRESS", ({ startDate }, ack) => {
+        console.log("Received GET_STRESS")
+        query("STRESS", {user: socket.user}, (err, entries) => {
+            if(err) return ack({err})
+            ack(entries)
+        })
+    })
+
     socket.on("GET_USER_INFO", ack => {
         console.log("Received GET_USER_INFO")
-        ack(socket.user)
+        let {
+            firstname,
+            surname,
+            birthDate,
+            email,
+            height,
+            weight,
+            sex,
+            timestamp
+        } = socket.user
+
+        ack({
+            firstname,
+            surname,
+            birthDate,
+            email,
+            height,
+            weight,
+            sex,
+            timestamp
+        })
     })
 
     socket.on("UPDATE_DRINKING", ({ date, amount, _id}, ack) => {
@@ -91,6 +119,13 @@ module.exports = socket => {
         })
     })
 
+    socket.on("UPDATE_STRESS", ({date, level, _id}, ack) => {
+        dispatch("UPDATE_STRESS", { user: socket.user, _id, date, level }, (err, doc) => {
+            if(err) return ack({ ok: false })
+            ack({ok: true})
+        })
+    })
+
     socket.on("UPDATE_USER", (user, ack) => {
         dispatch("UPDATE_USER", { user, _id: socket.user._id }, (err, doc) => {
             if(err) return ack({ err })
@@ -102,7 +137,7 @@ module.exports = socket => {
 
                 userStream.emit(socket.user._id, JSON.stringify({
                     type: "UPDATE_USER",
-                    ...socket.user
+                    ...user
                 }))
 
             })

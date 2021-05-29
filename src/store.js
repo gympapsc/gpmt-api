@@ -1,5 +1,6 @@
-const {RedisPubSub, RedisStream} = require("@hakrac/redisutils")
+const {RedisStream} = require("@hakrac/redisutils")
 const EventEmitter = require("events")
+const bcrypt = require("bcrypt")
 const {
     Message,
     User,
@@ -7,7 +8,8 @@ const {
     Drinking,
     Questionnaire,
     Answer,
-    Photo
+    Photo,
+    Stress
 } = require("./models")
 
 const actionStream = new RedisStream(
@@ -64,13 +66,6 @@ const dispatch = (action, payload, ack) => {
                 ...payload.user
             }, ack)
             break
-        case "USER_SETUP_COMPLETE":
-            User.updateOne({
-                _id: payload._id
-            }, {
-                setupCompleted: true
-            }, ack)
-            break
         case "ANSWER_QUESTION":
             // TODO if answer for user for question exists update answer
             Answer.create({
@@ -105,6 +100,28 @@ const dispatch = (action, payload, ack) => {
                 date: payload.date
             }, ack)
             break
+        case "UPDATE_QUESTION":
+            Questionnaire.updateOne({
+                _id: payload._id
+            }, {
+                ...payload
+            }, ack)
+            break
+        case "CREATE_STRESS":
+            Stress.create({
+                user: payload.user,
+                level: payload.level,
+                date: payload.date
+            }, ack)
+            break
+        case "UPDATE_STRESS":
+            Stress.updateOne({
+                _id: payload._id
+            }, {
+                level: payload.level,
+                date: payload.date
+            }, ack)
+            break
         default:
             throw new Error("Unknown action " + action)
     }
@@ -116,7 +133,10 @@ const query = (model, selector, cb) => {
             Message.find(selector, cb)
             break
         case "USER":
-            User.find(selector, cb)
+            User.find({
+                ...selector,
+                role: "user"
+            }, cb)
             break
         case "DRINKING":
             Drinking.find(selector, cb)
@@ -129,6 +149,15 @@ const query = (model, selector, cb) => {
             break 
         case "PHOTO":
             Photo.find(selector, cb)
+            break
+        case "ADMIN":
+            User.find({
+                ...selector,
+                role: "admin"
+            })
+            break
+        case "STRESS":
+            Stress.find(selector, cb)
             break
         default:
             throw new Error("Unknown model type " + model)
@@ -153,6 +182,21 @@ Questionnaire.deleteMany({})
                 // }
             ],
             options: []
+        })
+    })
+
+User.deleteOne({ role: "admin "})
+    .then(() => {
+        User.create({
+            role: "admin",
+            email: "hakim@admin.com",
+            firstname: "hakim",
+            surname: "rachidi",
+            sex: "m",
+            weight: 80,
+            height: 180,
+            passwordHash: bcrypt.hashSync("password", parseInt(process.env.HASH_SALT_ROUNDS)),
+            birthDate: new Date(2002, 8, 12)
         })
     })
 
