@@ -126,6 +126,27 @@ module.exports = socket => {
         })
     })
 
+    socket.on("DELETE_STRESS", ({_id}, ack) => {
+        dispatch("DELETE_STRESS", { user: socket.user, _id}, (err, doc) => {
+            if(err) return ack({ ok: false })
+            ack({ok: true})
+        })
+    })
+
+    socket.on("DELETE_MICTURITION", ({_id}, ack) => {
+        dispatch("DELETE_MICTURITION", { user: socket.user, _id}, (err, doc) => {
+            if(err) return ack({ ok: false })
+            ack({ok: true})
+        })
+    })
+
+    socket.on("DELETE_DRINKING", ({_id}, ack) => {
+        dispatch("DELETE_DRINKING", { user: socket.user, _id}, (err, doc) => {
+            if(err) return ack({ ok: false })
+            ack({ok: true})
+        })
+    })
+
     socket.on("UPDATE_USER", (user, ack) => {
         dispatch("UPDATE_USER", { user, _id: socket.user._id }, (err, doc) => {
             if(err) return ack({ err })

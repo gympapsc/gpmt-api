@@ -37,11 +37,17 @@ createIOServer(httpServer, [
 
 app.use(cors({
     // TODO set cors origin via env variable
-    // origin: "http://localhost:5000"
-    origin: "http://localhost:4000"
+    origin: ["http://localhost:5000", "http://localhost:4000"]
+    // origin: "http://localhost:4000"
 }))
 app.use(express.json())
 app.use(passport.initialize())
+
+app.get("/", (req, res) => {
+    res.json({
+        test: true
+    })
+})
 
 app.use(signinRouter)
 app.use(signupRouter)

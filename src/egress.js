@@ -6,7 +6,7 @@ actionStream.on("ADD_DRINKING", d => {
     let { user, date, amount } = d
     query("USER", {_id: user}, (err, users) => {
         if(users && users[0]) {
-            dispatch("CREATE_DRINKING", { user: users[0], date: new Date(date), amount: parseInt(amount)}, (err, doc) => {
+            dispatch("CREATE_DRINKING", { user: users[0], date: new Date(date[1] || date[0]), amount: amount}, (err, doc) => {
                 console.log("Egress emiting ADD_DRINKING")
                 
                 // emit user event
@@ -22,12 +22,12 @@ actionStream.on("ADD_DRINKING", d => {
     })
 })
 
-actionStream.on("ADD_MICTURITION", micturition => {
-    console.log("ADD_MICTURITION ", micturition)
-    let m = micturition
-    query("USER", {_id: m.user}, (err, users) => {
+actionStream.on("ADD_MICTURITION", m => {
+    console.log("ADD_MICTURITION ", m)
+    let { date, user } = m
+    query("USER", {_id: user}, (err, users) => {
         if(users && users[0]) {
-            dispatch("CREATE_MICTURITION", {user: users[0], date: new Date(m.date)}, (err, doc) => {
+            dispatch("CREATE_MICTURITION", {user: users[0], date: new Date(date[1] || date[0])}, (err, doc) => {
                 console.log("Egress emiting ADD_MICTURITION")
     
                 // emit user event
@@ -44,10 +44,10 @@ actionStream.on("ADD_MICTURITION", micturition => {
 
 actionStream.on("ADD_STRESS", stress => {
     console.log("ADD_STRESS", stress)
-    query("USER", {_id: stress.user}, (err, users) => {
+    let { level, date, user } = stress
+    query("USER", {_id: user}, (err, users) => {
         if(users && users[0]) {
-            dispatch("CREATE_STRESS", {user: users[0], date: new Date(stress.date), level: stress.level}, (err, doc) => {
-                
+            dispatch("CREATE_STRESS", {user: users[0], date: new Date(date[1] || date[0]), level}, (err, doc) => { 
                 userStream.emit(doc.user._id.toString(), {
                     type: "ADD_STRESS",
                     date: doc.date,

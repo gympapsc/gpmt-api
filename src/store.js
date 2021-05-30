@@ -122,6 +122,21 @@ const dispatch = (action, payload, ack) => {
                 date: payload.date
             }, ack)
             break
+        case "DELETE_DRINKING":
+            Drinking.deleteOne({
+                _id: payload._id
+            }, ack)
+            break
+        case "DELETE_MICTURITION":
+            Micturition.deleteOne({
+                _id: payload._id
+            }, ack)
+            break
+        case "DELETE_STRESS":
+            Stress.deleteOne({
+                _id: payload._id
+            }, ack)
+            break
         default:
             throw new Error("Unknown action " + action)
     }
@@ -133,16 +148,18 @@ const query = (model, selector, cb) => {
             Message.find(selector, cb)
             break
         case "USER":
-            User.find({
-                ...selector,
-                role: "user"
-            }, cb)
+            User.find(
+                selector
+            , cb)
             break
         case "DRINKING":
             Drinking.find(selector, cb)
             break
         case "MICTURITION":
             Micturition.find(selector, cb)
+            break
+        case "STRESS":
+            Stress.find(selector, cb)
             break
         case "QUESTIONNAIRE":
             Questionnaire.find(selector, cb)
@@ -154,10 +171,7 @@ const query = (model, selector, cb) => {
             User.find({
                 ...selector,
                 role: "admin"
-            })
-            break
-        case "STRESS":
-            Stress.find(selector, cb)
+            }, cb)
             break
         default:
             throw new Error("Unknown model type " + model)

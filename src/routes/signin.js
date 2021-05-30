@@ -11,6 +11,7 @@ router.post("/signin", (req, res) => {
         "USER",
         { email },
         (err, users) => {
+            console.log(err, users)
             if (err) return res.status(401)
             if (users.length === 0) return res.status(400)
             const user = users[0]

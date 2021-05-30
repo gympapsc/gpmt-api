@@ -16,9 +16,12 @@ const { dispatch, query } = require("../store")
 //     })
 // })
 
-// router.get("/tree", (req, res) => {
-//     // LOAD complete tree
-// })
+router.get("/tree", (req, res) => {
+    query("QUESTIONNAIRE", { root: true }, (err, questions) => {
+        let root = questions[0]
+        let currNode = root
+    })
+})
 
 // router.get("/:id", (req, res) => {
 //     const _id = req.params.id

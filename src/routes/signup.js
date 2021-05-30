@@ -33,7 +33,7 @@ router.post("/signup", (req, res) => {
                 weight: user.weight,
                 sex: "m",
                 height: user.height,
-                role: "client"
+                role: "user"
             },
             (err, user) => {
                 // TODO validate incoming data
