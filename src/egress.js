@@ -76,9 +76,9 @@ actionStream.on("ANSWER_QUESTION", (a) => {
     })
 })
 
-module.exports = socket => {
+module.exports = (io, socket) => {
 
-    userStream.on(socket.user._id.toString(), message => {
+    let cb = message => {
         console.log("USER EVENT", message)
         switch(message.type) {
             case "ADD_MICTURITION":
@@ -130,10 +130,11 @@ module.exports = socket => {
             default:
                 return
         }
-    })
+    }
+
+    userStream.on(socket.user._id.toString(), cb)
 
     return () => {
-        // on disconnect
-        // TODO disconnect user event listener
+        userStream.off(socket.user._id.toString(), cb)
     }
 }

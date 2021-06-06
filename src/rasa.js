@@ -1,4 +1,5 @@
 const axios = require("axios")
+const { actionStream, dispatch } = require("./store")
 
 let client
 
@@ -12,17 +13,20 @@ module.exports = {
             }
         })
     },
-    addMessage: message => {
+    addMessage: (message, onMessage) => {
         const { user, text } = message
         if(client) {
-            return client.post("/webhooks/rest/webhook", {
+            client.post("/webhooks/rest/webhook", {
                 sender: user._id,
                 message: text
             })
                 .then(res => res.data)
                 .then(messages => {
-                    if(messages.length === 0) return ""
-                    if(messages.every(m => m.recipient_id == user._id)) return messages.map(m => m.text)
+                    if(messages.length === 0) return null
+
+                    if(messages.every(m => m.recipient_id == user._id)) {
+                        messages.forEach(onMessage)
+                    }
                 })
         }   
     }

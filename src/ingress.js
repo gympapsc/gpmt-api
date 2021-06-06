@@ -2,37 +2,78 @@ const socketio = require("socket.io")
 const rasa = require("./rasa")
 const bcrypt = require("bcrypt")
 const { dispatch, query, userStream} = require("./store")
-
+const message = require("./models/message")
 
 rasa.init()
 
-module.exports = socket => {
+module.exports = (io, socket) => {
 
     socket.on("ADD_MESSAGE", ({ text }, ack) => {
         console.log("Received ADD_MESSAGE")
         dispatch("ADD_USER_MESSAGE", { user: socket.user,  text }, (err, doc) => {
             
-            socket.emit("ADD_MESSAGE", {
+            io.in(socket.user._id).emit("ADD_MESSAGE", {
                 sender: "user",
                 text: doc.text,
                 timestamp: doc.timestamp
             })
 
-            rasa.addMessage({user: doc.user, text})
-                .then(messages => {
-                    if(messages) {
-                        // TODO make async
-                        for(let m of messages) {
-                            dispatch("ADD_BOT_MESSAGE", {user: socket.user, text: m}, (err, doc) => {
-                                socket.emit("ADD_MESSAGE", {
-                                    sender: "bot",
-                                    text: doc.text,
-                                    timestamp: doc.timestamp
+            rasa.addMessage({user: doc.user, text}, ({text, custom}) => {
+                if(text) {
+                    console.log("TEXT", text)
+                    dispatch("ADD_BOT_MESSAGE", { user: socket.user, text}, (err, doc) => {
+                        io.in(socket.user._id).emit("ADD_MESSAGE", {
+                            sender: "bot",
+                            text: doc.text,
+                            timestamp: doc.timestamp
+                        })
+                    })
+                } else if(custom) {
+                    console.log("CUSTOM", custom)
+                    switch(custom.type) {
+                        case "ADD_MICTURITION":
+                            dispatch(custom.type, {
+                                user: custom.payload.user,
+                                date: new Date(custom.payload.date[1] || custom.payload.date[0])
+                            }, (err, doc) => {
+                                io.in(socket.user._id).emit(custom.type, {
+                                    timestamp: doc.timestamp,
+                                    date: doc.date,
+                                    _id: doc._id
                                 })
                             })
-                        }
+                            break
+                        case "ADD_STRESS":
+                            dispatch(custom.type, {
+                                user: custom.payload.user,
+                                level: custom.payload.level,
+                                date: new Date(custom.payload.date[1] || custom.payload.date[0])
+                            }, (err, doc) => {
+                                io.in(socket.user._id).emit(custom.type, {
+                                    date: doc.date,
+                                    timestamp: doc.timestamp,
+                                    level: doc.level,
+                                    _id: doc._id
+                                })
+                            })
+                            break
+                        case "ADD_DRINKING":
+                            dispatch(custom.type, {
+                                user: custom.payload.user,
+                                amount: custom.payload.amount,
+                                date: new Date(custom.payload.date[1] || custom.payload.date[0])
+                            }, (err, doc) => {
+                                io.in(socket.user._id).emit(custom.type, {
+                                    date: doc.date,
+                                    timestamp: doc.timestamp,
+                                    amount: doc.amount,
+                                    _id: doc._id
+                                })
+                            })
+                            break
                     }
-                })
+                }
+            })
 
         })
     })
@@ -41,6 +82,19 @@ module.exports = socket => {
         console.log("Received GET_MESSAGES")
         query("MESSAGE", { user: socket.user }, (err, messages) => {
             if(err) return ack({err})
+
+            if(messages.length === 0) {
+                rasa.addMessage({user: socket.user, text: "Hallo"}, ({text}) => {
+                    dispatch("ADD_BOT_MESSAGE", { user: socket.user, text}, (err, doc) => {
+                        io.in(socket.user._id).emit("ADD_MESSAGE", {
+                            sender: "bot",
+                            text: doc.text,
+                            timestamp: doc.timestamp
+                        })
+                    })
+                })
+            }
+
             ack(messages)
         })
     })
@@ -110,7 +164,6 @@ module.exports = socket => {
         })
     })
 
-
     socket.on("UPDATE_MICTURITION", ({ date, _id }, ack) => {
         console.log("UPDATE_MICTURITION")
         dispatch("UPDATE_MICTURITION", { user: socket.user, _id, date}, (err, doc) => {
@@ -123,6 +176,23 @@ module.exports = socket => {
         dispatch("UPDATE_STRESS", { user: socket.user, _id, date, level }, (err, doc) => {
             if(err) return ack({ ok: false })
             ack({ok: true})
+        })
+    })
+
+    socket.on("UPDATE_USER", (user, ack) => {
+        dispatch("UPDATE_USER", { user, _id: socket.user._id }, (err, doc) => {
+            if(err) return ack({ err })
+            query("USER", {_id: socket.user._id}, (err, users) => {
+                socket.user = users[0]
+                ack({
+                    ok: true
+                })
+
+                io.in(user._id).emit(socket.user._id, {
+                    ...user
+                })
+
+            })
         })
     })
 
@@ -147,43 +217,5 @@ module.exports = socket => {
         })
     })
 
-    socket.on("UPDATE_USER", (user, ack) => {
-        dispatch("UPDATE_USER", { user, _id: socket.user._id }, (err, doc) => {
-            if(err) return ack({ err })
-            query("USER", {_id: socket.user._id}, (err, users) => {
-                socket.user = users[0]
-                ack({
-                    ok: true
-                })
-
-                userStream.emit(socket.user._id, JSON.stringify({
-                    type: "UPDATE_USER",
-                    ...user
-                }))
-
-            })
-        })
-    })
-
-    socket.on("UPDATE_PASSWORD", (password, ack) => {
-        bcrypt.hash(password, parseInt(process.env.HASH_SALT_ROUNDS), (err, hash) => {
-            if(err) return ack({ err })
-            dispatch("UPDATE_USER", { 
-                _id: socket.user._id, 
-                user: { passwordHash: hash }
-            }, (err, doc) => {
-                if(err) return ack({ err })
-                query("USER", { _id: socket.user._id }, (err, users) => {
-                    socket.user = users[0]
-                    ack({
-                        ok: true
-                    })
-
-                })
-            })
-        })
-    })
-
-    return () => {
-    }
+    return () => {}
 }

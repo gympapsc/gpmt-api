@@ -39,14 +39,14 @@ const dispatch = (action, payload, ack) => {
                 user: payload.user
             }, ack)
             break
-        case "CREATE_MICTURITION":
+        case "ADD_MICTURITION":
             console.log("CREATE_MICTURITION")
             Micturition.create({
                 user: payload.user,
                 date: payload.date
             }, ack)
             break
-        case "CREATE_DRINKING":
+        case "ADD_DRINKING":
             console.log("CREATE_DRINKING")
             Drinking.create({
                 amount: payload.amount,
@@ -54,7 +54,7 @@ const dispatch = (action, payload, ack) => {
                 user: payload.user
             }, ack)
             break
-        case "CREATE_USER":
+        case "ADD_USER":
             User.create({
                 ...payload
             }, ack)
@@ -107,7 +107,7 @@ const dispatch = (action, payload, ack) => {
                 ...payload
             }, ack)
             break
-        case "CREATE_STRESS":
+        case "ADD_STRESS":
             Stress.create({
                 user: payload.user,
                 level: payload.level,

@@ -23,7 +23,7 @@ router.post("/signup", (req, res) => {
         }
 
         dispatch(
-            "CREATE_USER",
+            "ADD_USER",
             {
                 firstname: user.firstname,
                 surname: user.surname,
