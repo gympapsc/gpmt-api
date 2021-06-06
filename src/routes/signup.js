@@ -5,7 +5,6 @@ const router = express.Router()
 const { dispatch, query } = require("../store")
 
 
-
 router.post("/signup", (req, res) => {
     if(!req.body.user) {
         return res
@@ -31,7 +30,7 @@ router.post("/signup", (req, res) => {
                 email: user.email,
                 birthDate: new Date(user.birthDate),
                 weight: user.weight,
-                sex: "m",
+                sex: user.sex,
                 height: user.height,
                 role: "user"
             },
@@ -53,7 +52,6 @@ router.post("/signup", (req, res) => {
         )  
     })
 })
-
 
 
 module.exports = router
