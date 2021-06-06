@@ -4,6 +4,9 @@ const bcrypt = require("bcrypt")
 const { dispatch, query, userStream} = require("./store")
 const message = require("./models/message")
 
+const forecast = require("./forecast")
+
+forecast.init()
 rasa.init()
 
 module.exports = (io, socket) => {
@@ -42,6 +45,7 @@ module.exports = (io, socket) => {
                                     _id: doc._id
                                 })
                             })
+                            forecast.getPredictions(socket.user._id)
                             break
                         case "ADD_STRESS":
                             dispatch(custom.type, {

@@ -1,5 +1,8 @@
 const express = require("express")
 const multer = require("multer")
+const classifier = require("../classifier")
+
+classifier.init()
 
 const { dispatch, query } = require("../store")
 
@@ -36,6 +39,7 @@ router.post("/", upload.single("photo"), (req, res) => {
 })
 
 router.get("/", (req, res) => {
+    classifier.getPhotoClassification(req.user._id)
     query("PHOTO", {user: req.user}, (err, photos) => {
         res.json({
             photos

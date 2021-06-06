@@ -12,17 +12,6 @@ const {
     Stress
 } = require("./models")
 
-const actionStream = new RedisStream(
-    "actions",
-    "gpmt-api",
-    process.env.HOSTNAME,
-    {
-        redisUrl: process.env.REDIS_URL
-    }
-)
-
-const userStream = new EventEmitter()
-
 const dispatch = (action, payload, ack) => {
     switch(action) {
         case "ADD_USER_MESSAGE":
@@ -216,7 +205,5 @@ User.deleteOne({ role: "admin "})
 
 module.exports = {
     dispatch,
-    query,
-    actionStream,
-    userStream
+    query
 }
