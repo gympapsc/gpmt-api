@@ -18,18 +18,22 @@
   },
   "homepage": "https://github.com/gympapsc/gpmt-api#readme",
   "dependencies": {
-    "@hakrac/redisutils": "0.0.6",
     "axios": "^0.21.1",
     "bcrypt": "^5.0.1",
+    "cookie": "^0.4.1",
+    "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
+    "csv-writer": "^1.6.0",
     "express": "^4.17.1",
+    "fstream": "^1.0.12",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.3",
     "multer": "^1.4.2",
     "passport": "^0.4.1",
-    "passport-http-bearer": "^1.0.1",
-    "socket.io": "^4.0.1",
-    "socket.io-client": "^4.0.1"
+    "passport-cookie": "^1.0.9",
+    "passport-jwt": "^4.0.0",
+    "tar": "^6.1.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "eslint": "^7.24.0",

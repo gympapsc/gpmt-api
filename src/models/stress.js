@@ -5,7 +5,7 @@ const stressSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now },
     level: { type: Number, min: 1, max: 5 }
 }, {
-    timestamp: {
+    timestamps: {
         createdAt: "timestamp"
     }
 })

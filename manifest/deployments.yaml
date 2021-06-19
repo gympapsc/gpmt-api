@@ -39,10 +39,15 @@ spec:
               volumeMounts:
               - name: "gpmt-photo"
                 mountPath: /data/gpmt-photo
+              - name: "gpmt-model"
+                mountPath: /data/gpmt-model
               # imagePullSecrets:
               # - name: registry-token
             volumes:
             - name: gpmt-photo
               persistentVolumeClaim:
                 claimName: gpmt-photo-pvc
+            - name: gpmt-model
+              persistentVolumeClaim:
+                claimName: gpmt-model-pvc
             

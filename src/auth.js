@@ -1,63 +1,46 @@
 const jwt = require("jsonwebtoken")
 const passport = require("passport")
-const BearerStrategy = require("passport-http-bearer").Strategy
-const { dispatch, query } = require("./store")
+const JwtStrategy = require("passport-jwt").Strategy
+const { query } = require("./store")
 
 passport.use(
-    new BearerStrategy(
-        (token, done) => {
-            jwt.verify(token, process.env.AUTH_SIGN_SECRET, (err, decoded) => {
-                if(err) return done(err)
-                query("USER", {_id: decoded.user_id}, (err, users) => {
-                    if(err) return done(err)
-                    done(null, users[0])
-                })
-            })
+    new JwtStrategy({
+        secretOrKey: process.env.AUTH_SIGN_SECRET,
+        jwtFromRequest: req => {
+            let token = null
+            if(req && req.cookies) {
+                token = req.cookies["authToken"]
+            }
+            return token
         }
-    )
+    }, (payload, done) => {
+        query("USER", {_id: payload.user_id}, (err, users) => {
+            if(err) return done(err, false)
+            if(users && users[0]) return done(null, users[0])
+        })
+    })
 )
 
 
-const socketAuthMiddleware = (socket, next) => {
-    const token = socket.handshake.auth.bearer
-    console.log("Socket auth handshake ", socket.handshake.auth)
-    if (token) {
-        jwt.verify(token, process.env.AUTH_SIGN_SECRET, (err, decoded) => {
-            if (err) return console.log("Invalid JWT")
-            query("USER", {_id: decoded.user_id}, (err, users) => {
-                if(err) return next(new Error("Invalid credentials"))
-                socket.user = users[0]
-                console.log("Signing in user", users[0].firstname)
-                next()
-            })
-        })
-    } else {
-        next(new Error("Invalid credentials"))
-    }
-}
-
-
 module.exports = {
-    socketio: () =>  {
-        return socketAuthMiddleware
-    },
     http: role => {
         return (req, res, next) => {
-            passport.authenticate("bearer", (err, user, info) => {
+            passport.authenticate("jwt", (err, user, info) => {
                 if(err) return next(err)
                 if(user) {
                     if(user.role === role) {
                         req.user = user
                         return next()
                     } else {
-                        return res.json(403, {
+                        return res.json(401, {
                             err: "Unauthorized request",
+                            user,
                             ok: false
                         })
                     }
                 } 
                 return res.json(403, {
-                    err: "Unauthorized request",
+                    err: "Unauthenticated request",
                     ok: false
                 })
             })(req, res, next)

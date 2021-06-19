@@ -43,10 +43,14 @@ router.post("/signup", (req, res) => {
                 jwt.sign({
                     user_id: user._id 
                 }, process.env.AUTH_SIGN_SECRET, (err, token) => {
-                    res.json({
-                        bearer: token,
-                        user
-                    })
+                    res
+                        .cookie("authToken", token, {
+                            sameSite: "none",
+                            secure: false
+                        })
+                        .json({
+                            ok: true
+                        })
                 })
             }
         )  

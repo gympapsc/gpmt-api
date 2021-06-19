@@ -6,11 +6,15 @@ const Questionnaire = require("./questionnaire")
 const Answer = require("./answer")
 const Photo = require("./photo")
 const Stress = require("./stress")
+const MicturitionPrediction = require("./micturitionPrediction")
+const MicturitionModel = require("./micturitionModel")
 // const Nutrition = require("./nutrition")
 
 module.exports = { 
     User,
     Micturition,
+    MicturitionPrediction,
+    MicturitionModel,
     // Nutrition,
     Stress,
     Answer,

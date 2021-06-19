@@ -13,10 +13,10 @@ module.exports = {
             }
         })
     },
-    addMessage: (message, onMessage) => {
+    addMessage: (message) => {
         const { user, text } = message
         if(client) {
-            client.post("/webhooks/rest/webhook", {
+            return client.post("/webhooks/rest/webhook", {
                 sender: user._id,
                 message: text
             })
@@ -25,7 +25,7 @@ module.exports = {
                     if(messages.length === 0) return null
 
                     if(messages.every(m => m.recipient_id == user._id)) {
-                        messages.forEach(onMessage)
+                        return messages
                     }
                 })
         }   

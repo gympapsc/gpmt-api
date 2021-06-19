@@ -1,5 +1,7 @@
 const express = require("express")
 const multer = require("multer")
+const { v4: uuid } = require("uuid")
+const PhotoLoader = require("../loaders/photos")
 
 const router = express.Router()
 
@@ -18,17 +20,14 @@ router.get("/", (req, res) => {
     })
 })
 
-router.get("/download", (req, res) => {
-    const { start, end } = req.query
-    start = new Date(start)
-    end = new Date(end)
+router.get("/download", async (req, res) => {
+    let photoLoader = new PhotoLoader(`/tmp/${uuid()}`, "/gpmt-photo")
 
-    query("PHOTOS", { start, end }, (err, photos) => {
-        if(err) return res.json({ err })
-        res.json({
-            photos
-        })
-    })
+    let photos = await query("PHOTOS", {})
+    photoLoader.dump(photos)
+
+    let tarPath = photoLoader.zip("/tmp")
+    res.download(tarPath)
 })
 
 
@@ -36,10 +35,9 @@ router.get("/download", (req, res) => {
 // TODO setup fileFilter
 
 // upload to blob Storage
-
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, "/data/gpmt-photo-models")
+        cb(null, "/data/gpmt-model/photo")
     },
     filename: function (req, file, cb) {
         // TODO get photo classification
@@ -52,5 +50,24 @@ const storage = multer.diskStorage({
 })
 
 const upload = multer({ storage })
+router.post("/model", upload.single("model"), (req, res) => {
+    let {
+        _id,
+        timestamp,
+        active
+    } = req.file.metadata
+
+    let modelLoader = new ModelLoader("/gpmt-model/data")
+
+    modelLoader.load(req.file.destination, req.file.filename)
+
+    res.json({
+        model: {
+            timestamp,
+            active,
+            _id
+        }
+    })
+})
 
 module.exports = router

@@ -1,5 +1,3 @@
-const {RedisStream} = require("@hakrac/redisutils")
-const EventEmitter = require("events")
 const bcrypt = require("bcrypt")
 const {
     Message,
@@ -9,10 +7,24 @@ const {
     Questionnaire,
     Answer,
     Photo,
-    Stress
+    Stress,
+    MicturitionPrediction,
+    MicturitionModel,
+    ClassificationModel
 } = require("./models")
 
-const dispatch = (action, payload, ack) => {
+const dispatch = (action, payload, ack=null) => {
+
+    if(!ack) {
+        return new Promise((res, rej) => {
+            dispatch(action, payload, (err, doc) => {
+                if(err) rej(err)
+                res(doc)
+            })
+        })
+    }
+
+
     switch(action) {
         case "ADD_USER_MESSAGE":
             Message.create({
@@ -29,14 +41,12 @@ const dispatch = (action, payload, ack) => {
             }, ack)
             break
         case "ADD_MICTURITION":
-            console.log("CREATE_MICTURITION")
             Micturition.create({
                 user: payload.user,
                 date: payload.date
             }, ack)
             break
         case "ADD_DRINKING":
-            console.log("CREATE_DRINKING")
             Drinking.create({
                 amount: payload.amount,
                 date: payload.date,
@@ -52,11 +62,10 @@ const dispatch = (action, payload, ack) => {
             User.updateOne({
                 _id: payload._id
             }, {
-                ...payload.user
+                ...payload
             }, ack)
             break
         case "ANSWER_QUESTION":
-            // TODO if answer for user for question exists update answer
             Answer.create({
                 user: payload.user,
                 answer: payload.answer,
@@ -89,12 +98,53 @@ const dispatch = (action, payload, ack) => {
                 date: payload.date
             }, ack)
             break
+        case "ADD_QUESTION":
+            Questionnaire.create({
+                next: [],
+                condition: [],
+                ...payload.question
+            }, (err, doc) => {
+                console.log(err)
+                if(err) return ack(err, null)
+                Questionnaire.updateOne({
+                    _id: payload.parent_id
+                }, {
+                    $push: { next: doc._id }
+                }, (err, parent) => {
+                    ack(err, doc)
+                })
+            })
+            break
+        case "ADD_CONDITION":
+            Questionnaire.updateOne({
+                _id: payload._id,
+            }, {
+                $push: { condition: payload.condition }
+            }, ack)
+            break
         case "UPDATE_QUESTION":
             Questionnaire.updateOne({
                 _id: payload._id
             }, {
                 ...payload
             }, ack)
+            break
+        case "DELETE_QUESTION":
+            function deleteNextQuestion(id) {
+                Questionnaire.findOne({ _id: id }, (err, doc) => {
+                    for(let n of doc.next) {
+                        deleteNextQuestion(n)
+                    }
+                    Questionnaire.deleteOne({
+                        _id: id
+                    }, (err, nModified) => {
+                        if(err) return ack(err, null)
+                    })
+                })
+
+            }
+            Questionnaire.updateMany({}, { $pullAll: { next: [payload._id] }}, ack)
+            deleteNextQuestion(payload._id)
             break
         case "ADD_STRESS":
             Stress.create({
@@ -126,12 +176,46 @@ const dispatch = (action, payload, ack) => {
                 _id: payload._id
             }, ack)
             break
+        case "CREATE_FORECAST_MODEL":
+            MicturitionModel.create({
+                ...payload
+            }, ack)
+            break
+        case "DELETE_FORECAST_MODEL":
+            MicturitionModel.deleteOne({
+                _id: payload._id
+            }, ack)
+            break
+        case "CREATE_CLASSIFICATION_MODEL":
+            ClassificationModel.create({
+                ...payload
+            }, ack)
+            break
+        case "DELETE_CLASSIFICATION_MODEL":
+            ClassificationModel.deleteOne({
+                _id: payload._id
+            }, ack)
+            break
+        case "CREATE_MICTURITION_PREDICTIONS":
+            MicturitionPrediction.bulkWrite([
+                ...payload.predictions
+            ], ack)
+            break
         default:
             throw new Error("Unknown action " + action)
     }
 }
 
-const query = (model, selector, cb) => {
+const query = (model, selector, cb=null) => {
+    if(!cb) {
+        return new Promise((res, rej) => {
+            query(model, selector, (err, result) => {
+                if(err) rej(err)
+                res(result)
+            })
+        })
+    }
+
     switch(model) {
         case "MESSAGE":
             Message.find(selector, cb)
@@ -162,33 +246,68 @@ const query = (model, selector, cb) => {
                 role: "admin"
             }, cb)
             break
+        case "MICTURITION_PREDICTION":
+            MicturitionPrediction.find({
+                ...selector
+            }, cb)
+            break
+        case "FORECAST_MODEL":
+            MicturitionModel.find({
+                ...selector
+            }, cb)
+            break
+        case "CLASSIFICATION_MODEL":
+            ClassificationModel.find({
+                ...selector
+            }, cb)
+            break
+        case "ANSWER":
+            Answer.find({
+                ...selector
+            }, cb)
+            break
         default:
             throw new Error("Unknown model type " + model)
     }
 }
 
 Questionnaire.deleteMany({})
-    .then(() => {
-        Questionnaire.create({
+    .then(async () => {
+        let q1 = await Questionnaire.create({
+            type: "number",
+            name: "age",
+            condition: [
+                { type: "eq", value: "ms"},
+                { type: "eq", value: "multiple sklerose"}
+            ],
+            next: [],
+            options: []
+        })
+
+        let q2 = await Questionnaire.create({
+            type: "string",
+            name: "stress",
+            condition: [
+                { type: "eq", value: "keine" }
+            ],
+            next: [],
+            options: []
+        })
+
+        await Questionnaire.create({
             root: true,
             type: "string",
             name: "disease",
+            condition: [],
             next: [
-                // {
-                //     condition: "ms",
-                //     question: new Questionnaire({
-                //         type: "string",
-                //         name: "form_stress",
-                //         next: [],
-                //         options: []
-                //     })
-                // }
+                q1._id,
+                q2._id
             ],
             options: []
         })
     })
 
-User.deleteOne({ role: "admin "})
+User.deleteMany({ role: "admin"})
     .then(() => {
         User.create({
             role: "admin",

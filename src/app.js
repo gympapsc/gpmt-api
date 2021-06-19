@@ -1,63 +1,65 @@
 const express = require("express")
+var cookieParser = require("cookie-parser")
+
 const mongoose = require("mongoose")
-const http = require("http")
 const cors = require("cors")
 const passport = require("passport")
 
-const createIOServer = require("./io")
-const bearerAuth = require("./auth")
+const auth = require("./auth")
 const signinRouter = require("./routes/signin")
 const signupRouter = require("./routes/signup")
 const emailRouter = require("./routes/email")
+const userRouter = require("./routes/user")
+const conversationRouter = require("./routes/conversation")
+const drinkingRouter = require("./routes/drinking")
+const stressRouter = require("./routes/stress")
+const micturitionRouter = require("./routes/micturition")
 const photoRouter = require("./routes/photo")
-const questionnaireRouter = require("./routes/questionnaire")
+const answerRouter = require("./routes/answer")
 
 const adminSigninRouter = require("./admin/signin")
-const adminQuestionnaireRouter = require("./admin/questionnaire")
+const adminRouter = require("./admin")
 
 const PORT = parseInt(process.env.PORT)
 
 const app = express()
-const httpServer = http.createServer(app)
 
-mongoose.connect(`mongodb://${process.env.MONGO_URL}:27017/gpmt`, {useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true})
-
-
-createIOServer(httpServer, [
-    bearerAuth.socketio()
-], {
-    cors: {
-        // TODO set redis adapter
-        // TODO set cors origin via env variable
-        origins: ["http://localhost:5000", "http://localhost:4000"],
-        methods: ["GET", "POST"],
-        transports: ["polling", "websocket"]
-    },
+mongoose.connect(`mongodb://${process.env.MONGO_URL}:27017/gpmt`, {
+    useCreateIndex: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true
 })
 
 app.use(cors({
     // TODO set cors origin via env variable
-    origin: ["http://localhost:5000", "http://localhost:4000"]
-    // origin: "http://localhost:4000"
+    origin: ["http://localhost:5000", "http://localhost:4000"],
+    credentials: true
 }))
+
 app.use(express.json())
+app.use(cookieParser())
 app.use(passport.initialize())
 
 app.get("/", (req, res) => {
     res.json({
-        test: true
+        health: "ok"
     })
 })
 
 app.use(signinRouter)
 app.use(signupRouter)
 app.use("/email", emailRouter)
-app.use("/photo", bearerAuth.http("user"), photoRouter)
-app.use("/questionnaire", bearerAuth.http("user"), questionnaireRouter)
+app.use("/photo", auth.http("user"), photoRouter)
+app.use("/user", auth.http("user"), userRouter)
+app.use("/conversation", auth.http("user"), conversationRouter)
+app.use("/drinking", auth.http("user"), drinkingRouter)
+app.use("/stress", auth.http("user"), stressRouter)
+app.use("/micturition", auth.http("user"), micturitionRouter)
+app.use("/answer", auth.http("user"), answerRouter)
 
 app.use("/admin/signin", adminSigninRouter)
-app.use("/admin/questionnaire", bearerAuth.http("admin"), adminQuestionnaireRouter)
+app.use("/admin", auth.http("admin"), adminRouter)
 
-httpServer.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`)
 })

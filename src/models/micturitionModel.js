@@ -2,7 +2,6 @@ const mongoose = require("mongoose")
 
 
 const micturitionModelSchema = new mongoose.Schema({
-    date: { type: Date, default: Date.now },
     active: { type: Boolean, default: false }
 }, {
     timestamps: {
@@ -11,6 +10,6 @@ const micturitionModelSchema = new mongoose.Schema({
 })
 
 
-module.exports = mongoose.model("MicturitionModel", micturitionSchema, "micturitionModels")
+module.exports = mongoose.model("MicturitionModel", micturitionModelSchema, "micturitionModels")
 
 

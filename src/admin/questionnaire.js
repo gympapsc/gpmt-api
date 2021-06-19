@@ -3,80 +3,57 @@ const router = express.Router()
 
 const { dispatch, query } = require("../store")
 
-// router.post("/", (req, res) => {
-//     query("QUESTIONNAIRE", { root: true }, (err, questions) => {
-//         if(err) return res.status(400)
 
-//         console.log("QUESTION", questions[0])
+router.get("/", async (req, res) => {
+    let questionnaire = await query("QUESTIONNAIRE", {})
 
-//         let question = questions[0]
-//         res.json({
-//             ...question._doc
-//         })
-//     })
-// })
-
-router.get("/tree", (req, res) => {
-    query("QUESTIONNAIRE", { root: true }, (err, questions) => {
-        let root = questions[0]
-        let currNode = root
-    })
-})
-
-// router.get("/:id", (req, res) => {
-//     const _id = req.params.id
-
-//     query("QUESTIONNAIRE", {_id}, (err, questions) => {
-//         if(err) return res.status(400)
-
-//         let question = questions[0]
-
-//         dispatch("")
-//     })
-// })
-
-// router.put("/:id", (req, res) => {
-//     const _id = req.params.id
-
-//     console.log("QUESTIONNAIRE REQUEST")
-
-//     query("QUESTIONNAIRE", {_id}, (err, questions) => {
-//         if(err) return res.status(400)
-//         let question = questions[0]
-
-//         dispatch("UPDATE_QUESTION", { question }, (err, answer) => {
-//             if(err) return res.status(400)
-
-//             for(let q of question.next) {
-//                 if(!q.condition || q.condition == answer.answer) {
-//                     return res.json({
-//                         ...q.question._doc,
-//                     })
-//                 }
-//             }
-
-//             // reached leaf of tree
-//             dispatch("USER_SETUP_COMPLETE", {_id: req.user._id}, (err, user) => {
-//                 res.json({
-//                     done: true
-//                 })
-//             })
-//         })
-//     })
-// })
-
-// router.get("/answers", (req, res) => {
-//     query("ANSWERS", {}, (err, answers) => {
-//         res.json({
-//             answers
-//         })
-//     })
-// })
-
-router.get("/", (req, res) => {
     res.json({
-        msg: "Only admins can see this"
+        questionnaire
     })
 })
+
+
+router.post("/:id", async (req, res) => {
+    let { question } = req.body
+    let parent_id = req.params.id
+    let q = await dispatch("ADD_QUESTION", { parent_id, question })
+
+    res.json({
+        question: q,
+        ok: true
+    })
+})
+
+
+router.post("/:id/condition", async (req, res) => {
+    let { condition } = req.body
+    let _id = req.params.id
+    let q = await dispatch("ADD_CONDITION", { _id, condition })
+
+    res.json({
+        ok: true
+    })
+})
+
+
+router.put("/:id", async (req, res) => {
+    let { id } = req.params
+    let { question } = req.body
+    let q = await dispatch("UPDATE_QUESTION", { _id: id, question})
+
+    res.json({
+        ok: true
+    })
+})
+
+router.delete("/:id", async (req, res) => {
+    let { id } = req.params
+    let q = await dispatch("DELETE_QUESTION", { _id: id })
+
+    res.json({
+        ok: true
+    })
+})
+
 
 module.exports = router

@@ -23,9 +23,14 @@ router.post("/signin", (req, res) => {
                         },
                         process.env.AUTH_SIGN_SECRET, 
                         (err, token) => {
-                            res.json({
-                                bearer: token
-                            })
+                            res
+                                .cookie("authToken", token, {
+                                    sameSite: "none",
+                                    secure: false
+                                })
+                                .json({
+                                    ok: true
+                                })
                         })
                     } else {
                         res
@@ -38,5 +43,43 @@ router.post("/signin", (req, res) => {
     )
 })
 
+
+router.post("/signin/admin", (req, res) => {
+    const {password} = req.body
+    query(
+        "USER",
+        { role: "admin" },
+        (err, users) => {
+            console.log(err, users)
+            if (err) return res.status(401)
+            if (users.length === 0) return res.status(400)
+            const user = users[0]
+            bcrypt.compare(password, user.passwordHash)
+                .then(valid => {
+                    if(valid) {
+                        jwt.sign({
+                            user_id: user._id
+                        },
+                        process.env.AUTH_SIGN_SECRET, 
+                        (err, token) => {
+                            res
+                                .cookie("authToken", token, {
+                                    sameSite: "none",
+                                    secure: false
+                                })
+                                .json({
+                                    ok: true
+                                })
+                        })
+                    } else {
+                        res
+                            .status(400)
+                            .json({ err: "Invalid credentials" })
+                    }
+                    
+                })
+        }
+    )
+})
 
 module.exports = router

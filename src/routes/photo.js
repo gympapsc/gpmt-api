@@ -29,6 +29,7 @@ const upload = multer({ storage })
 const router = express.Router()
 
 router.post("/", upload.single("photo"), (req, res) => {
+    classifier.getPhotoClassification(req.user._id, req.file.metadata._id)
     res.json({
         photo: {
             name: "test",
@@ -39,7 +40,6 @@ router.post("/", upload.single("photo"), (req, res) => {
 })
 
 router.get("/", (req, res) => {
-    classifier.getPhotoClassification(req.user._id)
     query("PHOTO", {user: req.user}, (err, photos) => {
         res.json({
             photos
@@ -56,6 +56,10 @@ router.get("/:id", (req, res) => {
             )
         }
     })
+})
+
+router.put("/:id", (req, res) => {
+    
 })
 
 dispatch("DELETE_ALL_PHOTOS", {}, () => {})

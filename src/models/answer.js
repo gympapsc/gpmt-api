@@ -5,7 +5,7 @@ const answerSchema = mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" },
     question: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Questionnaire" }
 }, {
-    timestamp: {
+    timestamps: {
         createdAt: "timestamp"
     }
 })

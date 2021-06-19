@@ -78,3 +78,31 @@ spec:
         storage: 5Gi
     hostPath:
         path: /data/gpmt-photo
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: gpmt-model-pvc
+    namespace: default
+spec:
+    storageClassName: "default"
+    volumeName: gpmt-model-pv
+    accessModes:
+        - ReadWriteMany
+    resources:
+        requests:
+            storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: gpmt-model-pv
+    namespace: default
+spec:
+    storageClassName: "default"
+    accessModes:
+        - ReadWriteMany
+    capacity:
+        storage: 5Gi
+    hostPath:
+        path: /data/gpmt-model
