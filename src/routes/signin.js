@@ -47,7 +47,7 @@ router.post("/signin", (req, res) => {
 router.post("/signin/admin", (req, res) => {
     const {password} = req.body
     query(
-        "USER",
+        "ADMIN",
         { role: "admin" },
         (err, users) => {
             console.log(err, users)

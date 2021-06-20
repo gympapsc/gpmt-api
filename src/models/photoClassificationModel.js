@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 
 
-const photoModelSchema = new mongoose.Schema({
+const photoClassificationModelSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now },
     active: { type: Boolean, default: false }
 }, {
@@ -11,6 +11,6 @@ const photoModelSchema = new mongoose.Schema({
 })
 
 
-module.exports = mongoose.model("PhotoModel", micturitionSchema, "photoModels")
+module.exports = mongoose.model("PhotoClassificationModel", photoClassificationModelSchema, "photoClassificationModels")
 
 

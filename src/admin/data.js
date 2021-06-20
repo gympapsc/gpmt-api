@@ -2,6 +2,8 @@ const express = require("express")
 const multer = require("multer")
 const { v4: uuid } = require("uuid")
 const fs = require("fs")
+const path = require("path")
+
 const DataLoader = require("../loaders/data")
 const router = express.Router()
 
@@ -20,28 +22,21 @@ router.get("/users", (req, res) => {
     })
 })
 
-router.get("/model", (req, res) => {
-    query("FORECAST_MODEL", { user: req.user }, (err, models) => {
-        res.json({
-            models
-        })
-    })
-})
 
 // TODO setup fileFilter
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        // TODO check if /data/gpmt-model/forecast exists
         if(!fs.existsSync("/data/gpmt-model/forecast")) {
             fs.mkdirSync("/data/gpmt-model/forecast")
         }
         cb(null, "/data/gpmt-model/forecast")
     },
     filename: function (req, file, cb) {
-        dispatch("CREATE_FORECAST_MODEL", {user: req.user, name: "test"}, (err, doc) => {
-            console.log("CREATED FORECAST MODEL", doc._id, req.user.firstname)
+        let now = new Date()
+        dispatch("CREATE_FORECAST_MODEL", {name: now.toISOString(), active: false}, (err, doc) => {
+            console.log("CREATED FORECAST MODEL", doc._id)
             file.metadata = doc
-            cb(null, doc._id)
+            cb(null, doc._id.toString())
         })
     }
 })
@@ -68,7 +63,16 @@ router.get("/download", async (req, res) => {
     setTimeout(() => {
         fs.readdir("/tmp", (err, files) => console.log(files))
         res.download(tarPath)
-    }, 5000)
+    }, 4000)
+})
+
+router.get("/model", (req, res) => {
+    query("FORECAST_MODEL", {}, (err, models) => {
+        if(err) return res.json({ err })
+        res.json({
+            models
+        })
+    })
 })
 
 router.post("/model", upload.single("model"), (req, res) => {
@@ -78,7 +82,7 @@ router.post("/model", upload.single("model"), (req, res) => {
         active
     } = req.file.metadata
 
-    let modelLoader = new ModelLoader("/gpmt-model/forecast")
+    let modelLoader = new ModelLoader("/data/gpmt-model/forecast")
 
     modelLoader.load(req.file.destination, req.file.filename)
 
@@ -91,23 +95,45 @@ router.post("/model", upload.single("model"), (req, res) => {
     })
 })
 
-router.post("/model/activate", (req, res) => {
+router.get("/model/:id", async (req, res) => {
     let { id } = req.params
 
-    dispatch("ACTIVATE_FORECAST_MODEL", { _id: id }, (err, doc) => {
-        if(err) return res.json({ err })
-        res.json({
-            _id: doc._id,
-            timestamp: doc.timestamp,
-            active: doc.active
-        })
+    let models = await query("FORECAST_MODEL", { _id: id })
+    res.json({
+        model: models[0]
+    }) 
+})
+
+router.post("/model/:id/activate", async (req, res) => {
+    let { id } = req.params
+
+    await dispatch("ACTIVATE_FORECAST_MODEL", { _id: id })
+    res.json({
+        ok: true
     })
 })
 
-router.delete("/model", async (req, res) => {
+router.delete("/model/:id", async (req, res) => {
     let { id } = req.params
+
+    let model = await query("FORECAST_MODEL", { _id: id })
+
+    if(!model.active) {
+        await dispatch("DELETE_FORECAST_MODEL", { _id: id })
     
-    await dispatch("DELETE_FORECAST_MODEL", { _id: id })
+        if(fs.existsSync(path.join("/data/gpmt-model/forecast", id.toString()))) {
+            fs.unlinkSync(path.join("/data/gpmt-model/forecast", id.toString()))
+        }
+
+        res.json({
+            _id: model._id,
+            ok: true
+        })
+    } else {
+        res.json({
+            err: "Model is still in use. Deactivate the model first to delete it."
+        })
+    }
 })
 
 

@@ -5,8 +5,8 @@ class ModelLoader {
     constructor(modelDir) {
         this.modelDir = modelDir
 
-        if (!fs.existsSync(tmpDir)){
-            fs.mkdirSync(tmpDir)
+        if (!fs.existsSync(modelDir)){
+            fs.mkdirSync(modelDir)
         }
     }
 

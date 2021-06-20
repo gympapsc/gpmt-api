@@ -6,10 +6,7 @@ module.exports = {
     init: baseURL => {
         // create axios client
         client = axios.create({
-            baseURL: baseURL || process.env.CLASSIFIER_URL,
-            headers: {
-                // TODO add AUTHENTICATION
-            }
+            baseURL: baseURL || process.env.CLASSIFIER_URL
         })
     },
     getPhotoClassification: user_id => {

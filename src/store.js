@@ -10,11 +10,11 @@ const {
     Stress,
     MicturitionPrediction,
     MicturitionModel,
-    ClassificationModel
+    ClassificationModel,
+    PhotoClassificationModel
 } = require("./models")
 
 const dispatch = (action, payload, ack=null) => {
-
     if(!ack) {
         return new Promise((res, rej) => {
             dispatch(action, payload, (err, doc) => {
@@ -23,7 +23,6 @@ const dispatch = (action, payload, ack=null) => {
             })
         })
     }
-
 
     switch(action) {
         case "ADD_USER_MESSAGE":
@@ -86,8 +85,7 @@ const dispatch = (action, payload, ack=null) => {
                 user: payload.user,
                 _id: payload._id
             }, {
-                amount: payload.amount,
-                date: payload.date
+                $set: { amount: payload.amount, date: payload.date }
             }, ack)
             break
         case "UPDATE_MICTURITION":
@@ -95,7 +93,7 @@ const dispatch = (action, payload, ack=null) => {
                 user: payload.user,
                 _id: payload._id
             }, {
-                date: payload.date
+                $set: { date: payload.date }
             }, ack)
             break
         case "ADD_QUESTION":
@@ -122,6 +120,12 @@ const dispatch = (action, payload, ack=null) => {
                 $push: { condition: payload.condition }
             }, ack)
             break
+        case "ADD_QUESTION_OPTION":
+            Questionnaire.updateOne({
+                _id: payload._id
+            }, {
+                $push: { options: payload.option }
+            })
         case "UPDATE_QUESTION":
             Questionnaire.updateOne({
                 _id: payload._id
@@ -157,8 +161,7 @@ const dispatch = (action, payload, ack=null) => {
             Stress.updateOne({
                 _id: payload._id
             }, {
-                level: payload.level,
-                date: payload.date
+                $set: { level: payload.level, date: payload.date }
             }, ack)
             break
         case "DELETE_DRINKING":
@@ -186,13 +189,13 @@ const dispatch = (action, payload, ack=null) => {
                 _id: payload._id
             }, ack)
             break
-        case "CREATE_CLASSIFICATION_MODEL":
-            ClassificationModel.create({
+        case "CREATE_PHOTO_CLASSIFICATION_MODEL":
+            PhotoClassificationModel.create({
                 ...payload
             }, ack)
             break
-        case "DELETE_CLASSIFICATION_MODEL":
-            ClassificationModel.deleteOne({
+        case "DELETE_PHOTO_CLASSIFICATION_MODEL":
+            PhotoClassificationModel.deleteOne({
                 _id: payload._id
             }, ack)
             break
@@ -200,6 +203,33 @@ const dispatch = (action, payload, ack=null) => {
             MicturitionPrediction.bulkWrite([
                 ...payload.predictions
             ], ack)
+            break
+        case "ACTIVATE_FORECAST_MODEL":
+            MicturitionModel.updateMany({
+                active: true   
+            }, {
+                $set: { active: false }
+            }, (err, nModified) => {
+                if(err) return ack(err, null)
+                MicturitionModel.updateOne({
+                    _id: payload._id
+                }, {
+                    $set: { active: true }
+                }, ack)
+            })
+        case "ACTIVATE_PHOTO_CLASSIFICATION_MODEL":
+            PhotoClassificationModel.updateMany({
+                active: true   
+            }, {
+                $set: { active: false }
+            }, (err, nModified) => {
+                if(err) return ack(err, null)
+                PhotoClassificationModel.updateOne({
+                    _id: payload._id
+                }, {
+                    $set: { active: true }
+                }, ack)
+            })
             break
         default:
             throw new Error("Unknown action " + action)
@@ -256,8 +286,8 @@ const query = (model, selector, cb=null) => {
                 ...selector
             }, cb)
             break
-        case "CLASSIFICATION_MODEL":
-            ClassificationModel.find({
+        case "PHOTO_CLASSIFICATION_MODEL":
+            PhotoClassificationModel.find({
                 ...selector
             }, cb)
             break

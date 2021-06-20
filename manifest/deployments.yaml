@@ -31,9 +31,9 @@ spec:
               - name: REDIS_URL
                 value: "redis://gpmt-redis.default.svc.cluster.local"
               - name: FORECAST_URL
-                value: "http://gpmt-forecast.analysis.svc.cluster.local"
+                value: "http://gpmt-forecast.default.svc.cluster.local"
               - name: CLASSIFIER_URL
-                value: "http://gpmt-classifier.analysis.svc.cluster.local"
+                value: "http://gpmt-classifier.default.svc.cluster.local"
               ports:
               - containerPort: 80
               volumeMounts:

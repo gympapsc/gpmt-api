@@ -6,10 +6,7 @@ module.exports = {
     init: baseURL => {
         // create axios client
         client = axios.create({
-            baseURL: baseURL || process.env.FORECAST_URL,
-            headers: {
-                // TODO add AUTHENTICATION
-            }
+            baseURL: baseURL || process.env.FORECAST_URL
         })
     },
     getPredictions: user_id => {
@@ -17,6 +14,6 @@ module.exports = {
             return 
         }
         client.get(`?user_id=${user_id}`)
-            .then(data => data.predictions)
+            .then(data => data.forecast)
     }
 }
