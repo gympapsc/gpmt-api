@@ -9,4 +9,8 @@ const photoSchema = new mongoose.Schema({
     }
 })
 
+photoSchema.index({
+    name: "text"
+})
+
 module.exports = mongoose.model("Photo", photoSchema, "photos")

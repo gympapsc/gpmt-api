@@ -15,12 +15,24 @@ router.get("/", (req, res) => {
     // let start = new Date(start)
     // let end = new Date(end)
 
-    query("PHOTO", {}, (err, photos) => {
-        if(err) return res.json({ err })
-        res.json({
-            photos
+    let { label } = req.query
+
+    if(!label) {
+        query("PHOTO", {}, (err, photos) => {
+            if(err) return res.json({ err })
+            res.json({
+                photos
+            })
         })
-    })
+    } else {
+        query("PHOTO", { $text: { $search: label } }, (err, photos) => {
+            if(err) return res.json({ err })
+            res.json({
+                label,
+                photos
+            })
+        })
+    }
 })
 
 router.get("/download", async (req, res) => {
@@ -153,6 +165,20 @@ router.get("/:id", async (req, res) => {
     }
 
     res.sendFile(
+        `/data/gpmt-photo/${photo._id}.jpeg`
+    )
+})
+
+router.get("/:id/download", async (req, res) => {
+    let { id } = req.params
+    let photos = await query("PHOTO", {_id: id})
+    let photo = photos[0]
+
+    if(!photo || !photo._id || !fs.existsSync(`/data/gpmt-photo/${photo._id}.jpeg`)) {
+        return res.status(404)
+    }
+
+    res.download(
         `/data/gpmt-photo/${photo._id}.jpeg`
     )
 })
