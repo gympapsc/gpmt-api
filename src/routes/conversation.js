@@ -1,12 +1,9 @@
 const express = require("express")
-
 const forecast = require("../forecast")
+
 const rasa = require("../rasa")
-
 const { query, dispatch } = require("../store")
-
 const router = express()
-
 rasa.init()
 
 router.post("/utter", async (req, res) => {
@@ -29,6 +26,8 @@ router.post("/utter", async (req, res) => {
         text
     })
 
+    let predictions
+
     if(messages) {
         for(let message of messages) {
             if(message.text) {
@@ -41,7 +40,7 @@ router.post("/utter", async (req, res) => {
                 })
             } else if(message.custom) {
                 let entry = null
-                console.log(message.custom)
+                let event = null
                 switch(message.custom.type) {
                     case "ADD_MICTURITION":
                         entry = await dispatch(message.custom.type, {
@@ -66,6 +65,11 @@ router.post("/utter", async (req, res) => {
                             ...message.custom.payload
                         })
                         break
+                    case "SIGNOUT_USER":
+                        event = {
+                            type: "SIGNOUT_USER",
+                            user: req.user
+                        }
                         
                 }
 
@@ -78,21 +82,23 @@ router.post("/utter", async (req, res) => {
                         _id: entry._id,
                         date: entry.date
                     })
+                } else if(event) {
+                    events.push(event)
                 }
             }
         }
 
-        // let predictions = await forecast.getPredictions(req.user._id)
-        // await dispatch("CREATE_MICTURITION_PREDICTIONS", { predictions })
+        predictions = await forecast.getPredictions(req.user._id)
+        await dispatch("OVERRIDE_MICTURITION_PREDICTION", { predictions })
     }
 
-    // get predictions
     const start = new Date().valueOf()
     const end = start + 24 * 60 * 60 * 1000
-    let micturitionPrediction = await query("MICTURITION_PREDICTION", {user: req.user, date: {"$gte": start, "$lte": end} })
+    predictions = await query("MICTURITION_PREDICTION", {user: req.user, date: {"$gte": start, "$lte": end} })
+
 
     res.json({
-        micturitionPrediction,
+        micturitionPrediction: predictions,
         events
     })
 })

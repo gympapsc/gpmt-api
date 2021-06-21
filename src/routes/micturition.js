@@ -1,4 +1,5 @@
 const express = require("express")
+const forecast = require("../forecast")
 
 const { query, dispatch } = require("../store")
 
@@ -29,39 +30,18 @@ router.delete("/:id", async (req, res) => {
 })
 
 router.get("/predictions", async (req, res) => {
-    const start = new Date().valueOf()
-    const end = start + 24 * 60 * 60 * 1000
+    let start = new Date().valueOf()
+    start = start - start % 3600
+    let end = start + 24 * 60 * 60 * 1000
     let predictions = await query("MICTURITION_PREDICTION", {user: req.user, date: {"$gte": start, "$lte": end} })
 
-    if(predictions.length === 0) {
+    let newestPrediction = Math.max(predictions.map(p => new Date(p.date).valueOf()))
+
+    if(end > newestPrediction) {
         // get new predictions
-        predictions = [
-            { date: new Date(2021, 5, 18, 23), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 00), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 01), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 02), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 03), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 04), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 05), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 06), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 07), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 08), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 09), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 10), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 11), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 12), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 13), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 14), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 15), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 16), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 17), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 18), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 19), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 20), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 21), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 22), prediction: 0.12, timestamp: new Date()},
-            { date: new Date(2021, 5, 19, 23), prediction: 0.12, timestamp: new Date()},
-        ]
+        predictions = await forecast.getPredictions(req.user._id.toString())
+        await dispatch("OVERRIDE_MICTURITION_PREDICTION", { predictions })
+        predictions = await query("MICTURITION_PREDICTION", {user: req.user, date: {"$gte": start, "$lte": end} })
     }
 
     res.json({

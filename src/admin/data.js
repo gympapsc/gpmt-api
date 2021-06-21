@@ -22,7 +22,6 @@ router.get("/users", (req, res) => {
     })
 })
 
-
 // TODO setup fileFilter
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {

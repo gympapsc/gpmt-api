@@ -1,6 +1,8 @@
 const axios = require("axios")
 
-let client
+let client = axios.create({
+    baseURL: process.env.FORECAST_URL
+})
 
 module.exports = {
     init: baseURL => {
@@ -13,7 +15,7 @@ module.exports = {
         if(!client) { 
             return 
         }
-        client.get(`?user_id=${user_id}`)
-            .then(data => data.forecast)
+        return client.get(`/micturition?user_id=${user_id}`)
+            .then(res => res.data.forecast)
     }
 }

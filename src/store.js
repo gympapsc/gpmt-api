@@ -199,10 +199,21 @@ const dispatch = (action, payload, ack=null) => {
                 _id: payload._id
             }, ack)
             break
-        case "CREATE_MICTURITION_PREDICTIONS":
-            MicturitionPrediction.bulkWrite([
-                ...payload.predictions
-            ], ack)
+        case "OVERRIDE_MICTURITION_PREDICTION":
+            let dates = payload.predictions.map(p => p.date)
+            MicturitionPrediction.deleteMany({
+                date: { $in: dates }
+            }, (err, nModified) => {
+                if(err) return ack(err, null)
+
+                MicturitionPrediction.bulkWrite(
+                    payload.predictions.map(p => ({
+                        insertOne: {
+                            document: p
+                        }
+                    }))
+                , ack)
+            })
             break
         case "ACTIVATE_FORECAST_MODEL":
             MicturitionModel.updateMany({
