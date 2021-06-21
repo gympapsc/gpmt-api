@@ -35,7 +35,7 @@ router.get("/predictions", async (req, res) => {
     let end = start + 24 * 60 * 60 * 1000
     let predictions = await query("MICTURITION_PREDICTION", {user: req.user, date: {"$gte": start, "$lte": end} })
 
-    let newestPrediction = Math.max(predictions.map(p => new Date(p.date).valueOf()))
+    let newestPrediction = Math.max(...predictions.map(p => new Date(p.date).valueOf()))
 
     if(end > newestPrediction) {
         // get new predictions
