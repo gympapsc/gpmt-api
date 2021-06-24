@@ -27,10 +27,13 @@ router.post("/utter", async (req, res) => {
     })
 
     let predictions
+    let buttons = []
 
     if(messages) {
         for(let message of messages) {
             if(message.text) {
+                console.log("BOT_MESSAGE", message)
+
                 let botMessage = await dispatch("ADD_BOT_MESSAGE", { user: req.user, text: message.text })
 
                 events.push({
@@ -38,6 +41,9 @@ router.post("/utter", async (req, res) => {
                     text: botMessage.text,
                     timestamp: botMessage.timestamp
                 })
+            } else if (message.buttons) {
+                await dispatch("SET_UTTER_BUTTONS", { user: req.user, buttons: message.buttons })
+                buttons = message.buttons
             } else if(message.custom) {
                 let entry = null
                 let event = null
@@ -70,7 +76,7 @@ router.post("/utter", async (req, res) => {
                             type: "SIGNOUT_USER",
                             user: req.user
                         }
-                        
+                        break                   
                 }
 
                 if(entry) {
@@ -94,10 +100,15 @@ router.post("/utter", async (req, res) => {
 
     const start = new Date().valueOf()
     const end = start + 24 * 60 * 60 * 1000
-    predictions = await query("MICTURITION_PREDICTION", {user: req.user, date: {"$gte": start, "$lte": end} })
+    predictions = await query("MICTURITION_PREDICTION", { user: req.user, date: {"$gte": start, "$lte": end} })
+
+    if(buttons.length == 0) {
+        await dispatch("SET_UTTER_BUTTONS", { user: req.user, buttons: [] })
+    }
 
 
     res.json({
+        buttons,
         micturitionPrediction: predictions,
         events
     })

@@ -31,7 +31,7 @@ router.delete("/:id", async (req, res) => {
 
 router.get("/predictions", async (req, res) => {
     let start = new Date().valueOf()
-    start = start - start % 3600
+    start = start - start % 3600000
     let end = start + 24 * 60 * 60 * 1000
     let predictions = await query("MICTURITION_PREDICTION", {user: req.user, date: {"$gte": start, "$lte": end} })
 
@@ -41,7 +41,7 @@ router.get("/predictions", async (req, res) => {
         // get new predictions
         predictions = await forecast.getPredictions(req.user._id.toString())
         await dispatch("OVERRIDE_MICTURITION_PREDICTION", { predictions })
-        predictions = await query("MICTURITION_PREDICTION", {user: req.user, date: {"$gte": start, "$lte": end} })
+        predictions = await query("MICTURITION_PREDICTION", { user: req.user, date: {"$gte": start, "$lte": end} })
     }
 
     res.json({

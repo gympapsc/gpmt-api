@@ -10,7 +10,11 @@ const userSchema = new Schema({
     weight: { type: Number, required: true },
     birthDate: { type: Date, required: true },
     height: { type: Number, required: true, min: 20, max: 300},
-    role: { type: String, enum: ["user", "admin"], default: "user" }
+    role: { type: String, enum: ["user", "admin"], default: "user" },
+    utterButtons: [{
+        payload: { type: String, required: true },
+        title: { type: String, required: true }
+    }]
 }, {
     timestamps: {
         createdAt: "timestamp"

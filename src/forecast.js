@@ -1,14 +1,14 @@
 const axios = require("axios")
 
 let client = axios.create({
-    baseURL: process.env.FORECAST_URL
+    baseURL: process.env.ANALYSIS_URL
 })
 
 module.exports = {
     init: baseURL => {
         // create axios client
         client = axios.create({
-            baseURL: baseURL || process.env.FORECAST_URL
+            baseURL: baseURL || process.env.ANALYSIS_URL
         })
     },
     getPredictions: user_id => {

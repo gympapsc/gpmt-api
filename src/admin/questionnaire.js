@@ -3,7 +3,6 @@ const router = express.Router()
 
 const { dispatch, query } = require("../store")
 
-
 router.get("/", async (req, res) => {
     let questionnaire = await query("QUESTIONNAIRE", {})
 
@@ -11,7 +10,6 @@ router.get("/", async (req, res) => {
         questionnaire
     })
 })
-
 
 router.post("/:id", async (req, res) => {
     let { question } = req.body
@@ -24,6 +22,16 @@ router.post("/:id", async (req, res) => {
     })
 })
 
+router.post("/:id/option", async (req, res) => {
+    let { option } = req.body
+    let { id } = req.params
+
+    await dispatch("ADD_QUESTION_OPTION", { _id: id, option })
+
+    res.json({
+        ok: true
+    })
+})
 
 router.post("/:id/condition", async (req, res) => {
     let { condition } = req.body
@@ -35,6 +43,14 @@ router.post("/:id/condition", async (req, res) => {
     })
 })
 
+router.delete("/:id/condition/:cid", async (req, res) => {
+    let { id, cid } = req.params
+    await dispatch("DELETE_QUESTION_CONDITION", { _id: id, condition_id: cid })
+
+    res.json({
+        ok: true
+    })
+})
 
 router.put("/:id", async (req, res) => {
     let { id } = req.params

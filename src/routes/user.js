@@ -14,7 +14,8 @@ router.get("/", (req, res) => {
         email,
         timestamp,
         weight,
-        height
+        height,
+        utterButtons
     } = req.user
     
     res.json({
@@ -26,7 +27,8 @@ router.get("/", (req, res) => {
             email,
             timestamp,
             weight,
-            height
+            height,
+            utterButtons
         }
     })
 })

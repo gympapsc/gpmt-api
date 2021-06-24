@@ -126,11 +126,19 @@ const dispatch = (action, payload, ack=null) => {
             }, {
                 $push: { options: payload.option }
             })
+            break
+        case "DELETE_QUESTION_CONDITION":
+            Questionnaire.updateOne({
+                _id: payload._id
+            }, {
+                $pull: { condition: { _id: payload.condition_id } }
+            }, ack)
+            break
         case "UPDATE_QUESTION":
             Questionnaire.updateOne({
                 _id: payload._id
             }, {
-                ...payload
+                ...payload.question
             }, ack)
             break
         case "DELETE_QUESTION":
@@ -242,6 +250,15 @@ const dispatch = (action, payload, ack=null) => {
                 }, ack)
             })
             break
+        case "SET_UTTER_BUTTONS":
+            User.updateOne({
+                _id: payload.user._id
+            }, {
+                $set: {
+                    utterButtons: payload.buttons
+                }
+            }, ack)
+            break
         default:
             throw new Error("Unknown action " + action)
     }
@@ -314,22 +331,12 @@ const query = (model, selector, cb=null) => {
 
 Questionnaire.deleteMany({})
     .then(async () => {
-        let q1 = await Questionnaire.create({
-            type: "number",
-            name: "age",
-            condition: [
-                { type: "eq", value: "ms"},
-                { type: "eq", value: "multiple sklerose"}
-            ],
-            next: [],
-            options: []
-        })
-
         let q2 = await Questionnaire.create({
-            type: "string",
-            name: "stress",
+            type: "bool",
+            name: "incontience",
             condition: [
-                { type: "eq", value: "keine" }
+                { type: "eq", value: "ms" },
+                { type: "eq", value: "multiple sklerose" }
             ],
             next: [],
             options: []
@@ -341,7 +348,6 @@ Questionnaire.deleteMany({})
             name: "disease",
             condition: [],
             next: [
-                q1._id,
                 q2._id
             ],
             options: []

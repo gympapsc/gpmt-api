@@ -1,12 +1,14 @@
 const axios = require("axios")
 
-let client
+let client = axios.create({
+    baseURL: process.env.ANALYSIS_URL
+})
 
 module.exports = {
     init: baseURL => {
         // create axios client
         client = axios.create({
-            baseURL: baseURL || process.env.CLASSIFIER_URL
+            baseURL: baseURL || process.env.ANALYSIS_URL
         })
     },
     getPhotoClassification: user_id => {

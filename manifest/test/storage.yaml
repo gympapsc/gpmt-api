@@ -61,7 +61,7 @@ spec:
     storageClassName: "default"
     volumeName: gpmt-photo-pv
     accessModes:
-        - ReadWriteOnce
+        - ReadWriteMany
     resources:
         requests:
             storage: 5Gi
@@ -73,7 +73,7 @@ metadata:
 spec:
     storageClassName: "default"
     accessModes:
-        - ReadWriteOnce
+        - ReadWriteMany
     capacity:
         storage: 5Gi
     hostPath:
