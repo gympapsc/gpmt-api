@@ -8,9 +8,6 @@ module.exports = {
         // create axios client
         client = axios.create({
             baseURL: baseURL || process.env.RASA_URL,
-            headers: {
-                // TODO add AUTHENTICATION
-            }
         })
     },
     addMessage: (message) => {

@@ -324,6 +324,96 @@ const query = (model, selector, cb=null) => {
                 ...selector
             }, cb)
             break
+        case "USER_REGISTRATIONS_STATS":
+            User
+                .aggregate([
+                    // { 
+                    //     $match: { timestamp: { $gte: selector.startDate, $lte: selector.endDate } } 
+                    // },
+                    { 
+                        $addFields:{
+                            date:{
+                                $dateFromParts:{
+                                    year:   {$year:"$timestamp"},
+                                    month:  {$month:"$timestamp"},
+                                    day:    {$dayOfMonth:"$timestamp"}
+                                }
+                            },
+                            dateRange: {
+                                $map:{
+                                    input: { $range: [0, {$subtract:[ selector.endDate, selector.startDate]}, 1000*60*60*24] },
+                                    in: { $toDate: { $add: [ selector.startDate, "$$this" ] } }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        $unwind:"$dateRange"
+                    },
+                    {
+                        $group: {
+                            _id:"$dateRange", 
+                            registrations: {
+                                $push: {
+                                    $cond: [
+                                        { $eq:["$dateRange","$date"] },
+                                        { count: 1 },
+                                        { count: 0 }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            date: "$_id",
+                            registrations: { $sum: "$registrations.count" }
+                        }
+                    }
+                ])
+                .exec(cb)
+            break
+        case "USER_SIGNINS_STATS":
+            break
+        case "USER_ENTRIES_STATS":
+            break
+        case "USER_GENDER_STATS":
+            break
+        case "USER_BMI_STATS":
+            User
+                .aggregate([
+                    { 
+                        $addFields:{
+                            bmi: {
+                                $divide: [
+                                    "$weight",
+                                    { 
+                                        $pow: [
+                                            "$height",
+                                            2
+                                        ] 
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id:"$bmi", 
+                            users: { $sum: 1 }
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            bmi: "$_id",
+                            users: "$users"
+                        }
+                    }
+                ])
+                .exec(cb)
+            break
         default:
             throw new Error("Unknown model type " + model)
     }

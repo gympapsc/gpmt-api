@@ -30,6 +30,9 @@ module.exports = {
                 if(user) {
                     if(user.role === role) {
                         req.user = user
+
+                        // TODO set last active date on user 
+
                         return next()
                     } else {
                         return res.json(401, {
