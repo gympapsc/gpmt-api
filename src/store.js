@@ -61,7 +61,7 @@ const dispatch = (action, payload, ack=null) => {
             User.updateOne({
                 _id: payload._id
             }, {
-                ...payload
+                $set: { ...payload }
             }, ack)
             break
         case "ANSWER_QUESTION":

@@ -15,7 +15,9 @@ router.get("/", (req, res) => {
         timestamp,
         weight,
         height,
-        utterButtons
+        utterButtons,
+        settings,
+        micturitionFrequency
     } = req.user
     
     res.json({
@@ -28,7 +30,9 @@ router.get("/", (req, res) => {
             timestamp,
             weight,
             height,
-            utterButtons
+            utterButtons,
+            settings,
+            micturitionFrequency
         }
     })
 })
@@ -42,10 +46,22 @@ router.put("/", async (req, res) => {
         email,
         timestamp,
         weight,
-        height
+        height,
+        settings
     } = req.body
 
-    await dispatch("UPDATE_USER", { _id: req.user._id, firstname, surname, birthDate, sex, email, timestamp, weight, height })
+    await dispatch("UPDATE_USER", { 
+        _id: req.user._id, 
+        firstname, 
+        surname, 
+        birthDate, 
+        sex, 
+        email, 
+        timestamp, 
+        weight, 
+        height,
+        settings
+    })
     
     res.json({
         ok: true

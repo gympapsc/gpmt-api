@@ -1,5 +1,5 @@
 const express = require("express")
-const forecast = require("../forecast")
+const analysis = require("../forecast")
 
 const rasa = require("../rasa")
 const { query, dispatch } = require("../store")
@@ -26,7 +26,6 @@ router.post("/utter", async (req, res) => {
         text
     })
 
-    let predictions
     let buttons = []
 
     if(messages) {
@@ -94,13 +93,15 @@ router.post("/utter", async (req, res) => {
             }
         }
 
-        predictions = await forecast.getPredictions(req.user._id)
-        await dispatch("OVERRIDE_MICTURITION_PREDICTION", { predictions })
+        let { forecast, micturitionFrequency } = await analysis.getPredictions(req.user._id)
+        await dispatch("OVERRIDE_MICTURITION_PREDICTION", { predictions: forecast })
+        await dispatch("UPDATE_USER", { _id: req.user._id, micturitionFrequency })
+        req.user.micturitionFrequency = micturitionFrequency
     }
 
     const start = new Date().valueOf()
     const end = start + 24 * 60 * 60 * 1000
-    predictions = await query("MICTURITION_PREDICTION", { user: req.user, date: {"$gte": start, "$lte": end} })
+    let forecast = await query("MICTURITION_PREDICTION", { user: req.user, date: {"$gte": start, "$lte": end} })
 
     if(buttons.length == 0) {
         await dispatch("SET_UTTER_BUTTONS", { user: req.user, buttons: [] })
@@ -109,8 +110,9 @@ router.post("/utter", async (req, res) => {
 
     res.json({
         buttons,
-        micturitionPrediction: predictions,
-        events
+        micturitionPrediction: forecast,
+        events,
+        micturitionFrequency: req.user.micturitionFrequency
     })
 })
 

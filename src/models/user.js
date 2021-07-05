@@ -14,7 +14,13 @@ const userSchema = new Schema({
     utterButtons: [{
         payload: { type: String, required: true },
         title: { type: String, required: true }
-    }]
+    }],
+    micturitionFrequency: { type: Number, default: 0 },
+    settings: {
+        voiceInput: { type: Boolean, default: false },
+        voiceOutput: { type: Boolean, default: false },
+        cumulativePrediction: { type: Boolean, default: false }
+    }
 }, {
     timestamps: {
         createdAt: "timestamp"

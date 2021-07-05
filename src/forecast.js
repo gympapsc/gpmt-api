@@ -16,6 +16,9 @@ module.exports = {
             return 
         }
         return client.get(`/micturition?user_id=${user_id}`)
-            .then(res => res.data.forecast)
+            .then(res => ({
+                forecast: res.data.forecast,
+                micturitionFrequency: res.data.micturitionFrequency
+            }))
     }
 }

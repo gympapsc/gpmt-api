@@ -1,5 +1,5 @@
 const express = require("express")
-const forecast = require("../forecast")
+const analysis = require("../forecast")
 
 const { query, dispatch } = require("../store")
 
@@ -39,8 +39,8 @@ router.get("/predictions", async (req, res) => {
 
     if(end > newestPrediction) {
         // get new predictions
-        predictions = await forecast.getPredictions(req.user._id.toString())
-        await dispatch("OVERRIDE_MICTURITION_PREDICTION", { predictions })
+        let { forecast } = await analysis.getPredictions(req.user._id.toString())
+        await dispatch("OVERRIDE_MICTURITION_PREDICTION", { predictions: forecast })
         predictions = await query("MICTURITION_PREDICTION", { user: req.user, date: {"$gte": start, "$lte": end} })
     }
 
