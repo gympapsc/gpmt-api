@@ -105,7 +105,6 @@ jobs:
           manifests: |
               manifest/deployments.yaml
               manifest/services.yaml
-              manifest/prod/statefulsets.yaml
           imagepullsecrets: |
               ${{ env.REGISTRY_SECRET_NAME }}
           namespace: "default"
