@@ -90,7 +90,7 @@ jobs:
           helm template nginx-ingress ingress-nginx/ingress-nginx \
           --values ./manifest/nginx.values.yaml \
           --values ./manifest/prod/nginx.values.yaml \
-          --namespace "default" | kubectl apply -n ${{ env.NAMESPACE }} -f -
+          --namespace "default" | kubectl apply -n default -f -
       
       - name: Deploy certificate manager
         run: |
