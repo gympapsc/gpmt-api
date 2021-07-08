@@ -14,8 +14,7 @@ spec:
         spec:
             containers:
             - name: gpmt-api
-              # image: gpmtregistry.azurecr.io/gpmt-api:v1
-              image: hakrac/gpmt-api:latest
+              image: gpmtcontainerregistry.azurecr.io/gpmt-api
               imagePullPolicy: Always
               env:
               - name: AUTH_SIGN_SECRET 
@@ -25,7 +24,7 @@ spec:
               - name: PORT
                 value: "80"
               - name: MONGO_URL
-                value: "gpmt-mongodb.default.svc.cluster.local"
+                value: "mongodb://gpmtdb:aD3OP3ay1EXrS8NfT5Qs5kyZlb9FXMK9jcMfaefv48h84pT9RHrQjoFgSTnu9Fh8niMUNTysETPQTbzQThUADg==@gpmtdb.mongo.cosmos.azure.com:10255/?ssl=true&retrywrites=false&maxIdleTimeMS=120000&appName=@gpmtdb@"
               - name: RASA_URL
                 value: "http://rasa-x-rasa-production.rasa.svc.cluster.local:5005"
               - name: REDIS_URL
@@ -34,18 +33,5 @@ spec:
                 value: "http://gpmt-net.default.svc.cluster.local"
               ports:
               - containerPort: 80
-              volumeMounts:
-              - name: "gpmt-photo"
-                mountPath: /data/gpmt-photo
-              - name: "gpmt-model"
-                mountPath: /data/gpmt-model
-              # imagePullSecrets:
-              # - name: registry-token
-            volumes:
-            - name: gpmt-photo
-              persistentVolumeClaim:
-                claimName: gpmt-photo-pvc
-            - name: gpmt-model
-              persistentVolumeClaim:
-                claimName: gpmt-model-pvc
-            
+            imagePullSecrets:
+            - name: "registry-token"
