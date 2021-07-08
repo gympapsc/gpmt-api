@@ -4,9 +4,12 @@ const questionnaireSchema = new mongoose.Schema({
     name: {type: String, unique: true, required: true },
     root: {type: Boolean, default: false },
     type: { type: String, enum: ["number", "radio", "string", "bool"], required: true },
-    options: [{
-        text: { type: String, required: true }
-    }],
+    options: [
+        {
+            title: { type: String, required: true },
+            value: { type: String, required: true }
+        }
+    ],
     condition: [
         {
             type: { type: String, require: true},

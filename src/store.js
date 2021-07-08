@@ -125,7 +125,7 @@ const dispatch = (action, payload, ack=null) => {
                 _id: payload._id
             }, {
                 $push: { options: payload.option }
-            })
+            }, ack)
             break
         case "DELETE_QUESTION_CONDITION":
             Questionnaire.updateOne({

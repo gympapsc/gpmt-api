@@ -24,7 +24,7 @@ const PORT = parseInt(process.env.PORT)
 
 const app = express()
 
-mongoose.connect(`mongodb://${process.env.MONGO_URL}:27017/gpmt`, {
+mongoose.connect(process.env.MONGO_URL, {
     useCreateIndex: true,
     useNewUrlParser: true,
     useUnifiedTopology: true
