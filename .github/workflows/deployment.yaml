@@ -45,7 +45,7 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
       
       - name: Build container
-        run: docker build ./data -t ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ env.VERSION }}
+        run: docker build ./ -t ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ env.VERSION }}
       
       - name: Push container
         run: docker push ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ env.VERSION }}
