@@ -65,13 +65,20 @@ jobs:
           cluster-name: ${{ env.CLUSTER_NAME }}
           resource-group: ${{ env.RESOURCE_GROUP }}
       
-      - name: Create kubernetes registry secret
+      - name: Create k8s registry secret
         uses: azure/k8s-create-secret@v1
         with:
           container-registry-url: ${{ env.REGISTRY_USERNAME }}.azurecr.io
           container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
           container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
           secret-name: ${{ env.REGISTRY_SECRET_NAME }}
+          namespace: "default"
+          
+      - name: Create k8s cosmos url secret
+        uses: azure/k8s-create-secret@v1
+        with:
+          COSMOS_URL: ${{ secrets.COSMOS_URL }}
+          secret-name: "cosmosurl"
           namespace: "default"
 
       - uses: azure/setup-helm@v1

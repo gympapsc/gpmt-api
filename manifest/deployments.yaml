@@ -26,7 +26,7 @@ spec:
               - name: MONGO_URL
                 valueFrom:
                   secretKeyRef:
-                    name: cosmosUrl
+                    name: cosmosurl
                     key: COSMOS_URL
               - name: RASA_URL
                 value: "http://rasa-x-rasa-production.rasa.svc.cluster.local:5005"
