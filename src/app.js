@@ -32,8 +32,7 @@ mongoose.connect(process.env.MONGO_URL, {
 
 app.use(cors({
     // TODO set cors origin via env variable
-    origin: [process.env.APP_URL, process.env.ADMIN_URL]
-    origin: ["http://localhost:5000", "http://localhost:4000"],
+    origin: [process.env.APP_URL, process.env.ADMIN_URL],
     credentials: true
 }))
 
