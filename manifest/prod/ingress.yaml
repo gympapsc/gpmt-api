@@ -8,21 +8,27 @@ metadata:
         nginx.ingress.kubernetes.io/ssl-redirect: "false"
         nginx.ingress.kubernetes.io/rewrite-target: /$1
         nginx.ingress.kubernetes.io/use-regex: "true"
+        nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+        nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
         cert-manager.io/issuer: "letsencrypt"
 spec:
     tls:
-    - hosts: 
-        - api-gpmt.westeurope.cloudapp.azure.com
-      secretName: tls-secret
+      - hosts: 
+          - api-gpmt.westeurope.cloudapp.azure.com
+        secretName: tls-secret
+    defaultBackend:
+      service:
+        name: gpmt-api
+        port:
+          number: 80
     rules:
     - host: api-gpmt.westeurope.cloudapp.azure.com
       http:
         paths:
-        - path: /
+        - path: /(.*)
           pathType: Prefix
           backend:
             service:
                 name: gpmt-api
                 port:
-                    number: 80
-        
+                  number: 80
