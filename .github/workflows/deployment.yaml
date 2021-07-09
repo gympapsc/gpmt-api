@@ -49,8 +49,7 @@ jobs:
       
       - name: Push container
         run: docker push ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api
-
-        
+     
     deploy:
       name: Deploy to AKS
       needs: build
