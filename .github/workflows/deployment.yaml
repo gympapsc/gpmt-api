@@ -77,8 +77,8 @@ jobs:
       - name: Create k8s cosmos url secret
         uses: azure/k8s-create-secret@v1
         with:
-          COSMOS_URL: ${{ secrets.COSMOS_URL }}
-          secret-name: "cosmosurl"
+          url: ${{ secrets.COSMOS_URL }}
+          secret-name: "cosmos"
           namespace: "default"
 
       - uses: azure/setup-helm@v1
