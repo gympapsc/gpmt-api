@@ -74,7 +74,7 @@ jobs:
           secret-name: ${{ env.REGISTRY_SECRET_NAME }}
           namespace: "default"
 
-      - name: Create k8s registry secret
+      - name: Create k8s cosmos secret
         uses: azure/k8s-create-secret@v1
         with:
           secret-type: 'generic'
