@@ -45,10 +45,10 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
       
       - name: Build container
-        run: docker build ./ -t ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ env.VERSION }}
+        run: docker build ./ -t ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api
       
       - name: Push container
-        run: docker push ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ env.VERSION }}
+        run: docker push ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api
 
         
     deploy:
@@ -72,13 +72,6 @@ jobs:
           container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
           container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
           secret-name: ${{ env.REGISTRY_SECRET_NAME }}
-          namespace: "default"
-          
-      - name: Create k8s cosmos url secret
-        uses: azure/k8s-create-secret@v1
-        with:
-          url: ${{ secrets.COSMOS_URL }}
-          secret-name: "cosmos"
           namespace: "default"
 
       - uses: azure/setup-helm@v1
