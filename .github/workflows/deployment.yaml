@@ -74,6 +74,14 @@ jobs:
           secret-name: ${{ env.REGISTRY_SECRET_NAME }}
           namespace: "default"
 
+      - name: Create k8s registry secret
+        uses: azure/k8s-create-secret@v1
+        with:
+          secret-type: 'generic'
+          arguments:  --from-literal=url=${{ secrets.COSMOS_URL }}
+          secret-name: cosmosdb
+          namespace: "default"
+
       - uses: azure/setup-helm@v1
         with:
           version: '3.5.3'
