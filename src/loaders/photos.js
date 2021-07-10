@@ -4,13 +4,8 @@ const path = require("path")
 const { createObjectCsvWriter } = require("csv-writer")
 
 class PhotoLoader {
-    constructor(tmpDir, photoDir) {
+    constructor(tmpDir, ) {
         this.tmpDir = tmpDir
-        this.photoDir = photoDir
-
-        if (!fs.existsSync(tmpDir)){
-            fs.mkdirSync(tmpDir)
-        }
     }
 
     dump(photos) {
@@ -23,14 +18,6 @@ class PhotoLoader {
         })
 
         csvWriter.writeRecords(photos.map(p => ({ id: p._id, label: p.name })))
-
-        fs.readdir(this.photoDir, (err, files) => {
-            files.forEach(file => {
-                if(path.extname(file) === ".jpeg") {
-                    fs.copyFileSync(path.join(this.photoDir, file), path.join(this.tmpDir, file))
-                }
-            })
-        })
     }
 
     zip(targetDir) {

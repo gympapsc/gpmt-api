@@ -5,8 +5,14 @@ const path = require("path")
 const { v4: uuid } = require("uuid")
 const PhotoLoader = require("../loaders/photos")
 const ModelLoader = require("../loaders/model")
+const { BlobServiceClient } = require("@azure/storage-blob")
+
+const inMemoryStorage = multer.memoryStorage()
 
 const router = express.Router()
+
+const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.STORAGE_CONNECTION_URL)
+const containerClient = blobServiceClient.getContainerClient("photo-models")
 
 const { query, dispatch } = require("../store")
 
@@ -36,15 +42,27 @@ router.get("/", (req, res) => {
 })
 
 router.get("/download", async (req, res) => {
-    let photoLoader = new PhotoLoader(`/tmp/${uuid()}`, "/gpmt-photo")
+    // load all photos from blob storage into /tmp 
+    let now = new Date()
+    let tmpPath = path.join("/tmp", now.valueOf())
+
+    fs.mkdirSync(tmpPath)    
+    for await (let blob of containerClient.listBlobsFlat()) {
+        let blobPath = path.join(tmpPath, blob.name)
+        let blockClient = containerClient.getBlockBlobClient(blob.name)
+        blockClient.downloadToFile(blobPath)
+    }
+
+    let photoLoader = new PhotoLoader(tmpPath)
 
     let photos = await query("PHOTOS", {})
     photoLoader.dump(photos)
 
     let tarPath = photoLoader.zip("/tmp")
     res.download(tarPath)
-})
 
+    // fs.unlinkSync(tarPath)
+})
 
 router.get("/model", async (req, res) => {
     try {
@@ -61,39 +79,22 @@ router.get("/model", async (req, res) => {
     }
 })
 
-
 // TODO setup fileFilter
+const upload = multer({ storage: inMemoryStorage })
 
-// TODO upload to blob Storage
+router.post("/model", upload.single("model"), async (req, res) => {
+    let now = new Date()
+    let doc = await dispatch("CREATE_PHOTO_CLASSIFICATION_MODEL", {
+        name: now.toISOString(),
+        active: false
+    })
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        if(!fs.existsSync("/data/gpmt-model/photo")) {
-            fs.mkdirSync("/data/gpmt-model/photo")
-        }
-        cb(null, "/data/gpmt-model/photo")
-    },
-    filename: function (req, file, cb) {
-        let now = new Date()
-        dispatch("CREATE_PHOTO_CLASSIFICATION_MODEL", {name: now.toISOString(), active: false}, (err, doc) => {
-            console.log("CREATED PHOTO MODEL", doc._id)
-            file.metadata = doc
-            cb(null, doc._id.toString())
-        })
-    }
-})
+    await containerClient.createIfNotExists()
 
-const upload = multer({ storage })
-router.post("/model", upload.single("model"), (req, res) => {
-    let {
-        _id,
-        timestamp,
-        active
-    } = req.file.metadata
-
-    let modelLoader = new ModelLoader("/data/gpmt-model/photo")
-    modelLoader.load(req.file.destination, req.file.filename)
-
+    let blobName = doc._id.toString()
+    let blockBlobClient = containerClient.getBlockBlobClient(blobName)
+    await blockBlobClient.upload(req.file.buffer, req.file.buffer.length)
+    
     res.json({
         model: {
             timestamp,
@@ -137,13 +138,11 @@ router.delete("/model/:id", async (req, res) => {
     let model = await query("PHOTO_CLASSIFICATION_MODEL", { _id: id })
 
     if(!model.active) {
-    
-        if(fs.existsSync(path.join("/data/gpmt-model/photo", id.toString()))) {
-            fs.unlinkSync(path.join("/data/gpmt-model/photo", id.toString()))
-        }
-
         await dispatch("DELETE_PHOTO_CLASSIFICATION_MODEL", { _id: id })
 
+        let blobName = model._id.toString()
+        let blockBlobClient = containerClient.getBlockBlobClient(blobName)
+        await blockBlobClient.deleteIfExists()
 
         res.json({
             _id: model._id,
@@ -161,13 +160,23 @@ router.get("/:id", async (req, res) => {
     let photos = await query("PHOTO", {_id: id})
     let photo = photos[0]
 
-    if(!photo || !photo._id || !fs.existsSync(`/data/gpmt-photo/${photo._id}.jpeg`)) {
+    if(!photo || !photo._id) {
         return res.status(404)
     }
 
+    let blobName = photo._id.toString() + ".jpeg"
+    let localPath = path.join("/tmp", blobName)
+    if(!fs.existsSync(localPath)) {
+        // load photo from blob storage
+        let blockBlobClient = containerClient.getBlockBlobClient(blobName)
+        await blockBlobClient.downloadToFile(localPath)
+    }
+
     res.sendFile(
-        `/data/gpmt-photo/${photo._id}.jpeg`
+        localPath
     )
+
+    // fs.unlinkSync(localPath)
 })
 
 router.get("/:id/download", async (req, res) => {
@@ -175,12 +184,20 @@ router.get("/:id/download", async (req, res) => {
     let photos = await query("PHOTO", {_id: id})
     let photo = photos[0]
 
-    if(!photo || !photo._id || !fs.existsSync(`/data/gpmt-photo/${photo._id}.jpeg`)) {
+    if(!photo || !photo._id) {
         return res.status(404)
     }
 
+    let blobName = photo._id.toString() + ".jpeg"
+    let localPath = path.join("/tmp", blobName)
+    if(!fs.existsSync(localPath)) {
+        // load photo from blob storage
+        let blockBlobClient = containerClient.getBlockBlobClient(blobName)
+        await blockBlobClient.downloadToFile(localPath)
+    }
+
     res.download(
-        `/data/gpmt-photo/${photo._id}.jpeg`
+        localPath
     )
 })
 

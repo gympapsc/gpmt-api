@@ -3,12 +3,17 @@ const multer = require("multer")
 const { v4: uuid } = require("uuid")
 const fs = require("fs")
 const path = require("path")
-
+const { BlobServiceClient } = require("@azure/storage-blob")
 const DataLoader = require("../loaders/data")
+
+const inMemoryStorage = multer.memoryStorage()
+
 const router = express.Router()
 
+const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.STORAGE_CONNECTION_URL)
+const containerClient = blobServiceClient.getContainerClient("forecast-models")
+
 const { query, dispatch } = require("../store")
-const ModelLoader = require("../loaders/model")
 
 router.get("/users", (req, res) => {
     let { start, end } = req.query
@@ -24,26 +29,7 @@ router.get("/users", (req, res) => {
 
 // TODO setup fileFilter
 
-// TODO upload to blob storage
-
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        if(!fs.existsSync("/data/gpmt-model/forecast")) {
-            fs.mkdirSync("/data/gpmt-model/forecast")
-        }
-        cb(null, "/data/gpmt-model/forecast")
-    },
-    filename: function (req, file, cb) {
-        let now = new Date()
-        dispatch("CREATE_FORECAST_MODEL", {name: now.toISOString(), active: false}, (err, doc) => {
-            console.log("CREATED FORECAST MODEL", doc._id)
-            file.metadata = doc
-            cb(null, doc._id.toString())
-        })
-    }
-})
-
-const upload = multer({ storage })
+const upload = multer({ storage: inMemoryStorage })
 
 router.get("/download", async (req, res) => {
     let dataLoader = new DataLoader(`/tmp/${uuid()}`)
@@ -77,22 +63,24 @@ router.get("/model", (req, res) => {
     })
 })
 
-router.post("/model", upload.single("model"), (req, res) => {
-    let {
-        _id,
-        timestamp,
-        active
-    } = req.file.metadata
+router.post("/model", upload.single("model"), async (req, res) => {
+    let now = new Date()
+    let doc = await dispatch("CREATE_FORECAST_MODEL", {
+        name: now.toISOString(),
+        active: false
+    })
 
-    let modelLoader = new ModelLoader("/data/gpmt-model/forecast")
+    await containerClient.createIfNotExists()
 
-    modelLoader.load(req.file.destination, req.file.filename)
+    let blobName = doc._id.toString()
+    let blockBlobClient = containerClient.getBlockBlobClient(blobName)
+    await blockBlobClient.upload(req.file.buffer, req.file.buffer.length)
 
     res.json({
         model: {
-            timestamp,
-            active,
-            _id
+            timestamp: doc.timestamp,
+            active: doc.active,
+            _id: doc._id.toString()
         }
     })
 })
@@ -122,10 +110,10 @@ router.delete("/model/:id", async (req, res) => {
 
     if(!model.active) {
         await dispatch("DELETE_FORECAST_MODEL", { _id: id })
-    
-        if(fs.existsSync(path.join("/data/gpmt-model/forecast", id.toString()))) {
-            fs.unlinkSync(path.join("/data/gpmt-model/forecast", id.toString()))
-        }
+
+        let blobName = model._id.toString()
+        let blockBlobClient = containerClient.getBlockBlobClient(blobName)
+        await blockBlobClient.deleteIfExists()
 
         res.json({
             _id: model._id,
