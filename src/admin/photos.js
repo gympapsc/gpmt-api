@@ -64,7 +64,8 @@ router.get("/model", async (req, res) => {
 
 // TODO setup fileFilter
 
-// upload to blob Storage
+// TODO upload to blob Storage
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         if(!fs.existsSync("/data/gpmt-model/photo")) {

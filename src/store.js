@@ -77,6 +77,16 @@ const dispatch = (action, payload, ack=null) => {
                 name: payload.name
             }, ack)
             break
+        case "UPDATE_PHOTO":
+            Photo.updateOne({
+                user: payload.user,
+                _id: payload._id
+            }, {
+                $set: {
+                    name: payload.name
+                }
+            }, ack)
+            break
         case "DELETE_ALL_PHOTOS":
             Photo.remove({}, ack)
             break

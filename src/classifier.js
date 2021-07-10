@@ -15,7 +15,7 @@ module.exports = {
         if(!client) { 
             return 
         }
-        client.get(`?user_id=${user_id}`)
+        return client.get(`?user_id=${user_id}`)
             .then(data => data.classification)
             
     }

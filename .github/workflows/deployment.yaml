@@ -32,7 +32,7 @@ jobs:
           path: ./coverage
 
     build:
-      name: Build and push containers to ACR
+      name: Build and push container to ACR
       runs-on: ubuntu-latest
       steps:
       - uses: actions/checkout@v2
@@ -79,6 +79,14 @@ jobs:
           secret-type: 'generic'
           arguments:  --from-literal=url=${{ secrets.COSMOS_URL }}
           secret-name: cosmosdb
+          namespace: "default"
+
+      - name: Create k8s azure storage secret
+        uses: azure/k8s-create-secret@v1
+        with:
+          secret-type: 'generic'
+          arguments:  --from-literal=url=${{ secrets.STORAGE_CONNECTION_URL }}
+          secret-name: azure-storage
           namespace: "default"
 
       - uses: azure/setup-helm@v1

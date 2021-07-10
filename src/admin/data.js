@@ -23,6 +23,9 @@ router.get("/users", (req, res) => {
 })
 
 // TODO setup fileFilter
+
+// TODO upload to blob storage
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         if(!fs.existsSync("/data/gpmt-model/forecast")) {

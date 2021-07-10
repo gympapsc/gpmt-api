@@ -1,39 +1,48 @@
 const express = require("express")
 const multer = require("multer")
+const path = require("path")
+const fs = require("fs")
 const classifier = require("../classifier")
+const inMemoryStorage = multer.memoryStorage()
+const { BlobServiceClient } = require("@azure/storage-blob")
 
 classifier.init()
+const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.STORAGE_CONNECTION_URL)
+const containerClient = blobServiceClient.getContainerClient("photos")
 
 const { dispatch, query } = require("../store")
 
 // TODO setup fileFilter
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        console.log("photo destination for", file)
-        cb(null, "/data/gpmt-photo")
-    },
-    filename: function (req, file, cb) {
-        // TODO get photo classification
-        console.log("CREATING PHOTO ", file)
-        dispatch("CREATE_PHOTO", {user: req.user, name: "test"}, (err, doc) => {
-            console.log("CREATED PHOTO", doc._id, req.user.firstname)
-            file.metadata = doc
-            cb(null, doc._id + ".jpeg")
-        })
-    }
-})
-
-const upload = multer({ storage })
+const upload = multer({ storage: inMemoryStorage })
 
 const router = express.Router()
 
-router.post("/", upload.single("photo"), (req, res) => {
-    classifier.getPhotoClassification(req.user._id, req.file.metadata._id)
+router.post("/", upload.single("photo"), async (req, res) => {
+    
+    let doc = await dispatch("CREATE_PHOTO", {
+        user: req.user,
+        name: ""
+    })
+
+    await containerClient.createIfNotExists()
+
+    let blobName = doc._id.toString() + ".jpeg"
+    let blockBlobClient = containerClient.getBlockBlobClient(blobName)
+    await blockBlobClient.upload(req.file.buffer, req.file.buffer.length)
+
+    let classification = await classifier.getPhotoClassification(req.user._id, doc._id.toString())
+
+    doc = await dispatch("UPDATE_PHOTO", {
+        user: req.user,
+        _id: doc._id,
+        name: classification
+    })
+
     res.json({
         photo: {
-            name: "test",
-            _id: req.file.metadata._id,
+            name: doc.name,
+            _id: doc._id.toString(),
             timestamp: req.file.metadata.timestamp
         }
     })
@@ -47,20 +56,27 @@ router.get("/", (req, res) => {
     })
 })
 
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res) => {
     console.log("GET PHOTO ID ", req.params.id)
-    query("PHOTO", {user: req.user, _id: req.params.id}, (err, photos) => {
-        if(photos[0]) {
-            res.sendFile(
-                `/data/gpmt-photo/${photos[0]._id}.jpeg`
-            )
+    let photos = await query("PHOTO", {user: req.user, _id: req.params.id})
+
+    if(photos[0]) {
+        let blobName = photos[0]._id.toString() + ".jpeg"
+        let localPath = path.join("/tmp", blobName)
+        if(!fs.existsSync(localPath)) {
+            // load photo from blob storage
+            let blockBlobClient = containerClient.getBlockBlobClient(blobName)
+            await blockBlobClient.downloadToFile(localPath)
         }
-    })
+
+        res.sendFile(
+            localPath
+        )
+    }
+
+    res.status(404)
 })
 
-router.put("/:id", (req, res) => {
-    
-})
 
 dispatch("DELETE_ALL_PHOTOS", {}, () => {})
 
