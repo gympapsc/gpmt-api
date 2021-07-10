@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/gympapsc/gpmt-api#readme",
   "dependencies": {
+    "@azure/storage-blob": "^12.6.0",
     "axios": "^0.21.1",
     "bcrypt": "^5.0.1",
     "cookie": "^0.4.1",
