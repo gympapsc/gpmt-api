@@ -33,7 +33,7 @@ router.post("/", upload.single("photo"), async (req, res) => {
 
     let classification = await classifier.getPhotoClassification(req.user._id, doc._id.toString())
 
-    doc = await dispatch("UPDATE_PHOTO", {
+    await dispatch("UPDATE_PHOTO", {
         user: req.user,
         _id: doc._id,
         name: classification
@@ -41,7 +41,7 @@ router.post("/", upload.single("photo"), async (req, res) => {
 
     res.json({
         photo: {
-            name: doc.name,
+            name: classification,
             _id: doc._id.toString(),
             timestamp: req.file.metadata.timestamp
         }
