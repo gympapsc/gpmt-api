@@ -26,7 +26,7 @@ router.post("/signin", (req, res) => {
                             res
                                 .cookie("authToken", token, {
                                     sameSite: "none",
-                                    secure: false
+                                    secure: true
                                 })
                                 .json({
                                     ok: true
