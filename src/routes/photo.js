@@ -43,7 +43,7 @@ router.post("/", upload.single("photo"), async (req, res) => {
         photo: {
             name: classification,
             _id: doc._id.toString(),
-            timestamp: req.file.metadata.timestamp
+            timestamp: doc.timestamp
         }
     })
 })
