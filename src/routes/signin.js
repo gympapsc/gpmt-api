@@ -26,7 +26,8 @@ router.post("/signin", (req, res) => {
                             res
                                 .cookie("authToken", token, {
                                     sameSite: "none",
-                                    secure: true
+                                    secure: true,
+                                    domain: process.env.DOMAIN_NAME
                                 })
                                 .json({
                                     ok: true
@@ -65,7 +66,8 @@ router.post("/signin/admin", (req, res) => {
                             res
                                 .cookie("authToken", token, {
                                     sameSite: "none",
-                                    secure: true
+                                    secure: true,
+                                    domain: process.env.DOMAIN_NAME
                                 })
                                 .json({
                                     ok: true
