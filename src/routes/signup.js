@@ -46,8 +46,7 @@ router.post("/signup", (req, res) => {
                     res
                         .cookie("authToken", token, {
                             sameSite: "none",
-                            secure: true,
-                            domain: process.env.DOMAIN_NAME
+                            secure: true
                         })
                         .json({
                             ok: true
