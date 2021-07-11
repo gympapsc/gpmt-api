@@ -24,7 +24,7 @@ spec:
               - name: PORT
                 value: "80"
               - name: DOMAIN_NAME
-                value: "api-gpmt.westeurope.cloudapp.azure.com"
+                value: ".api-gpmt.westeurope.cloudapp.azure.com"
               - name: STORAGE_CONNECTION_URL
                 valueFrom:
                   secretKeyRef:
