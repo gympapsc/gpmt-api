@@ -38,7 +38,7 @@ spec:
               - name: ANALYSIS_URL
                 value: "http://gpmt-net.default.svc.cluster.local"
               - name: APP_URL
-                value: "https://ashy-plant-057233103.azurestaticapps.net"
+                value: "http://gympapmt.azurewebsites.net/"
               - name: ADMIN_URL
                 value: "https://lemon-sky-04de5ba03.azurestaticapps.net"
               ports:
