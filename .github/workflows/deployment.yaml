@@ -1,12 +1,11 @@
-on: [release, push]
+on: [release]
 
-name: Deployment to AKS
+name: Deployment to Azure Kubernetes Service
 
 env:
     CLUSTER_NAME: GPMTCluster
     RESOURCE_GROUP: GPMTResourceGroup
     REGISTRY_SECRET_NAME: registry-token
-    VERSION: v1
     
 jobs:
     testing:
@@ -45,10 +44,10 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
       
       - name: Build container
-        run: docker build ./ -t ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api
+        run: docker build ./ -t ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ github.event.release.tag }}
       
       - name: Push container
-        run: docker push ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api
+        run: docker push ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ github.event.release.tag }}
      
     deploy:
       name: Deploy to AKS
@@ -122,6 +121,8 @@ jobs:
               manifest/services.yaml
           imagepullsecrets: |
               ${{ env.REGISTRY_SECRET_NAME }}
+          images: |
+             ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ github.event.release.tag }}
           namespace: "default"
 
       - name: Deploy api ingress
