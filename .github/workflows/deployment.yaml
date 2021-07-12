@@ -44,10 +44,10 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
       
       - name: Build container
-        run: docker build ./ -t ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ github.event.release.tag }}
+        run: docker build ./ -t ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ github.event.release.tag_name }}
       
       - name: Push container
-        run: docker push ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ github.event.release.tag }}
+        run: docker push ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ github.event.release.tag_name }}
      
     deploy:
       name: Deploy to AKS
@@ -122,7 +122,7 @@ jobs:
           imagepullsecrets: |
               ${{ env.REGISTRY_SECRET_NAME }}
           images: |
-             ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ github.event.release.tag }}
+             ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ github.event.release.tag_name }}
           namespace: "default"
 
       - name: Deploy api ingress
