@@ -40,7 +40,7 @@ spec:
               - name: APP_URL
                 value: "http://gympapmt.azurewebsites.net/"
               - name: ADMIN_URL
-                value: "https://lemon-sky-04de5ba03.azurestaticapps.net"
+                value: "https://adminmt.azurewebsites.net/"
               ports:
               - containerPort: 80
             imagePullSecrets:
