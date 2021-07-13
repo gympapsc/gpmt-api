@@ -122,7 +122,7 @@ jobs:
           imagepullsecrets: |
               ${{ env.REGISTRY_SECRET_NAME }}
           images: |
-             ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ github.event.release.tag_name }}
+            ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ github.event.release.tag_name }}
           namespace: "default"
 
       - name: Deploy api ingress

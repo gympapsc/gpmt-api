@@ -28,33 +28,6 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-    name: gpmt-redis-pvc
-    namespace: default
-spec:
-    storageClassName: "default"
-    volumeName: gpmt-redis-pv
-    accessModes:
-        - ReadWriteOnce
-    resources:
-        requests:
-            storage: 2Gi
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-    name: gpmt-redis-pv
-spec:
-    storageClassName: "default"
-    accessModes:
-        - ReadWriteOnce
-    capacity:
-        storage: 2Gi
-    hostPath:
-        path: /data/gpmt-redis
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
     name: gpmt-photo-pvc
     namespace: default
 spec:

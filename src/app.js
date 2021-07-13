@@ -30,9 +30,11 @@ mongoose.connect(process.env.MONGO_URL, {
     useUnifiedTopology: true
 })
 
+console.log(process.env.APP_URL)
+
 app.use(cors({
     // TODO set cors origin via env variable
-    origin: true,
+    origin: process.env.APP_URL,
     credentials: true
 }))
 
