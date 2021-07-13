@@ -30,11 +30,8 @@ mongoose.connect(process.env.MONGO_URL, {
     useUnifiedTopology: true
 })
 
-console.log(process.env.APP_URL)
-
 app.use(cors({
-    // TODO set cors origin via env variable
-    origin: process.env.APP_URL,
+    origin: [process.env.APP_URL, process.env.ADMIN_URL],
     credentials: true
 }))
 
@@ -44,7 +41,10 @@ app.use(passport.initialize())
 
 app.get("/", (req, res) => {
     res.json({
-        health: "ok"
+        health: "ok",
+        host: req.hostname,
+        secure: req.secure,
+        authenticated: req.isAuthenticated()
     })
 })
 
