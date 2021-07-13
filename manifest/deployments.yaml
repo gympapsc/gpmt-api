@@ -38,9 +38,9 @@ spec:
               - name: ANALYSIS_URL
                 value: "http://gpmt-net.default.svc.cluster.local"
               - name: APP_URL
-                value: "https://gympapmt.azurewebsites.net"
+                value: "https://gympapmt.de"
               - name: ADMIN_URL
-                value: "https://adminmt.azurewebsites.net"
+                value: "https://admin.gympapmt.de"
               ports:
               - containerPort: 80
             imagePullSecrets:

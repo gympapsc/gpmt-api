@@ -15,7 +15,7 @@ metadata:
 spec:
     tls:
       - hosts: 
-          - api-gpmt.westeurope.cloudapp.azure.com
+          - api.gympapmt.de
         secretName: tls-secret
     defaultBackend:
       service:
@@ -23,7 +23,7 @@ spec:
         port:
           number: 80
     rules:
-    - host: api-gpmt.westeurope.cloudapp.azure.com
+    - host: api.gympapmt.de
       http:
         paths:
         - path: /(.*)
