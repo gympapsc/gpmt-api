@@ -78,6 +78,4 @@ router.get("/:id", async (req, res) => {
 })
 
 
-dispatch("DELETE_ALL_PHOTOS", {}, () => {})
-
 module.exports = router
