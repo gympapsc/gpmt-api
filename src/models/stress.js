@@ -10,4 +10,4 @@ const stressSchema = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model("Stress", stressSchema, "stress")
+module.exports = mongoose.model("Stress", stressSchema, "Stress")

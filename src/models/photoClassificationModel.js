@@ -11,6 +11,6 @@ const photoClassificationModelSchema = new mongoose.Schema({
 })
 
 
-module.exports = mongoose.model("PhotoClassificationModel", photoClassificationModelSchema, "photoClassificationModels")
+module.exports = mongoose.model("PhotoClassificationModel", photoClassificationModelSchema, "PhotoClassificationModels")
 
 

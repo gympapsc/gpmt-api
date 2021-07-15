@@ -25,4 +25,4 @@ const questionnaireSchema = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model("Questionnaire", questionnaireSchema, "questionnaire")
+module.exports = mongoose.model("Questionnaire", questionnaireSchema, "Questionnaire")

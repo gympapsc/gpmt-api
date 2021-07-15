@@ -44,10 +44,14 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
       
       - name: Build container
-        run: docker build ./ -t ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ github.event.release.tag_name }}
+        run: |
+          docker build ./ \
+          -t ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ github.event.release.tag_name }} \
+          --build-arg API_VERSION=${{ github.event.release.tag_name }}
       
       - name: Push container
-        run: docker push ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ github.event.release.tag_name }}
+        run: |
+          docker push ${{ secrets.REGISTRY_USERNAME }}.azurecr.io/gpmt-api:${{ github.event.release.tag_name }}
      
     deploy:
       name: Deploy to AKS

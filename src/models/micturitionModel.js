@@ -10,6 +10,6 @@ const micturitionModelSchema = new mongoose.Schema({
 })
 
 
-module.exports = mongoose.model("MicturitionModel", micturitionModelSchema, "micturitionModels")
+module.exports = mongoose.model("MicturitionModel", micturitionModelSchema, "MicturitionModels")
 
 

@@ -44,7 +44,8 @@ app.get("/", (req, res) => {
         health: "ok",
         host: req.hostname,
         secure: req.secure,
-        authenticated: req.isAuthenticated()
+        authenticated: req.isAuthenticated(),
+        version: process.env.API_VERSION
     })
 })
 

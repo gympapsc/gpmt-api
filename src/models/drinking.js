@@ -13,4 +13,4 @@ const drinkingSchema = new Schema({
 })
 
 
-module.exports = mongoose.model("Drinking", drinkingSchema, "drinking")
+module.exports = mongoose.model("Drinking", drinkingSchema, "Drinking")

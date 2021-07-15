@@ -13,4 +13,4 @@ photoSchema.index({
     name: "text"
 })
 
-module.exports = mongoose.model("Photo", photoSchema, "photos")
+module.exports = mongoose.model("Photo", photoSchema, "Photos")

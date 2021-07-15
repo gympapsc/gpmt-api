@@ -13,4 +13,4 @@ const micturitionPredictionSchema = new Schema({
     }
 })
 
-module.exports = model("MicturitionPrediction", micturitionPredictionSchema, "micturitionPredictions")
+module.exports = model("MicturitionPrediction", micturitionPredictionSchema, "MicturitionPredictions")
