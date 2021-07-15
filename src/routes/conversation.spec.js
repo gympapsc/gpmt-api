@@ -29,8 +29,8 @@ describe("/conversation", () => {
         app.use("/", conversationRouter)
     })
 
-    it("should get messages", done => {
-        request(app)
+    it("should get messages", async () => {
+        await request(app)
             .get("/")
             .expect(200)
             .expect("Content-Type", /json/)
@@ -43,6 +43,6 @@ describe("/conversation", () => {
                     sender: "user",
                     user: "1234567890"
                 }]
-            }, done)
+            })
     })
 })

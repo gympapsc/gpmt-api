@@ -11,7 +11,6 @@ router.post("/signin", (req, res) => {
         "USER",
         { email },
         (err, users) => {
-            console.log(err, users)
             if (err) return res.status(401)
             if (users.length === 0) return res.status(400)
             const user = users[0]
@@ -34,10 +33,9 @@ router.post("/signin", (req, res) => {
                         })
                     } else {
                         res
-                            .status(400)
+                            .status(401)
                             .json({ err: "Invalid credentials" })
                     }
-                    
                 })
         }
     )
@@ -50,7 +48,6 @@ router.post("/signin/admin", (req, res) => {
         "ADMIN",
         { role: "admin" },
         (err, users) => {
-            console.log(err, users)
             if (err) return res.status(401)
             if (users.length === 0) return res.status(400)
             const user = users[0]

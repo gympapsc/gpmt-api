@@ -19,7 +19,16 @@ describe("/stress", () => {
             .expect(200)
             .expect("Content-Type", /json/)
             .expect({
-                entries: []
+                entries: [
+                    {
+                        _id: "1234",
+                        timestamp: new Date(2000, 0, 1).valueOf(),
+                        updatedAt: new Date(2000, 0, 1).valueOf(),
+                        date: new Date(2000, 0, 1).valueOf(),
+                        user: "1234567890",
+                        level: 1
+                    }
+                ]
             })
     })
 })

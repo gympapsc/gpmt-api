@@ -10,18 +10,54 @@ describe("/signup", () => {
 
     beforeAll(() => {
         app.use(express.json())
+        app.use((req, res, next) => {
+            req.user = {
+                _id: "1234567890",
+                timestamp: new Date(2000, 0, 1).valueOf(),
+                updatedAt: new Date(2000, 0, 1).valueOf(),
+                firstname: "Testing",
+                surname: "Taylor",
+                email: "testing@taylor.com",
+                weight: 80,
+                height: 180,
+                birthDate: new Date(2000, 0, 1),
+                sex: "m",
+                utterButtons: [],
+                settings: {
+                    voiceInput: false,
+                    voiceOutput: false,
+                    cumulativePrediction: false
+                },
+                micturitionFrequency: 1.0
+            }
+            next()
+        })
         app.use("/", userRouter)
     })
 
-    it("should check uniqueness of email address", async () => {
-        let base64Email = Buffer.from("testing@taylor.com").toString("base64")
+    it("should get user", async () => {
         await request(app)
-            .get(`/checkUnique/${base64Email}`)
+            .get(`/`)
             .expect(200)
             .expect("Content-Type", /json/)
             .expect({
-                email: "testing@taylor.com",
-                isUnique: false
+                user: {
+                    timestamp: new Date(2000, 0, 1).valueOf(),
+                    firstname: "Testing",
+                    surname: "Taylor",
+                    email: "testing@taylor.com",
+                    weight: 80,
+                    height: 180,
+                    birthDate: new Date(2000, 0, 1).toISOString(),
+                    sex: "m",
+                    utterButtons: [],
+                    settings: {
+                        voiceInput: false,
+                        voiceOutput: false,
+                        cumulativePrediction: false
+                    },
+                    micturitionFrequency: 1.0
+                }
             })
     })
 })

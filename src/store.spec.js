@@ -32,9 +32,9 @@ describe("store dispatch", () => {
     })
 
 
-    it("should dispatch CREATE_USER", done => {
+    it("should dispatch ADD_USER", done => {
         User.create.mockImplementation((obj, cb) => cb())
-        dispatch("CREATE_USER", userMock, () => {
+        dispatch("ADD_USER", userMock, () => {
             expect(User.create).toBeCalledTimes(1)
             done()
         })
@@ -66,9 +66,9 @@ describe("store dispatch", () => {
         })
     })
 
-    it("should dispatch CREATE_MICTURITION", done => {
+    it("should dispatch ADD_MICTURITION", done => {
         Micturition.create.mockImplementation((obj, cb) => cb())
-        dispatch("CREATE_MICTURITION", {
+        dispatch("ADD_MICTURITION", {
             user: userMock,
             date: new Date()
         }, () => {
@@ -77,9 +77,9 @@ describe("store dispatch", () => {
         })
     })
 
-    it("should dispatch CREATE_DRINKING", done => {
+    it("should dispatch ADD_DRINKING", done => {
         Drinking.create.mockImplementation((obj, cb) => cb())
-        dispatch("CREATE_DRINKING", {
+        dispatch("ADD_DRINKING", {
             user: userMock,
             date: new Date(),
             amount: 100
@@ -103,7 +103,7 @@ describe("store dispatch", () => {
     })
 
     it("should throw on unknown action", () => {
-        expect(() => dispatch("DO_NOTHING", {})).toThrow()
+        expect(() => dispatch("DO_NOTHING", {}, () => {})).toThrow()
     })
 })
 
@@ -149,6 +149,6 @@ describe("store query", () => {
     })
 
     it("should throw Error for undefined model", () => {
-        expect(() => query("UNKNOWN_MODEL", {})).toThrow()
+        expect(() => query("UNKNOWN_MODEL", {}, () => {})).toThrow()
     })
 })

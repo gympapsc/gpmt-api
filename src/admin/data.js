@@ -3,27 +3,30 @@ const multer = require("multer")
 const { v4: uuid } = require("uuid")
 const fs = require("fs")
 const path = require("path")
-const { BlobServiceClient } = require("@azure/storage-blob")
 const DataLoader = require("../loaders/data")
+const UserLoader = require("../loaders/user")
+const storageAccount = require("../storage")
 
 const inMemoryStorage = multer.memoryStorage()
 
 const router = express.Router()
 
-const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.STORAGE_CONNECTION_URL)
-const containerClient = blobServiceClient.getContainerClient("forecast-models")
-
 const { query, dispatch } = require("../store")
 
-router.get("/users", (req, res) => {
-    let { start, end } = req.query
-    start = new Date(start)
-    end = new Date(end)
-    query("USER", {}, (err, users) => {
-        if(err) res.json({err})
-        res.json({
-            users
-        })
+router.get("/users", async (req, res) => {
+    let users = await query("USER", {})
+    let answers = await query("ANSWER", {})
+
+    users = users.map(user => {
+        let userAnswers = answers.filter(a => a.user._id === user._id)
+        for(let answer of userAnswers) {
+            user[answer.question.name] = answer.answer
+        }
+        return user
+    })
+
+    res.json({
+        users
     })
 })
 
@@ -33,8 +36,12 @@ const upload = multer({ storage: inMemoryStorage })
 
 router.get("/download", async (req, res) => {
     let dataLoader = new DataLoader(`/tmp/${uuid()}`)
+    let userLoader = new UserLoader(dataLoader.tmpDir)
 
     let users = await query("USER", {})
+    let answers = await query("ANSWER", {})
+
+    await userLoader.dump(users, answers)
     for(let user of users) {
         let micturition = await query("MICTURITION", { user })
         let drinking = await query("DRINKING", { user })
@@ -70,11 +77,10 @@ router.post("/model", upload.single("model"), async (req, res) => {
         active: false
     })
 
-    await containerClient.createIfNotExists()
+    const forecastModelContainerClient = await storageAccount("forecast-models")
 
     let blobName = doc._id.toString()
-    let blockBlobClient = containerClient.getBlockBlobClient(blobName)
-    await blockBlobClient.upload(req.file.buffer, req.file.buffer.length)
+    await forecastModelContainerClient.upload(blobName, req.file.buffer, req.file.upper.length)
 
     res.json({
         model: {
@@ -107,13 +113,14 @@ router.delete("/model/:id", async (req, res) => {
     let { id } = req.params
 
     let model = await query("FORECAST_MODEL", { _id: id })
+    
+    const forecastModelContainerClient = await storageAccount("forecast-models")
 
     if(!model.active) {
         await dispatch("DELETE_FORECAST_MODEL", { _id: id })
 
         let blobName = model._id.toString()
-        let blockBlobClient = containerClient.getBlockBlobClient(blobName)
-        await blockBlobClient.deleteIfExists()
+        await forecastModelContainerClient.deleteIfExists(blobName)
 
         res.json({
             _id: model._id,

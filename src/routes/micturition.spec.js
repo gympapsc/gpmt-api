@@ -14,14 +14,20 @@ describe("/micturition", () => {
     })
 
     it("should get entries", async () => {
-        let base64Email = Buffer.from("testing@taylor.com").toString("base64")
         await request(app)
-            .get(`/checkUnique/${base64Email}`)
+            .get("/")
             .expect(200)
             .expect("Content-Type", /json/)
             .expect({
-                email: "testing@taylor.com",
-                isUnique: false
+                entries: [
+                    {
+                        _id: "1234",
+                        timestamp: new Date(2000, 0, 1).valueOf(),
+                        updatedAt: new Date(2000, 0, 1).valueOf(),
+                        user: "1234567890",
+                        date: new Date(2000, 0, 1).valueOf()
+                    }
+                ]
             })
     })
 })

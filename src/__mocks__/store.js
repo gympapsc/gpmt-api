@@ -1,3 +1,5 @@
+const bcrypt = require("bcrypt")
+
 const dispatch = jest.fn((action, payload, ack=null) => {
     if(!ack) {
         return new Promise((res, rej) => {
@@ -39,10 +41,18 @@ const query = jest.fn((model, selector, cb=null) => {
                     firstname: "Testing",
                     surname: "Taylor",
                     email: "testing@taylor.com",
+                    passwordHash: bcrypt.hashSync("Password", parseInt(process.env.HASH_SALT_ROUNDS)),
                     weight: 80,
                     height: 180,
                     birthDate: new Date(2000, 0, 1),
-                    sex: "m"
+                    sex: "m",
+                    utterButtons: [],
+                    settings: {
+                        voiceInput: false,
+                        voiceOutput: false,
+                        cumulativePrediction: false
+                    },
+                    micturitionFrequency: 1.0
                 }])
             }
             break
@@ -55,6 +65,7 @@ const query = jest.fn((model, selector, cb=null) => {
                 date: new Date(2000, 0, 1).valueOf(),
                 amount: 600
             }])
+            break
         case "MICTURITION":
             cb(null, [{
                 _id: "1234",
@@ -62,6 +73,25 @@ const query = jest.fn((model, selector, cb=null) => {
                 updatedAt: new Date(2000, 0, 1).valueOf(),
                 user: "1234567890",
                 date: new Date(2000, 0, 1).valueOf()
+            }])
+            break
+        case "PHOTO":
+            cb(null, [{
+                _id: "1234",
+                timestamp: new Date(2000, 0, 1).valueOf(),
+                updatedAt: new Date(2000, 0, 1).valueOf(),
+                user: "1234567890",
+                name: "1"
+            }])
+            break
+        case "STRESS":
+            cb(null, [{
+                _id: "1234",
+                timestamp: new Date(2000, 0, 1).valueOf(),
+                updatedAt: new Date(2000, 0, 1).valueOf(),
+                date: new Date(2000, 0, 1).valueOf(),
+                user: "1234567890",
+                level: 1
             }])
         default:
             cb({

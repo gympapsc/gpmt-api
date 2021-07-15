@@ -29,8 +29,8 @@ describe("/drinking", () => {
         app.use("/", drinkingRouter)
     })
 
-    it("should get entries", done => {
-        request(app)
+    it("should get entries", async () => {
+        await request(app)
             .get("/")
             .expect(200)
             .expect("Content-Type", /json/)
@@ -43,6 +43,6 @@ describe("/drinking", () => {
                     date: new Date(2000, 0, 1).valueOf(),
                     amount: 600
                 }]
-            }, done)
+            })
     })
 })

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 
 const questionnaireSchema = new mongoose.Schema({
-    name: {type: String, unique: true, required: true },
+    name: {type: String, required: true },
     root: {type: Boolean, default: false },
     type: { type: String, enum: ["number", "radio", "string", "bool"], required: true },
     options: [

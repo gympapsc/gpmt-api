@@ -2,17 +2,11 @@ const express = require("express")
 const multer = require("multer")
 const fs = require("fs")
 const path = require("path")
-const { v4: uuid } = require("uuid")
 const PhotoLoader = require("../loaders/photos")
-const ModelLoader = require("../loaders/model")
-const { BlobServiceClient } = require("@azure/storage-blob")
+const storageAccount = require("../storage")
 
 const inMemoryStorage = multer.memoryStorage()
-
 const router = express.Router()
-
-const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.STORAGE_CONNECTION_URL)
-const containerClient = blobServiceClient.getContainerClient("photo-models")
 
 const { query, dispatch } = require("../store")
 
@@ -46,11 +40,12 @@ router.get("/download", async (req, res) => {
     let now = new Date()
     let tmpPath = path.join("/tmp", now.valueOf())
 
-    fs.mkdirSync(tmpPath)    
-    for await (let blob of containerClient.listBlobsFlat()) {
+    fs.mkdirSync(tmpPath)
+    let photoModelContainerClient = await storageAccount("photo-models")
+
+    for await (let blob of photoModelContainerClient.list()) {
         let blobPath = path.join(tmpPath, blob.name)
-        let blockClient = containerClient.getBlockBlobClient(blob.name)
-        blockClient.downloadToFile(blobPath)
+        await photoModelContainerClient.readToFile(blob.name, blobPath)
     }
 
     let photoLoader = new PhotoLoader(tmpPath)
@@ -89,11 +84,10 @@ router.post("/model", upload.single("model"), async (req, res) => {
         active: false
     })
 
-    await containerClient.createIfNotExists()
+    let photoModelContainerClient = await storageAccount("photo-models")
 
     let blobName = doc._id.toString()
-    let blockBlobClient = containerClient.getBlockBlobClient(blobName)
-    await blockBlobClient.upload(req.file.buffer, req.file.buffer.length)
+    await photoModelContainerClient.upload(blobName, req.file.buffer, req.file.buffer.length)
     
     res.json({
         model: {
@@ -126,7 +120,6 @@ router.post("/model/:id/activate", async (req, res) => {
 
 router.delete("/model/:id", async (req, res) => {
     let { id } = req.params
-
     if(!id) {
         return res
             .status(401)
@@ -136,13 +129,12 @@ router.delete("/model/:id", async (req, res) => {
     }
 
     let model = await query("PHOTO_CLASSIFICATION_MODEL", { _id: id })
-
+    let photoModelContainerClient = await storageAccount("photo-models")
     if(!model.active) {
         await dispatch("DELETE_PHOTO_CLASSIFICATION_MODEL", { _id: id })
 
         let blobName = model._id.toString()
-        let blockBlobClient = containerClient.getBlockBlobClient(blobName)
-        await blockBlobClient.deleteIfExists()
+        await photoModelContainerClient.deleteIfExists(blobName)
 
         res.json({
             _id: model._id,
@@ -160,6 +152,8 @@ router.get("/:id", async (req, res) => {
     let photos = await query("PHOTO", {_id: id})
     let photo = photos[0]
 
+    let photoModelContainerClient = await storageAccount("photo-models")
+
     if(!photo || !photo._id) {
         return res.status(404)
     }
@@ -168,8 +162,7 @@ router.get("/:id", async (req, res) => {
     let localPath = path.join("/tmp", blobName)
     if(!fs.existsSync(localPath)) {
         // load photo from blob storage
-        let blockBlobClient = containerClient.getBlockBlobClient(blobName)
-        await blockBlobClient.downloadToFile(localPath)
+        await photoModelContainerClient.readToFile(blobName, localPath)
     }
 
     res.sendFile(
@@ -184,6 +177,8 @@ router.get("/:id/download", async (req, res) => {
     let photos = await query("PHOTO", {_id: id})
     let photo = photos[0]
 
+    let photoModelContainerClient = await storageAccount("photo-models")
+
     if(!photo || !photo._id) {
         return res.status(404)
     }
@@ -192,8 +187,7 @@ router.get("/:id/download", async (req, res) => {
     let localPath = path.join("/tmp", blobName)
     if(!fs.existsSync(localPath)) {
         // load photo from blob storage
-        let blockBlobClient = containerClient.getBlockBlobClient(blobName)
-        await blockBlobClient.downloadToFile(localPath)
+        await photoModelContainerClient.readtoFile(blobName, localPath)
     }
 
     res.download(

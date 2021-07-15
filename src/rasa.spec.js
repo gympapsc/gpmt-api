@@ -33,6 +33,6 @@ describe("rasa api", () => {
             },
             text: "Hello"
         })
-        expect(res).toEqual("Hello")
+        expect(res[0].text).toEqual("Hello")
     })
 })

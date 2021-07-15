@@ -35,18 +35,17 @@ class DataLoader {
     }
 
     zip(targetDir) {
+        // TODO accept full path as argument and return writeStream
+
         let now = new Date()
-
         let filename = now.valueOf().toString()
-
-        tar.c({
+        let tarStream = tar.c({
             gzip: true
         }, [this.tmpDir]).pipe(
             fs.createWriteStream(
                 path.join(targetDir, filename) + ".tgz"
             )
         )
-
         return path.join(targetDir, filename) + ".tgz"
     }
 }
