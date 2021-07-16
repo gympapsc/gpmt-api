@@ -16,7 +16,7 @@ module.exports = {
             return 
         }
         return client.get(`/photo?user_id=${user_id}`)
-            .then(data => data.classification)
+            .then(res => res.data.classification)
             
     }
 }
