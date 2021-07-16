@@ -62,6 +62,7 @@ router.post("/utter", async (req, res) => {
                     case "ADD_DRINKING":
                         entry = await dispatch(message.custom.type, {
                             ...message.custom.payload,
+                            amount: message.custom.payload.data[message.custom.payload.data.length - 1],
                             date: new Date(message.custom.payload.date[message.custom.payload.date.length - 1])
                         })
                         break
