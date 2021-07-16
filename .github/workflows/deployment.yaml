@@ -123,6 +123,7 @@ jobs:
           manifests: |
               manifest/deployments.yaml
               manifest/services.yaml
+              manifest/issuer.yaml
           imagepullsecrets: |
               ${{ env.REGISTRY_SECRET_NAME }}
           images: |
