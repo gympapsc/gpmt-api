@@ -1,0 +1,10 @@
+on: [push]
+
+name: Testing GPMT api service
+
+env:
+    CLUSTER_NAME: GPMTCluster
+    RESOURCE_GROUP: GPMTResourceGroup
+    REGISTRY_SECRET_NAME: registry-token
+
+jobs:

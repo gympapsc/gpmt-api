@@ -113,7 +113,7 @@ jobs:
       - name: Deploy certificate manager
         run: |
           helm upgrade --install cert-manager jetstack/cert-manager \
-          --values ./manifest/cert-manager.values.yaml \
+          --values ./manifest/prod/cert-manager.values.yaml \
           --set installCRDs=true \
           --namespace cert-manager --create-namespace 
       
@@ -121,9 +121,9 @@ jobs:
         uses: azure/k8s-deploy@v1
         with:
           manifests: |
-              manifest/deployments.yaml
-              manifest/services.yaml
-              manifest/issuer.yaml
+              manifest/prod/deployments.yaml
+              manifest/prod/services.yaml
+              manifest/prod/issuer.yaml
           imagepullsecrets: |
               ${{ env.REGISTRY_SECRET_NAME }}
           images: |

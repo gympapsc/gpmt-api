@@ -41,6 +41,8 @@ spec:
                 value: "https://gympapmt.de"
               - name: ADMIN_URL
                 value: "https://admin.gympapmt.de"
+              - name: NODE_ENV
+                value: "production"
               ports:
               - containerPort: 80
             imagePullSecrets:
