@@ -3,7 +3,7 @@ const analysis = require("../forecast")
 
 const { query, dispatch } = require("../store")
 
-const router = express()
+const router = express.Router()
 
 router.get("/", async (req, res) => {
     let entries = await query("MICTURITION", {user: req.user})

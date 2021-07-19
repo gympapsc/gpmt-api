@@ -3,7 +3,9 @@ const analysis = require("../forecast")
 
 const rasa = require("../rasa")
 const { query, dispatch } = require("../store")
-const router = express()
+
+const router = express.Router()
+
 rasa.init()
 
 router.post("/utter", async (req, res) => {
@@ -50,21 +52,56 @@ router.post("/utter", async (req, res) => {
                     case "ADD_MICTURITION":
                         entry = await dispatch(message.custom.type, {
                             ...message.custom.payload,
-                            date: new Date(message.custom.payload.date[message.custom.payload.date.length - 1])
+                            date: Array.isArray(message.custom.payload.date) ? 
+                                new Date(message.custom.payload.date[message.custom.payload.date.length - 1]) :
+                                new Date(message.custom.payload.date)
                         })
+
+                        events.push({
+                            type: message.custom.type,
+                            timestamp: entry.timestamp,
+                            updatedAt: entry.updatedAt,
+                            _id: entry._id,
+                            date: entry.date
+                        })
+
                         break
                     case "ADD_STRESS":
                         entry = await dispatch(message.custom.type, {
                             ...message.custom.payload,
-                            date: new Date(message.custom.payload.date[message.custom.payload.date.length - 1])
+                            date: Array.isArray(message.custom.payload.date) ? 
+                                new Date(message.custom.payload.date[message.custom.payload.date.length - 1]) :
+                                new Date(message.custom.payload.date)
                         })
+
+                        events.push({
+                            type: message.custom.type,
+                            timestamp: entry.timestamp,
+                            updatedAt: entry.updatedAt,
+                            _id: entry._id,
+                            date: entry.date,
+                            level: entry.level
+                        })
+
                         break
                     case "ADD_DRINKING":
                         entry = await dispatch(message.custom.type, {
                             ...message.custom.payload,
-                            amount: message.custom.payload.data[message.custom.payload.data.length - 1],
-                            date: new Date(message.custom.payload.date[message.custom.payload.date.length - 1])
+                            amount: message.custom.payload.amount[message.custom.payload.amount.length - 1],
+                            date: Array.isArray(message.custom.payload.date) ? 
+                                new Date(message.custom.payload.date[message.custom.payload.date.length - 1]) :
+                                new Date(message.custom.payload.date)
                         })
+
+                        events.push({
+                            type: message.custom.type,
+                            timestamp: entry.timestamp,
+                            updatedAt: entry.updatedAt,
+                            _id: entry._id,
+                            date: entry.date,
+                            amount: entry.amount
+                        })
+
                         break
                     case "ANSWER_QUESTION":
                         answer = await dispatch(message.custom.type, {
@@ -79,16 +116,7 @@ router.post("/utter", async (req, res) => {
                         break                   
                 }
 
-                if(entry) {
-                    events.push({
-                        type: message.custom.type,
-                        ...message.custom.payload,
-                        timestamp: entry.timestamp,
-                        updatedAt: entry.updatedAt,
-                        _id: entry._id,
-                        date: entry.date
-                    })
-                } else if(event) {
+                if(event) {
                     events.push(event)
                 }
             }

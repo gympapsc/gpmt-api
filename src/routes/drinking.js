@@ -2,7 +2,7 @@ const express = require("express")
 
 const { dispatch, query } = require("../store")
 
-const router = express()
+const router = express.Router()
 
 router.get("/", async (req, res) => {
     let entries = await query("DRINKING", { user: req.user })

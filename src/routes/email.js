@@ -2,7 +2,7 @@ const express = require("express")
 
 const { query } = require("../store")
 
-const router = express()
+const router = express.Router()
 
 router.get("/checkUnique/:email", (req, res) => {
     let email = Buffer.from(req.params.email, "base64").toString()

@@ -269,6 +269,13 @@ const dispatch = (action, payload, ack=null) => {
                 }
             }, ack)
             break
+        case "DELETE_QUESTION_OPTION":
+            Questionnaire.updateOne({
+                _id: payload._id
+            }, {
+                $pull: { options: { _id: payload.option_id } }
+            }, ack)
+            break
         default:
             throw new Error("Unknown action " + action)
     }

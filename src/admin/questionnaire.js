@@ -28,18 +28,32 @@ router.post("/:id/option", async (req, res) => {
 
     await dispatch("ADD_QUESTION_OPTION", { _id: id, option })
 
+    let questions = await query("QUESTIONNAIRE", { _id: id })
+
     res.json({
-        ok: true
+        ok: true,
+        question: questions[0]
+    })
+})
+
+router.delete("/:id/option/:oid", async (req, res) => {
+    let { id, oid } = req.params
+    await dispatch("DELETE_QUESTION_OPTION", { _id: id, option_id: oid })
+    
+    res.json({
+        ok: true 
     })
 })
 
 router.post("/:id/condition", async (req, res) => {
     let { condition } = req.body
     let _id = req.params.id
-    let q = await dispatch("ADD_CONDITION", { _id, condition })
+    await dispatch("ADD_CONDITION", { _id, condition })
+    let questions = await query("QUESTIONNAIRE", { _id })
 
     res.json({
-        ok: true
+        ok: true,
+        question: questions[0]
     })
 })
 
