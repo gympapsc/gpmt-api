@@ -9,7 +9,8 @@ const messageSchema = new Schema({
     buttons: [{
         payload: { type: String, required: true },
         title: { type: String, required: true }
-    }]
+    }],
+    localId: { type: String }
 }, {
     timestamps: {
         createdAt: "timestamp"
