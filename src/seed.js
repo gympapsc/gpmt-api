@@ -24,9 +24,7 @@ module.exports = function seed() {
                 type: "string",
                 name: "disease",
                 condition: [],
-                next: [
-                    doc._id
-                ],
+                next: [],
                 options: []
             })   
         }
