@@ -92,6 +92,14 @@ jobs:
           secret-name: azure-storage
           namespace: "default"
 
+      - name: Create k8s admin password secret
+        uses: azure/k8s-create-secret@v1
+        with:
+          secret-type: 'generic'
+          arguments:  --from-literal=password=${{ secrets.ADMIN_PASSWORD }}
+          secret-name: admin
+          namespace: "default"
+
       - uses: azure/setup-helm@v1
         with:
           version: '3.5.3'

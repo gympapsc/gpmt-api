@@ -33,6 +33,11 @@ spec:
                   secretKeyRef:
                     name: cosmosdb
                     key: url
+              - name: ADMIN_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: admin
+                    key: password
               - name: RASA_URL
                 value: "http://rasa-x-rasa-production.rasa.svc.cluster.local:5005"
               - name: ANALYSIS_URL

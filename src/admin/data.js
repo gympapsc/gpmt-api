@@ -1,12 +1,7 @@
 const express = require("express")
 const multer = require("multer")
 const { v4: uuid } = require("uuid")
-const fs = require("fs")
-const path = require("path")
-const DataLoader = require("../loaders/data")
-const UserLoader = require("../loaders/user")
 const storageAccount = require("../storage")
-
 const inMemoryStorage = multer.memoryStorage()
 
 const router = express.Router()
@@ -35,33 +30,6 @@ router.get("/users", async (req, res) => {
 
 const upload = multer({ storage: inMemoryStorage })
 
-router.get("/download", async (req, res) => {
-    let dataLoader = new DataLoader(`/tmp/${uuid()}`)
-    let userLoader = new UserLoader(dataLoader.tmpDir)
-
-    let users = await query("USER", {})
-    let answers = await query("ANSWER", {})
-
-    await userLoader.dump(users, answers)
-    for(let user of users) {
-        let micturition = await query("MICTURITION", { user })
-        let drinking = await query("DRINKING", { user })
-        let stress = await query("STRESS", { user })
-        dataLoader.dump(user._id.toString(), {
-            micturition,
-            drinking,
-            stress
-        })
-    }
-
-    let tarPath = dataLoader.zip("/tmp")
-
-    setTimeout(() => {
-        fs.readdir("/tmp", (err, files) => console.log(files))
-        res.download(tarPath)
-    }, 4000)
-})
-
 router.get("/export/csv", async (req, res) => {
     let path = `/tmp/${uuid()}`
     let csvSerializer = new CsvSerializer(path)
@@ -84,7 +52,7 @@ router.get("/export/csv", async (req, res) => {
 
     let answers = await query("ANSWER", {})
     let questions = await query("QUESTIONNAIRE", {})
-    
+
     await csvSerializer.dump("userInfo", answers.map(a => ({
         id: a._id.toString(),
         user: a.user,

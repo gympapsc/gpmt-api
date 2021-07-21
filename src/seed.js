@@ -14,37 +14,38 @@ const {
     PhotoClassificationModel
 } = require("./models")
 
-let q2 = Questionnaire.create({
-    type: "bool",
-    name: "incontience",
-    condition: [
-        { type: "eq", value: "ms" },
-        { type: "eq", value: "multiple sklerose" }
-    ],
-    next: [],
-    options: []
-})
-    .then(doc => Questionnaire.create({
-            root: true,
-            type: "string",
-            name: "disease",
-            condition: [],
-            next: [
-                doc._id
-            ],
-            options: []
-        })
-    )
-
-
-User.create({
-    role: "admin",
-    email: "hakim@admin.com",
-    firstname: "hakim",
-    surname: "rachidi",
-    sex: "m",
-    weight: 80,
-    height: 180,
-    passwordHash: bcrypt.hashSync("password", parseInt(process.env.HASH_SALT_ROUNDS)),
-    birthDate: new Date(2002, 8, 12)
-})
+module.exports = function seed() {
+    console.log("Seeding Database")
+    
+    Questionnaire.count({root: true}, (err, n) => {
+        if(n === 0) {
+            Questionnaire.create({
+                root: true,
+                type: "string",
+                name: "disease",
+                condition: [],
+                next: [
+                    doc._id
+                ],
+                options: []
+            })   
+        }
+    })
+        
+    User.count({ role: "admin" }, (err, n) => {
+        if(n === 0) {
+            User.create({
+                role: "admin",
+                email: "hakim@admin.com",
+                firstname: "hakim",
+                surname: "rachidi",
+                sex: "m",
+                weight: 80,
+                height: 180,
+                passwordHash: bcrypt.hashSync(process.env.ADMIN_PASSWORD, parseInt(process.env.HASH_SALT_ROUNDS)),
+                birthDate: new Date(2002, 8, 12)
+            })
+        }
+    })
+    
+}

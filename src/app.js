@@ -19,12 +19,13 @@ const answerRouter = require("./routes/answer")
 
 const adminSigninRouter = require("./admin/signin")
 const adminRouter = require("./admin")
+const seedDatabase = require("./seed")
 
 const PORT = parseInt(process.env.PORT)
 
 const app = express()
 
-mongoose.connect(process.env.MONGO_URL, {
+let connection = mongoose.connect(process.env.MONGO_URL, {
     useCreateIndex: true,
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -40,6 +41,14 @@ app.use(cookieParser())
 app.use(passport.initialize())
 
 app.get("/", (req, res) => {
+    req.isAuthenticated = function() {
+        return typeof this.user !== "undefined"
+    }
+
+    req.isUnauthenticated = function() {
+        return !this.isAuthenticated()
+    }
+
     res.json({
         health: "ok",
         host: req.hostname,
@@ -63,6 +72,13 @@ app.use("/answer", auth.http("user"), answerRouter)
 app.use("/admin/signin", adminSigninRouter)
 app.use("/admin", auth.http("admin"), adminRouter)
 
-app.listen(PORT, () => {
-    console.log(`Server is listening on port ${PORT}`)
-})
+connection
+    .then(() => {
+        seedDatabase()
+        app.listen(PORT, () => {
+            console.log(`Server is listening on port ${PORT}`)
+        })
+    })
+    .catch(() => {
+        console.error("Connection to mongo server failed.")
+    })
