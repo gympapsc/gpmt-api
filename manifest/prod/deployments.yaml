@@ -14,7 +14,7 @@ spec:
         spec:
             containers:
             - name: gpmt-api
-              image: gpmtcontainerregistry.azurecr.io/gpmt-api:latest
+              image: gpmtcontainerregistry.azurecr.io/gpmt-api
               imagePullPolicy: Always
               env:
               - name: AUTH_SIGN_SECRET 
