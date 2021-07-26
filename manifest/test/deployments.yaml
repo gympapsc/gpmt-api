@@ -14,7 +14,7 @@ spec:
         spec:
             containers:
             - name: gpmt-api
-              image: gpmtcontainerregistry.azurecr.io/gpmt-api:0.2.2
+              image: hakrac/gpmt-api:latest
               imagePullPolicy: Always
               env:
               - name: AUTH_SIGN_SECRET 
@@ -24,33 +24,18 @@ spec:
               - name: PORT
                 value: "80"
               - name: STORAGE_CONNECTION_URL
-                valueFrom:
-                  secretKeyRef:
-                    name: azure-storage
-                    key: url
+                value: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://gpmt-storage.default.svc.cluster.local:10000/devstoreaccount1;"
               - name: MONGO_URL
-                valueFrom:
-                  secretKeyRef:
-                    name: cosmosdb
-                    key: url
-              - name: ADMIN_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: admin
-                    key: password
+                value: "mongodb://gpmt-mongodb.default.svc.cluster.local:27017/gpmt"
               - name: RASA_URL
                 value: "http://rasa-x-rasa-production.rasa.svc.cluster.local:5005"
               - name: ANALYSIS_URL
                 value: "http://gpmt-net.default.svc.cluster.local"
               - name: APP_URL
-                value: "https://gympapmt.de"
+                value: "http://localhost:5000"
               - name: ADMIN_URL
-                value: "https://admin.gympapmt.de"
+                value: "http://localhost:4000"
               - name: NODE_ENV
-                value: "production"
+                value: "testing"
               ports:
               - containerPort: 80
-            imagePullSecrets:
-            - name: "registry-token"
-
-
