@@ -99,6 +99,14 @@ jobs:
           arguments:  --from-literal=password=${{ secrets.ADMIN_PASSWORD }}
           secret-name: admin
           namespace: "default"
+      
+      - name: Create k8s speech secret
+        uses: azure/k8s-create-secret@v1
+        with:
+          secret-type: 'generic'
+          arguments:  --from-literal=token=${{ secrets.SPEECH_TOKEN }} --from-literal=region=${{ secrets.SPEECH_REGION }}
+          secret-name: speech
+          namespace: "default"
 
       - uses: azure/setup-helm@v1
         with:

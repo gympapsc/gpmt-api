@@ -38,6 +38,16 @@ spec:
                   secretKeyRef:
                     name: admin
                     key: password
+              - name: SPEECH_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: speech
+                    key: token
+              - name: SPEECH_REGION
+                valueFrom:
+                  secretKeyRef:
+                    name: speech
+                    key: region
               - name: RASA_URL
                 value: "http://rasa-x-rasa-production.rasa.svc.cluster.local:5005"
               - name: ANALYSIS_URL
