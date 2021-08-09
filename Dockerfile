@@ -2,8 +2,9 @@ FROM node:latest
 WORKDIR app/
 COPY package.json .
 COPY package-lock.json .
+COPY unit.config.js .
 COPY ./src .
-RUN npm install --only=production
+RUN npm install
 EXPOSE 80
 
 ARG API_VERSION="0.0.0"
