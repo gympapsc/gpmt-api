@@ -1,5 +1,10 @@
 controller:
-    replicaCount: 1 
+    replicaCount: 1
+    service:
+        loadBalancerIP: "20.101.118.68"
+        annotations:
+            service.beta.kubernetes.io/azure-dns-label-name: "api-gpmt"
+
     nodeSelector:
         beta.kubernetes.io/os: linux
     
