@@ -1,18 +1,15 @@
-verion: "3"
+version: "3"
 
 services:
-  
   gpmt-api:
-    container_name: gpmt-api-test
+    container_name: gpmt-api
     build:
       dockerfile: Dockerfile
-    
-    command: |
-      bash -c "npm run test"
-
+      context: ./
     networks:
-      - gpmt-testing-network
-    
+      - gpmt-default
+    volumes:
+      - /coverage:/app/coverage
     environment:
       - STORAGE_CONNECTION_URL=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://gpmt-storage:10000/devstoreaccount1;
       - MONGO_URL=mongodb://gpmt-mongo:27017/gpmt
@@ -20,44 +17,41 @@ services:
       - SPEECH_REGION=westeurope
       - APP_URL=http://localhost:5000
       - ADMIN_URL=http://localhost:4000
-      - ANALYSIS_URL=http://gpmt-net/
+      - ANALYSIS_URL=http://gpmt-net:8088/
       - NODE_ENV=testing
-
+      - AUTH_SIGN_SECRET=abc
+      - HASH_SALT_ROUNDS=10
+      - PORT=8089
+      - RASA_URL=http://rasa-production:5005/
+      - ADMIN_PASSWORD=password
     ports:
-      - "80:80"
-
-  gpmt-net:
-    image: hakrac/gpmt-net
-    networks:
-      - gpmt-testing-network
+      - "8089:8089"
     
   gpmt-mongo:
     image: mongo
     volumes:
       - gpmt-mongo-volume:/data/db
     networks:
-      - gpmt-testing-network
-
+      - gpmt-default
     ports:
       - "27017:27017"
 
   gpmt-storage:
     image: mcr.microsoft.com/azure-storage/azurite:latest
     command: azurite -l /data --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --loose
-
     volumes:
       - gpmt-storage-volume:/data    
-
     networks:
-      - gpmt-testing-network
-
+      - gpmt-default
     ports:
       - "10000:10000"
-
+      - "10001:10001"
+      - "10002:10002"
 
 volumes:
   gpmt-mongo-volume:
   gpmt-storage-volume:
 
 networks:
-  gpmt-testing-network:
+  gpmt-default:
+    name: gpmt-default

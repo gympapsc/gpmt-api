@@ -22,7 +22,12 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
       
       - name: Test `gpmt-api`
-        run: docker-compose -f manifest/docker-compose.yml up --exit-code-from gpmt-api
+        run: docker-compose -f docker-compose.yml up --exit-code-from gpmt-api
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: coverage
+          path: /coverage
 
     build:
       name: Build and push container to ACR
