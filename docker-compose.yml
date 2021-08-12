@@ -22,7 +22,7 @@ services:
       - AUTH_SIGN_SECRET=abc
       - HASH_SALT_ROUNDS=10
       - PORT=8089
-      - RASA_URL=http://rasa-production:5005/
+      - RASA_URL=http://rasa:5005/
       - ADMIN_PASSWORD=password
     ports:
       - "8089:8089"

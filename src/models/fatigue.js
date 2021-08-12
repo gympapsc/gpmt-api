@@ -1,8 +1,7 @@
 const mongoose = require("mongoose")
 const { Schema } = mongoose
 
-
-const nutritionSchema = new Schema({
+const fatigueSchema = new Schema({
     user: { type: Schema.Types.ObjectId, required: true, ref: "User" },
     date: { type: Date, default: Date.now }
 }, {
@@ -12,4 +11,4 @@ const nutritionSchema = new Schema({
 })
 
 
-module.exports = mongoose.model("Nutrition", nutritionSchema, "Nutrition")
+module.exports = mongoose.model("Fatigue", fatigueSchema, "Fatigue")
