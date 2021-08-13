@@ -17,33 +17,39 @@ const {
 module.exports = function seed() {
     console.log("Seeding Database")
     
-    Questionnaire.count({root: true}, (err, n) => {
-        if(n === 0) {
-            Questionnaire.create({
-                root: true,
-                type: "string",
-                name: "disease",
-                condition: [],
-                next: [],
-                options: []
-            })   
-        }
-    })
-        
-    User.count({ role: "admin" }, (err, n) => {
-        if(n === 0) {
-            User.create({
-                role: "admin",
-                email: "hakim@admin.com",
-                firstname: "hakim",
-                surname: "rachidi",
-                sex: "m",
-                weight: 80,
-                height: 180,
-                passwordHash: bcrypt.hashSync(process.env.ADMIN_PASSWORD, parseInt(process.env.HASH_SALT_ROUNDS)),
-                birthDate: new Date(2002, 8, 12)
+    switch(process.env.NODE_ENV) {
+        case "testing":
+        case "development":
+        case "production":
+            Questionnaire.count({root: true}, (err, n) => {
+                if(n === 0) {
+                    Questionnaire.create({
+                        root: true,
+                        type: "string",
+                        name: "disease",
+                        condition: [],
+                        next: [],
+                        options: []
+                    })   
+                }
             })
-        }
-    })
-    
+                
+            User.count({ role: "admin" }, (err, n) => {
+                if(n === 0) {
+                    User.create({
+                        role: "admin",
+                        email: "hakim@admin.com",
+                        firstname: "hakim",
+                        surname: "rachidi",
+                        sex: "m",
+                        weight: 80,
+                        height: 180,
+                        passwordHash: bcrypt.hashSync(process.env.ADMIN_PASSWORD, parseInt(process.env.HASH_SALT_ROUNDS)),
+                        birthDate: new Date(2002, 8, 12)
+                    })
+                }
+            })
+            break
+        
+    }
 }

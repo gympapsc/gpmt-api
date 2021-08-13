@@ -1,12 +1,11 @@
 const mongoose = require("mongoose")
 const { Schema } = mongoose
 
-
-const nutritionSchema = new Schema({
+const medicationSchema = new Schema({
     user: { type: Schema.Types.ObjectId, required: true, ref: "User" },
     date: { type: Date, default: Date.now },
-    mass: { type: Number, required: true },
-    type: { type: String, required: true }
+    substance: { type: String, required: true },
+    mass: { type: Number, required: true }
 }, {
     timestamps: {
         createdAt: "timestamp"
@@ -14,4 +13,4 @@ const nutritionSchema = new Schema({
 })
 
 
-module.exports = mongoose.model("Nutrition", nutritionSchema, "Nutrition")
+module.exports = mongoose.model("Medication", medicationSchema, "Medication")

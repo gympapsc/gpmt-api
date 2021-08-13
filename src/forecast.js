@@ -20,5 +20,11 @@ module.exports = {
                 forecast: res.data.forecast,
                 micturitionFrequency: res.data.micturitionFrequency
             }))
+    },
+    getDrinkingStats: user_id => {
+        return client.get(`/drinking?user_id=${user_id}`)
+            .then(res => ({
+                avgAmount: res.data.avgAmount
+            }))
     }
 }

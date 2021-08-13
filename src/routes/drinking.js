@@ -1,7 +1,7 @@
 const express = require("express")
 
 const { dispatch, query } = require("../store")
-
+const analysis = require("../forecast")
 const router = express.Router()
 
 router.get("/", async (req, res) => {
@@ -27,5 +27,14 @@ router.delete("/:id", async (req, res ) => {
         ok: true
     })
 })
+
+
+router.get("/amount", async (req, res) => {
+    let { avgAmount } = analysis.getDrinkingStats(req.user._id)
+    res.json({
+        avgAmount
+    })
+})
+
 
 module.exports = router
