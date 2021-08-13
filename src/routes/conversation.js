@@ -108,6 +108,26 @@ router.post("/utter", async (req, res) => {
                             ...message.custom.payload
                         })
                         break
+                    case "ADD_NUTRITION":
+                        entry = await dispatch(message.custom.type, {
+                            ...message.custom.payload,
+                            mass: message.custom.payload.mass[message.custom.payload.mass.length - 1],
+                            date: Array.isArray(message.custom.payload.date) ? 
+                                new Date(message.custom.payload.date[message.custom.payload.date.length - 1]) :
+                                new Date(message.custom.payload.date),
+                            type: message.custom.payload.type
+                        })
+                        break
+                    case "ADD_MEDICATION":
+                        entry = await dispatch(message.custom.type, {
+                            ...message.custom.payload,
+                            mass: message.custom.payload.mass[message.custom.payload.mass.length - 1],
+                            date: Array.isArray(message.custom.payload.date) ? 
+                                new Date(message.custom.payload.date[message.custom.payload.date.length - 1]) :
+                                new Date(message.custom.payload.date),
+                            substance: message.custom.payload.substance
+                        })
+                        break
                     case "SIGNOUT_USER":
                         event = {
                             type: "SIGNOUT_USER",

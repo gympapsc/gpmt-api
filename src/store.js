@@ -11,7 +11,8 @@ const {
     MicturitionPrediction,
     MicturitionModel,
     ClassificationModel,
-    PhotoClassificationModel
+    PhotoClassificationModel,
+    Nutrition
 } = require("./models")
 
 const dispatch = (action, payload, ack=null) => {
@@ -25,6 +26,48 @@ const dispatch = (action, payload, ack=null) => {
     }
 
     switch(action) {
+        case "ADD_NUTRITION":
+            Nutrition.create({
+                date: payload.date,
+                user: payload.user,
+                mass: payload.mass,
+                type: payload.type
+            }, ack)
+            break
+        case "UPDATE_NUTRITION":
+            Nutrition.updateOne({
+                user: payload.user,
+                _id: payload._id
+            }, {
+                $set: { ...payload }
+            }, ack)
+            break
+        case "DELETE_NUTRITION":
+            Nutrition.deleteOne({
+                _id: payload._id
+            }, ack)
+            break
+        case "ADD_MEDICATION":
+            Medication.create({
+                date: payload.date,
+                user: payload.user,
+                substance: payload.substance,
+                mass: payload.mass
+            }, ack)
+            break
+        case "UPDATE_MEDICATION":
+            Medication.updateOne({
+                user: payload.user,
+                _id: payload._id
+            }, {
+                $set: { ...payload }
+            }, ack)
+            break
+        case "DELETE_MEDICATION":
+            Medication.deleteOne({
+                _id: payload._id
+            }, ack)
+            break
         case "ADD_USER_MESSAGE":
             Message.create({
                 text: payload.text,
@@ -292,6 +335,12 @@ const query = (model, selector, cb=null) => {
     }
 
     switch(model) {
+        case "MEDICATION":
+            Medication.find(selector, cb)
+            break
+        case "NUTRITION":
+            Nutrition.find(selector, cb)
+            break
         case "MESSAGE":
             Message.find(selector, cb)
             break
