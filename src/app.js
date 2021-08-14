@@ -1,5 +1,5 @@
 const express = require("express")
-var cookieParser = require("cookie-parser")
+const cookieParser = require("cookie-parser")
 
 const mongoose = require("mongoose")
 const cors = require("cors")
@@ -17,8 +17,8 @@ const micturitionRouter = require("./routes/micturition")
 const photoRouter = require("./routes/photo")
 const answerRouter = require("./routes/answer")
 const speechRouter = require("./routes/speech")
-const nutritionRouter = require("./router/nutrition")
-const medicationRouter = require("./router/medication")
+const nutritionRouter = require("./routes/nutrition")
+const medicationRouter = require("./routes/medication")
 
 const adminSigninRouter = require("./admin/signin")
 const adminRouter = require("./admin")
@@ -79,8 +79,8 @@ app.use("/admin/signin", adminSigninRouter)
 app.use("/admin", auth.http("admin"), adminRouter)
 
 connection
-    .then(() => {
-        seedDatabase()
+    .then(async () => {
+        await seedDatabase()
         app.listen(PORT, () => {
             console.log(`Server is listening on port ${PORT}`)
         })

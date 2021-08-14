@@ -1,4 +1,3 @@
-const bcrypt = require("bcrypt")
 const {
     Message,
     User,
@@ -208,8 +207,9 @@ const dispatch = (action, payload, ack=null) => {
                 })
 
             }
-            Questionnaire.updateMany({}, { $pullAll: { next: [payload._id] }}, ack)
-            deleteNextQuestion(payload._id)
+            Questionnaire.updateMany({}, { $pull: { next: payload._id }}, (err, info) => {
+                deleteNextQuestion(payload._id)
+            })
             break
         case "ADD_STRESS":
             Stress.create({
