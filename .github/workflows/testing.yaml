@@ -63,9 +63,12 @@ jobs:
         - name: Start analysis service
           run: cd ./net && bash ./install.sh && cd ..
 
+        - name: Start database and blob service
+          run: bash ./install.sh
+        
         - name: Run tests
           run: npm run test
         
         - name: Shutdown net and rasa services
-          run: cd ./net && bash ./uninstall.sh && cd ../rasa && bash ./uninstall.sh
+          run: bash./uninstall.sh && cd ./net && bash ./uninstall.sh && cd ../rasa && bash ./uninstall.sh
         
