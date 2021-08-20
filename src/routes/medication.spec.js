@@ -3,14 +3,14 @@ const express = require("express")
 const mongoose = require("mongoose")
 const seedDatabase = require("../seed")
 
-const drinkingRouter = require("./drinking")
+const medicationRouter = require("./medication")
 const {
-    Drinking,
+    Medication,
     User
 } = require("../models")
 
 
-describe("/drinking", () => {
+describe("/medication", () => {
 
     const app = express()
     let user
@@ -33,7 +33,7 @@ describe("/drinking", () => {
             req.user = user
             next()
         })
-        app.use(drinkingRouter)
+        app.use(medicationRouter)
     })
 
     afterAll(async () => {
@@ -42,19 +42,19 @@ describe("/drinking", () => {
     })
 
     afterEach(async () => {
-        await Drinking.deleteMany({})
+        await Medication.deleteMany({})
     })
 
     it("should get all entries", async () => {
         let entry = {
             date: new Date(),
-            amount: 0.2,
-            type: "Water",
-            user: user._id
+            user: user._id,
+            substance: "Paracetamol",
+            mass: 500 * 1e-6
         }
 
         // create
-        entry = await Drinking.create(entry)
+        entry = await Medication.create(entry)
         entry = JSON.parse(JSON.stringify(entry))
 
         let res = await request(app)
@@ -68,13 +68,13 @@ describe("/drinking", () => {
     it("should get entries in time range", async () => {
         let entry = {
             date: new Date(),
-            amount: 0.2,
-            type: "Water",
-            user: user._id
+            user: user._id,
+            substance: "Paracetamol",
+            mass: 500 * 1e-6
         }
 
         // create
-        entry = await Drinking.create(entry)
+        entry = await Medication.create(entry)
         entry = JSON.parse(JSON.stringify(entry))
 
         let now = new Date().valueOf()
@@ -91,17 +91,14 @@ describe("/drinking", () => {
     it("should get entry by id", async () => {
         let entry = {
             date: new Date(),
-            amount: 0.2,
-            type: "Water",
-            user: user._id
+            user: user._id,
+            substance: "Paracetamol",
+            mass: 500 * 1e-6
         }
 
         // create
-        entry = await Drinking.create(entry)
+        entry = await Medication.create(entry)
         entry = JSON.parse(JSON.stringify(entry))
-
-        let now = new Date().valueOf()
-        let secondAgo = now - 1000
 
         let res = await request(app)
             .get(`/${entry._id}`)
@@ -114,13 +111,13 @@ describe("/drinking", () => {
     it("should delete entry", async () => {
         let entry = {
             date: new Date(),
-            amount: 0.2,
-            type: "Water",
-            user: user._id
+            user: user._id,
+            substance: "Paracetamol",
+            mass: 500 * 1e-6
         }
 
         // create
-        entry = await Drinking.create(entry)
+        entry = await Medication.create(entry)
         entry = JSON.parse(JSON.stringify(entry))
 
 
@@ -131,20 +128,20 @@ describe("/drinking", () => {
         
         expect(res.body.ok).toBeTruthy()
 
-        let count = await Drinking.countDocuments({_id: entry._id})
+        let count = await Medication.countDocuments({_id: entry._id})
         expect(count).toBe(0)
     })
 
     it("should update entry", async () => {
         let entry = {
             date: new Date(),
-            amount: 0.2,
-            type: "Water",
-            user: user._id
+            user: user._id,
+            substance: "Paracetamol",
+            mass: 500 * 1e-6
         }
 
         // create
-        entry = await Drinking.create(entry)
+        entry = await Medication.create(entry)
         entry = JSON.parse(JSON.stringify(entry))
 
 
@@ -152,8 +149,8 @@ describe("/drinking", () => {
             .put(`/${entry._id}`)
             .send({
                 ...entry,
-                type: "Beer",
-                amount: 0.4,
+                mass: 1e-5,
+                substance: "Asperin",
                 date: new Date(2000, 0, 1)
             })
             .expect("Content-Type", /json/)
@@ -161,10 +158,11 @@ describe("/drinking", () => {
         
         expect(res.body.ok).toBeTruthy()
 
-        entry = await Drinking.findOne({_id: entry._id})
+        entry = await Medication.findOne({_id: entry._id})
 
-        expect(entry.type).toEqual("Beer")
-        expect(entry.amount).toEqual(0.4)
         expect(entry.date).toEqual(new Date(2000, 0, 1))
+        expect(entry.mass).toEqual(1e-5)
+        expect(entry.substance).toEqual("Asperin")
+
     })
 })

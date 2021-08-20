@@ -166,27 +166,37 @@ router.post("/utter", async (req, res) => {
 })
 
 router.get("/", async (req, res) => {
-    let messages = await query("MESSAGE", {user: req.user})
-
-    if(messages.length === 0) {
-        let botMessages = await rasa.addMessage({ user: req.user , text: "Hallo" })
-        if(botMessages) {
-            for (let message of botMessages) {
-                if(message.text) {
-                    let botMessage = await dispatch("ADD_BOT_MESSAGE", {user: req.user, text: message.text })
-                    messages.push({
-                        sender: "bot",
-                        text: botMessage.text,
-                        timestamp: botMessage.timestamp
-                    })
-                }
-            }    
-        }
-    }
+    let messages = await query("MESSAGE", { user: req.user })
 
     res.json({
         messages
     })
 })
+
+router.get("/:start/:end", async (req, res) => {
+    let {start, end} = req.params
+    let messages = await query("MESSAGE", {user: req.user, date: { $gt: new Date(start), $lte: new Date(end) }})
+
+    // if(messages.length === 0) {
+    //     let botMessages = await rasa.addMessage({ user: req.user , text: "Hallo" })
+    //     if(botMessages) {
+    //         for (let message of botMessages) {
+    //             if(message.text) {
+    //                 let botMessage = await dispatch("ADD_BOT_MESSAGE", {user: req.user, text: message.text })
+    //                 messages.push({
+    //                     sender: "bot",
+    //                     text: botMessage.text,
+    //                     timestamp: botMessage.timestamp
+    //                 })
+    //             }
+    //         }    
+    //     }
+    // }
+
+    res.json({
+        messages
+    })
+})
+
 
 module.exports = router

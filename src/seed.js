@@ -13,14 +13,12 @@ const {
     ClassificationModel,
     PhotoClassificationModel
 } = require("./models")
+const mongoose = require("mongoose")
 
-module.exports = async function seed() {
-    console.log("Seeding Database")
-    
+module.exports = async function seed() {    
     switch(process.env.NODE_ENV) {
         case "testing":
         case "development":
-            // create mock Question tree
             await User.deleteMany({})
             await Questionnaire.deleteMany({})
             

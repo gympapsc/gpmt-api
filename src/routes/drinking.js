@@ -11,10 +11,27 @@ router.get("/", async (req, res) => {
     })  
 })
 
+router.get("/:start/:end", async (req, res) => {
+    let {start, end} = req.params
+    let entries = await query("DRINKING", { user: req.user, date: { $gt: new Date(parseInt(start)), $lte: new Date(parseInt(end)) }})
+    res.json({
+        entries
+    })  
+})
+
+
+router.get("/:id", async (req, res) => {
+    let {id} = req.params
+    let entries = await query("DRINKING", { user: req.user, _id: id })
+    res.json({
+        entries
+    })  
+})
+
 router.put("/:id", async (req, res) => {
     let { id } = req.params
-    let { date, amount } = req.body
-    await dispatch("UPDATE_DRINKING", { user: req.user, date, amount, _id: id})
+    let { date, amount, type } = req.body
+    await dispatch("UPDATE_DRINKING", { user: req.user, date, type, amount, _id: id})
     res.json({
         ok: true
     })
@@ -25,14 +42,6 @@ router.delete("/:id", async (req, res ) => {
     await dispatch("DELETE_DRINKING", {user: req.user, _id: id})
     res.json({
         ok: true
-    })
-})
-
-
-router.get("/amount", async (req, res) => {
-    let { avgAmount } = analysis.getDrinkingStats(req.user._id)
-    res.json({
-        avgAmount
     })
 })
 

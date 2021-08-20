@@ -3,12 +3,27 @@ const express = require("express")
 const { query, dispatch } = require("../store")
 const router = express.Router()
 
-
 router.get("/", async (req, res) => {
-    let entries = await query("NUTRITION", {user: req.user})
+    let entries = await query("NUTRITION", {user: req.user })
     res.json({
         entries
     })
+})
+
+router.get("/:start/:end", async (req, res) => {
+    let { start, end } = req.params
+    let entries = await query("NUTRITION", {user: req.user, date: { $gt: new Date(parseInt(start)), $lte: new Date(parseInt(end)) } })
+    res.json({
+        entries
+    })
+})
+
+router.get("/:id", async (req, res) => {
+    let {id} = req.params
+    let entries = await query("NUTRITION", { user: req.user, _id: id })
+    res.json({
+        entries
+    })  
 })
 
 router.put("/:id", async (req, res) => {

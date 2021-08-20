@@ -9,10 +9,10 @@ services:
     networks:
       - gpmt-default
     volumes:
-      - /coverage:/app/coverage
+      - ./coverage:/app/coverage
     environment:
-      - STORAGE_CONNECTION_URL=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://gpmt-storage:10000/devstoreaccount1;
-      - MONGO_URL=mongodb://gpmt-mongo:27017/gpmt
+      - STORAGE_CONNECTION_URL="DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1;"
+      - MONGO_URL=mongodb://localhost:27017/gpmt
       - SPEECH_TOKEN=e1ba29dd157443d5a95f572562cbe2e0
       - SPEECH_REGION=westeurope
       - APP_URL=http://localhost:5000

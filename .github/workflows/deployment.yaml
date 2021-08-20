@@ -11,23 +11,64 @@ jobs:
     test:
       name: Testing
       runs-on: ubuntu-latest
+      env:
+        STORAGE_CONNECTION_URL: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1;"
+        MONGO_URL: "mongodb://localhost:27017/gpmt"
+        SPEECH_TOKEN: "e1ba29dd157443d5a95f572562cbe2e0"
+        SPEECH_REGION: "westeurope"
+        APP_URL: "http://localhost:5000"
+        ADMIN_URL: "http://localhost:4000"
+        ANALYSIS_URL: "http://gpmt-net:8088/"
+        NODE_ENV: "testing"
+        AUTH_SIGN_SECRET: "abc"
+        HASH_SALT_ROUNDS: "10"
+        PORT: "8089"
+        RASA_URL: "http://rasa:5005/"
+        ADMIN_PASSWORD: "password"
       steps:
       - uses: actions/checkout@v2
-      
-      - name: ACR login
-        uses: azure/docker-login@v1
-        with:
-          login-server: ${{ secrets.REGISTRY_USERNAME }}.azurecr.io
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-      
-      - name: Test `gpmt-api`
-        run: docker-compose -f docker-compose.yml up --exit-code-from gpmt-api
 
-      - uses: actions/upload-artifact@v2
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v1
         with:
-          name: coverage
-          path: /coverage
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Cache node modules
+        id: cache-node
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-modules-
+      
+      - name: npm install
+        if: steps.cache-node.outputs.cache-hit != 'true'
+        run: npm install
+
+      - name: Checkout rasa repo
+        uses: actions/checkout@v2
+        with:
+          repository: gympapsc/gpmt-rasa
+          path: rasa
+      
+      - name: Start rasa services in background
+        run: cd ./rasa && bash ./install.sh && cd ..
+
+      - name: Checkout net repo
+        uses: actions/checkout@v2
+        with:
+          repository: gympapsc/gpmt-net
+          path: net
+      
+      - name: Start analysis service
+        run: cd ./net && bash ./install.sh && cd ..
+
+      - name: Run tests
+        run: npm run test
+      
+      - name: Shutdown net and rasa services
+        run: cd ./net && bash ./uninstall.sh && cd ../rasa && bash ./uninstall.sh
+      
 
     build:
       name: Build and push container to ACR

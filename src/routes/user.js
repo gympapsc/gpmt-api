@@ -15,8 +15,7 @@ router.get("/", (req, res) => {
         weight,
         height,
         utterButtons,
-        settings,
-        micturitionFrequency
+        settings
     } = req.user
     
     res.json({
@@ -30,8 +29,7 @@ router.get("/", (req, res) => {
             weight,
             height,
             utterButtons,
-            settings,
-            micturitionFrequency
+            settings
         }
     })
 })

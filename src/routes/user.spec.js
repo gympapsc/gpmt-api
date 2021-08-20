@@ -1,63 +1,66 @@
 const request = require("supertest")
 const express = require("express")
+const mongoose = require("mongoose")
+const seedDatabase = require("../seed")
 
 const userRouter = require("./user")
-const app = express()
+const {
+    User
+} = require("../models")
 
-jest.mock("../store")
 
-describe("/signup", () => {
+describe("/user", () => {
+    const app = express()
+    let user
 
-    beforeAll(() => {
+    beforeAll(async () => {
+        // connect to mongodb
+        await mongoose.connect(process.env.MONGO_URL, {
+            useCreateIndex: true,
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        })
+        await mongoose.connection.db.dropDatabase()
+        // seed database
+        await seedDatabase()
+
+        user = await User.findOne({})
+
         app.use(express.json())
-        app.use((req, res, next) => {
-            req.user = {
-                _id: "1234567890",
-                timestamp: new Date(2000, 0, 1).valueOf(),
-                updatedAt: new Date(2000, 0, 1).valueOf(),
-                firstname: "Testing",
-                surname: "Taylor",
-                email: "testing@taylor.com",
-                weight: 80,
-                height: 180,
-                birthDate: new Date(2000, 0, 1),
-                sex: "m",
-                utterButtons: [],
-                settings: {
-                    voiceInput: false,
-                    voiceOutput: false,
-                    cumulativePrediction: false
-                },
-                micturitionFrequency: 1.0
-            }
+        app.use(async (req, res, next) => {
+            req.user = user
             next()
         })
-        app.use("/", userRouter)
+        app.use(userRouter)
     })
 
-    it("should get user", async () => {
+    afterAll(async () => {
+        // disconnect from mongodb
+        await mongoose.connection.close()
+    })
+
+    
+
+    it("should get user info", async () => {
+        let u = JSON.parse(JSON.stringify({
+            timestamp: user.timestamp,
+            firstname: user.firstname,
+            surname: user.surname,
+            email: user.email,
+            weight: user.weight,
+            height: user.height,
+            birthDate: user.birthDate,
+            sex: user.sex,
+            utterButtons: user.utterButtons,
+            settings: user.settings
+        }))
+        
         await request(app)
             .get(`/`)
             .expect(200)
             .expect("Content-Type", /json/)
             .expect({
-                user: {
-                    timestamp: new Date(2000, 0, 1).valueOf(),
-                    firstname: "Testing",
-                    surname: "Taylor",
-                    email: "testing@taylor.com",
-                    weight: 80,
-                    height: 180,
-                    birthDate: new Date(2000, 0, 1).toISOString(),
-                    sex: "m",
-                    utterButtons: [],
-                    settings: {
-                        voiceInput: false,
-                        voiceOutput: false,
-                        cumulativePrediction: false
-                    },
-                    micturitionFrequency: 1.0
-                }
+                user: u
             })
     })
 })

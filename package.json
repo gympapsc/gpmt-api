@@ -4,7 +4,7 @@
   "description": "Gymnasium Papenburg Miktionstagebuch API",
   "main": "index.js",
   "scripts": {
-    "test": "jest --config unit.config.js",
+    "test": "jest --config jest.config.js src/routes -i --collectCoverage",
     "start": "node ./src/app.js"
   },
   "repository": {
@@ -15,6 +15,9 @@
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/gympapsc/gpmt-api/issues"
+  },
+  "jest": {
+    "testEnvironment": "node"
   },
   "homepage": "https://github.com/gympapsc/gpmt-api#readme",
   "dependencies": {

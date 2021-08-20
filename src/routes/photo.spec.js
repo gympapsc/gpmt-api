@@ -1,18 +1,49 @@
 const request = require("supertest")
 const express = require("express")
+const mongoose = require("mongoose")
+const seedDatabase = require("../seed")
 
 const photoRouter = require("./photo")
-const app = express()
+const {
+    Photo,
+    User
+} = require("../models")
 
-jest.mock("../storage")
-jest.mock("../store")
 
 describe("/photo", () => {
+    const app = express()
+    let user
 
-    beforeAll(() => {
+    beforeAll(async () => {
+        // connect to mongodb
+        await mongoose.connect(process.env.MONGO_URL, {
+            useCreateIndex: true,
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        })
+        await mongoose.connection.db.dropDatabase()
+        // seed database
+        await seedDatabase()
+
+        user = await User.findOne({})
+
         app.use(express.json())
-        app.use("/", photoRouter)
+        app.use(async (req, res, next) => {
+            req.user = user
+            next()
+        })
+        app.use(photoRouter)
     })
+
+    afterAll(async () => {
+        // disconnect from mongodb
+        await mongoose.connection.close()
+    })
+
+    afterEach(async () => {
+        await Photo.deleteMany({})
+    })
+
 
     it("should get photos", async () => {
         await request(app)
@@ -20,13 +51,7 @@ describe("/photo", () => {
             .expect(200)
             .expect("Content-Type", /json/)
             .expect({
-                photos: [{
-                    _id: "1234",
-                    timestamp: new Date(2000, 0, 1).valueOf(),
-                    updatedAt: new Date(2000, 0, 1).valueOf(),
-                    user: "1234567890",
-                    name: "1"
-                }]
+                photos: []
             })
     })
 })

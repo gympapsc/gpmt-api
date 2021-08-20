@@ -47,7 +47,16 @@ router.post("/", upload.single("photo"), async (req, res) => {
 })
 
 router.get("/", (req, res) => {
-    query("PHOTO", {user: req.user}, (err, photos) => {
+    query("PHOTO", { user: req.user }, (err, photos) => {
+        res.json({
+            photos
+        })
+    })
+})
+
+router.get("/:start/:end", (req, res) => {
+    let {start, end} = req.params
+    query("PHOTO", {user: req.user, date: {$gt: new Date(start), $lte: new Date(end)}}, (err, photos) => {
         res.json({
             photos
         })

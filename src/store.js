@@ -11,7 +11,8 @@ const {
     MicturitionModel,
     ClassificationModel,
     PhotoClassificationModel,
-    Nutrition
+    Nutrition,
+    Medication
 } = require("./models")
 
 const dispatch = (action, payload, ack=null) => {
@@ -137,7 +138,7 @@ const dispatch = (action, payload, ack=null) => {
                 user: payload.user,
                 _id: payload._id
             }, {
-                $set: { amount: payload.amount, date: payload.date }
+                $set: { amount: payload.amount, date: payload.date, type: payload.type }
             }, ack)
             break
         case "UPDATE_MICTURITION":

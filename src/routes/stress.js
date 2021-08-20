@@ -12,6 +12,23 @@ router.get("/", async (req, res) => {
     })
 })
 
+router.get("/:start/:end", async (req, res) => {
+    let {start, end} = req.params
+    let entries = await query("STRESS", { user: req.user, date: { $gt: new Date(parseInt(start)), $lte: new Date(parseInt(end)) } })
+
+    res.json({
+        entries
+    })
+})
+
+router.get("/:id", async (req, res) => {
+    let {id} = req.params
+    let entries = await query("STRESS", { user: req.user, _id: id })
+    res.json({
+        entries
+    })  
+})
+
 router.put("/:id", async (req, res) => {
     let { id } = req.params
     let { date, level } = req.body
@@ -21,7 +38,7 @@ router.put("/:id", async (req, res) => {
     })
 })
 
-router.delete("/", async (req, res) => {
+router.delete("/:id", async (req, res) => {
     let { id } = req.params
     await dispatch("DELETE_STRESS", { user: req.user, _id: id})
     res.json({
