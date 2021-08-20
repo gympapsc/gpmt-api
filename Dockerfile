@@ -2,7 +2,7 @@ FROM node:latest
 WORKDIR app/
 COPY package.json .
 COPY package-lock.json .
-COPY unit.config.js .
+COPY jest.config.js .
 COPY ./src .
 RUN npm install
 EXPOSE 80

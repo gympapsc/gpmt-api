@@ -70,5 +70,5 @@ jobs:
           run: npm run test
         
         - name: Shutdown net and rasa services
-          run: bash./uninstall.sh && cd ./net && bash ./uninstall.sh && cd ../rasa && bash ./uninstall.sh
+          run: bash ./uninstall.sh && cd ./net && bash ./uninstall.sh && cd ../rasa && bash ./uninstall.sh
         
