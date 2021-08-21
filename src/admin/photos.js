@@ -15,24 +15,24 @@ router.get("/", (req, res) => {
     // let start = new Date(start)
     // let end = new Date(end)
 
-    let { label } = req.query
+    // let { label } = req.query
 
-    if(!label) {
-        query("PHOTO", {}, (err, photos) => {
-            if(err) return res.json({ err })
-            res.json({
-                photos
-            })
+    // if(!label) {
+    query("PHOTO", {}, (err, photos) => {
+        if(err) return res.json({ err })
+        res.json({
+            photos
         })
-    } else {
-        query("PHOTO", { $text: { $search: label } }, (err, photos) => {
-            if(err) return res.json({ err })
-            res.json({
-                label,
-                photos
-            })
-        })
-    }
+    })
+    // } else {
+    //     query("PHOTO", { $text: { $search: label } }, (err, photos) => {
+    //         if(err) return res.json({ err })
+    //         res.json({
+    //             label,
+    //             photos
+    //         })
+    //     })
+    // }
 })
 
 router.get("/download", async (req, res) => {

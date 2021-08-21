@@ -9,7 +9,6 @@ const {
     Stress,
     MicturitionPrediction,
     MicturitionModel,
-    ClassificationModel,
     PhotoClassificationModel,
     Nutrition,
     Medication
@@ -44,7 +43,8 @@ const dispatch = (action, payload, ack=null) => {
             break
         case "DELETE_NUTRITION":
             Nutrition.deleteOne({
-                _id: payload._id
+                _id: payload._id,
+                user: payload.user
             }, ack)
             break
         case "ADD_MEDICATION":
@@ -60,7 +60,7 @@ const dispatch = (action, payload, ack=null) => {
                 user: payload.user,
                 _id: payload._id
             }, {
-                $set: { ...payload }
+                $set: { substance: payload.substance, mass: payload.mass, date: payload.date }
             }, ack)
             break
         case "DELETE_MEDICATION":
@@ -92,7 +92,8 @@ const dispatch = (action, payload, ack=null) => {
             Drinking.create({
                 amount: payload.amount,
                 date: payload.date,
-                user: payload.user
+                user: payload.user,
+                type: payload.type
             }, ack)
             break
         case "ADD_USER":
@@ -195,21 +196,17 @@ const dispatch = (action, payload, ack=null) => {
             }, ack)
             break
         case "DELETE_QUESTION":
-            function deleteNextQuestion(id) {
-                Questionnaire.findOne({ _id: id }, (err, doc) => {
-                    for(let n of doc.next) {
-                        deleteNextQuestion(n)
-                    }
-                    Questionnaire.deleteOne({
-                        _id: id
-                    }, (err, nModified) => {
-                        if(err) return ack(err, null)
-                    })
+            Questionnaire.updateMany({
+                next: payload._id
+            }, {
+                $pull: { next: payload._id }
+            }, (err, n) => {
+                Questionnaire.deleteOne({
+                    _id: payload._id
+                }, (err, _) => {
+                    if(err) return ack(err, null)
+                    ack(null, _)
                 })
-
-            }
-            Questionnaire.updateMany({}, { $pull: { next: payload._id }}, (err, info) => {
-                deleteNextQuestion(payload._id)
             })
             break
         case "ADD_STRESS":
