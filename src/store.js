@@ -156,7 +156,6 @@ const dispatch = (action, payload, ack=null) => {
                 condition: [],
                 ...payload.question
             }, (err, doc) => {
-                console.log(err)
                 if(err) return ack(err, null)
                 Questionnaire.updateOne({
                     _id: payload.parent_id

@@ -4,7 +4,7 @@
   "description": "Gymnasium Papenburg Miktionstagebuch API",
   "main": "index.js",
   "scripts": {
-    "test": "jest --config jest.config.js src/routes -i --collectCoverage",
+    "test": "jest --config jest.config.js src -i --collectCoverage",
     "start": "node ./src/app.js"
   },
   "repository": {

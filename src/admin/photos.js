@@ -91,9 +91,9 @@ router.post("/model", upload.single("model"), async (req, res) => {
     
     res.json({
         model: {
-            timestamp,
-            active,
-            _id
+            timestamp: doc.timestamp,
+            active: doc.active,
+            _id: doc._id
         }
     })
 })
@@ -128,8 +128,18 @@ router.delete("/model/:id", async (req, res) => {
             })
     }
 
-    let model = await query("PHOTO_CLASSIFICATION_MODEL", { _id: id })
+    let models = await query("PHOTO_CLASSIFICATION_MODEL", { _id: id })
+    let model = models[0]
+
     let photoModelContainerClient = await storageAccount("photo-models")
+    if(!model) {
+        return res
+            .status(400)
+            .json({
+                err: "No model found"
+            })
+    }
+
     if(!model.active) {
         await dispatch("DELETE_PHOTO_CLASSIFICATION_MODEL", { _id: id })
 

@@ -134,7 +134,7 @@ router.post("/model", upload.single("model"), async (req, res) => {
     const forecastModelContainerClient = await storageAccount("forecast-models")
 
     let blobName = doc._id.toString()
-    await forecastModelContainerClient.upload(blobName, req.file.buffer, req.file.upper.length)
+    await forecastModelContainerClient.upload(blobName, req.file.buffer, req.file.buffer.length)
 
     res.json({
         model: {
@@ -166,9 +166,18 @@ router.post("/model/:id/activate", async (req, res) => {
 router.delete("/model/:id", async (req, res) => {
     let { id } = req.params
 
-    let model = await query("FORECAST_MODEL", { _id: id })
+    let models = await query("FORECAST_MODEL", { _id: id })
+    let model = models[0]
     
     const forecastModelContainerClient = await storageAccount("forecast-models")
+
+    if(!model) {
+        return res
+            .status(400)
+            .json({
+                err: "No such model"
+            })
+    }
 
     if(!model.active) {
         await dispatch("DELETE_FORECAST_MODEL", { _id: id })
@@ -186,6 +195,5 @@ router.delete("/model/:id", async (req, res) => {
         })
     }
 })
-
 
 module.exports = router

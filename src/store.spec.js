@@ -224,7 +224,7 @@ describe("dispatch to database", () => {
         Nutrition.create({date: new Date(), user: user._id, type: "Lachs", mass: 0.8}, (err, doc) => {
             expect(err).toBeFalsy()
             dispatch("UPDATE_NUTRITION", {
-                id: doc._id,
+                _id: doc._id,
                 user: user._id,
                 type: "Forelle",
                 mass: 0.7,
@@ -249,7 +249,7 @@ describe("dispatch to database", () => {
         Nutrition.create({date: new Date(), user: user._id, type: "Lachs", mass: 0.8}, (err, doc) => {
             expect(err).toBeFalsy()
             dispatch("DELETE_NUTRITION", {
-                id: doc._id,
+                _id: doc._id,
                 user: user._id
             }, (err, n) => {
                 Nutrition.countDocuments({_id: doc._id}, (err, count) => {
