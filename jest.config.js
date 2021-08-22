@@ -6,5 +6,6 @@ module.exports = {
   coverageDirectory: path.resolve(__dirname, 'coverage'),
   testPathIgnorePatterns: [
     'e2e'
-  ]
+  ],
+  testTimeout: 10000
 }

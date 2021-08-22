@@ -29,6 +29,7 @@
     "cors": "^2.8.5",
     "csv-writer": "^1.6.0",
     "express": "^4.17.1",
+    "form-data": "^4.0.0",
     "fstream": "^1.0.12",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.3",

@@ -45,6 +45,19 @@ describe("/conversation", () => {
     })
 
     it("should get messages", async () => {
-        expect(true).toBeTruthy()
+        await Message.create({
+            sender: "user",
+            text: "Hello",
+            user
+        })
+
+        let res = await request(app)
+            .get("/")
+            .expect("Content-Type", /json/)
+            .expect(200)
+        
+        let messages = await Message.find({})
+
+        expect(res.body.messages).toEqual(messages)
     })
 })

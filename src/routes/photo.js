@@ -3,10 +3,9 @@ const multer = require("multer")
 const path = require("path")
 const fs = require("fs")
 const classifier = require("../classifier")
+const net = require("../net")
 const inMemoryStorage = multer.memoryStorage()
 
-
-classifier.init()
 
 const storageAccount = require("../storage")
 const { dispatch, query } = require("../store")
@@ -29,7 +28,7 @@ router.post("/", upload.single("photo"), async (req, res) => {
     let blobName = doc._id.toString() + ".jpeg"
     await photoContainerClient.upload(blobName, req.file.buffer, req.file.buffer.length)
 
-    let classification = await classifier.getPhotoClassification(req.user._id, doc._id.toString())
+    let classification = await net.classifyPhoto(req.user._id, doc._id.toString(), req.file.buffer)
 
     await dispatch("UPDATE_PHOTO", {
         user: req.user,
