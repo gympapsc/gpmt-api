@@ -18,7 +18,7 @@ jobs:
             SPEECH_REGION: "westeurope"
             APP_URL: "http://localhost:5000"
             ADMIN_URL: "http://localhost:4000"
-            ANALYSIS_URL: "http://gpmt-net:8088/"
+            NET_URL: "http://gpmt-net:8088/"
             NODE_ENV: "testing"
             AUTH_SIGN_SECRET: "abc"
             HASH_SALT_ROUNDS: "10"
@@ -44,31 +44,9 @@ jobs:
         - name: npm install
           if: steps.cache-node.outputs.cache-hit != 'true'
           run: npm install
-
-        - name: Checkout rasa repo
-          uses: actions/checkout@v2
-          with:
-            repository: gympapsc/gpmt-rasa
-            path: rasa
-        
-        - name: Start rasa services in background
-          run: cd ./rasa && bash ./install.sh && cd ..
-
-        - name: Checkout net repo
-          uses: actions/checkout@v2
-          with:
-            repository: gympapsc/gpmt-net
-            path: net
-        
-        - name: Start analysis service
-          run: cd ./net && bash ./install.sh && cd ..
-
+          
         - name: Start database and blob service
           run: bash ./install.sh
         
         - name: Run tests
           run: npm run test
-        
-        - name: Shutdown net and rasa services
-          run: bash ./uninstall.sh && cd ./net && bash ./uninstall.sh && cd ../rasa && bash ./uninstall.sh
-        

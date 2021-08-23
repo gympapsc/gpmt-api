@@ -4,6 +4,8 @@ const fs = require("fs")
 const path = require("path")
 const PhotoLoader = require("../loaders/photos")
 const storageAccount = require("../storage")
+const { v4: uuid } = require("uuid")
+
 
 const inMemoryStorage = multer.memoryStorage()
 const router = express.Router()
@@ -37,26 +39,26 @@ router.get("/", (req, res) => {
 
 router.get("/download", async (req, res) => {
     // load all photos from blob storage into /tmp 
-    let now = new Date()
-    let tmpPath = path.join("/tmp", now.valueOf())
+    let dir = `/tmp/${uuid()}`
 
-    fs.mkdirSync(tmpPath)
-    let photoModelContainerClient = await storageAccount("photo-models")
+    fs.mkdirSync(dir)
+    let photoContainerClient = await storageAccount("photos")
 
-    for await (let blob of photoModelContainerClient.list()) {
-        let blobPath = path.join(tmpPath, blob.name)
-        await photoModelContainerClient.readToFile(blob.name, blobPath)
+    for await (let blob of photoContainerClient.list()) {
+        let blobPath = path.join(dir, blob.name)
+        await photoContainerClient.readToFile(blob.name, blobPath)
     }
 
-    let photoLoader = new PhotoLoader(tmpPath)
+    let photoLoader = new PhotoLoader(dir)
 
-    let photos = await query("PHOTOS", {})
-    photoLoader.dump(photos)
+    let photos = await query("PHOTO", {})
+    photoLoader.dumpMetadata(photos)
 
-    let tarPath = photoLoader.zip("/tmp")
-    res.download(tarPath)
+    let writeStream = photoLoader.zip(dir + ".tgz")
 
-    // fs.unlinkSync(tarPath)
+    writeStream.on("finish", () => {
+        res.download(dir + ".tgz")
+    })
 })
 
 router.get("/model", async (req, res) => {
@@ -157,52 +159,5 @@ router.delete("/model/:id", async (req, res) => {
     }
 })
 
-router.get("/:id", async (req, res) => {
-    let { id } = req.params
-    let photos = await query("PHOTO", {_id: id})
-    let photo = photos[0]
-
-    let photoModelContainerClient = await storageAccount("photo-models")
-
-    if(!photo || !photo._id) {
-        return res.status(404)
-    }
-
-    let blobName = photo._id.toString() + ".jpeg"
-    let localPath = path.join("/tmp", blobName)
-    if(!fs.existsSync(localPath)) {
-        // load photo from blob storage
-        await photoModelContainerClient.readToFile(blobName, localPath)
-    }
-
-    res.sendFile(
-        localPath
-    )
-
-    // fs.unlinkSync(localPath)
-})
-
-router.get("/:id/download", async (req, res) => {
-    let { id } = req.params
-    let photos = await query("PHOTO", {_id: id})
-    let photo = photos[0]
-
-    let photoModelContainerClient = await storageAccount("photo-models")
-
-    if(!photo || !photo._id) {
-        return res.status(404)
-    }
-
-    let blobName = photo._id.toString() + ".jpeg"
-    let localPath = path.join("/tmp", blobName)
-    if(!fs.existsSync(localPath)) {
-        // load photo from blob storage
-        await photoModelContainerClient.readtoFile(blobName, localPath)
-    }
-
-    res.download(
-        localPath
-    )
-})
 
 module.exports = router

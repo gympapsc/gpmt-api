@@ -50,7 +50,7 @@ spec:
                     key: region
               - name: RASA_URL
                 value: "http://rasa-x-rasa-production.rasa.svc.cluster.local:5005"
-              - name: ANALYSIS_URL
+              - name: NET_URL
                 value: "http://gpmt-net.default.svc.cluster.local"
               - name: APP_URL
                 value: "https://gympapmt.de"

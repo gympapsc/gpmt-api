@@ -132,4 +132,13 @@ describe("/admin/questionnaire", () => {
         expect(model.active).toBe(true)
     })
 
+    it("should export photos as zipped archive", async () => {
+        let res = await request(app)
+            .get("/download")
+            .expect("Content-Disposition", /attachment/)
+            .expect(200)
+        
+        // TODO check zipped attachment
+    })
+
 })

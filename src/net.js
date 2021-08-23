@@ -2,7 +2,7 @@ const axios = require("axios")
 const FormData = require("form-data");
 
 let client = axios.create({
-    baseURL: process.env.ANALYSIS_URL
+    baseURL: process.env.NET_URL
 })
 
 module.exports = {

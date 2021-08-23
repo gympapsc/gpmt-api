@@ -17,7 +17,7 @@ services:
       - SPEECH_REGION=westeurope
       - APP_URL=http://localhost:5000
       - ADMIN_URL=http://localhost:4000
-      - ANALYSIS_URL=http://gpmt-net:8088/
+      - NET_URL=http://gpmt-net:8088/
       - NODE_ENV=testing
       - AUTH_SIGN_SECRET=abc
       - HASH_SALT_ROUNDS=10
