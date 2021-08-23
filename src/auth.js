@@ -35,17 +35,21 @@ module.exports = {
 
                         return next()
                     } else {
-                        return res.json(401, {
-                            err: "Unauthorized request",
-                            user,
-                            ok: false
-                        })
+                        return res
+                            .status(401) 
+                            .json({
+                                err: "Unauthorized request",
+                                user,
+                                ok: false
+                            })
                     }
                 } 
-                return res.json(403, {
-                    err: "Unauthenticated request",
-                    ok: false
-                })
+                return res
+                    .status(403)
+                    .json({
+                        err: "Unauthenticated request",
+                        ok: false
+                    })
             })(req, res, next)
         }
     }

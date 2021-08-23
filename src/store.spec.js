@@ -54,6 +54,16 @@ describe("dispatch to database", () => {
 
     })
 
+    it("should return promise with no callback", async () => {
+        let res = dispatch("ADD_MICTURITION", { date: new Date(), user: user._id })
+
+        expect(res).toBeDefined()        
+        expect(res instanceof Promise).toBeTruthy()
+        expect(await res).toMatchObject({
+            user: user._id
+        })
+    })
+
     it("should add micturition", done => {
         dispatch("ADD_MICTURITION", {
             date: new Date(),

@@ -57,7 +57,7 @@ describe("/admin/questionnaire", () => {
         expect(JSON.stringify(res.body)).toEqual(JSON.stringify({questionnaire: questions}))
     })
 
-    it("should add question", async () => {
+    it("should append question", async () => {
         let root = await Questionnaire.findOne({root: true })
 
         let res = await request(app)
@@ -87,25 +87,113 @@ describe("/admin/questionnaire", () => {
         await Questionnaire.deleteOne({ _id: question._id })
     })
 
-    it("should delete question", async () => {
-        let question = await Questionnaire.findOne({ name: "ms_timerange" })
-        expect(question).toBeDefined()
-        let root = await Questionnaire.findOne({ root: true })
-        expect(root.next).toContainEqual(question._id)
+    it("should insert question before root", async () => {
+        let root = await Questionnaire.findOne({root: true })
 
         let res = await request(app)
-            .delete(`/${question._id}`)
+            .post(`/${root._id}`)
+            .query({ insert: true })
+            .send({
+                question: {
+                    name: "test",
+                    root: false,
+                    condition: [],
+                    options: [],
+                    next: [],
+                    type: "string"
+                }
+            })
+            .expect("Content-Type", /json/)
+            .expect(200)
+    
+        expect(res.body.ok).toBeTruthy()        
+
+        let question = await Questionnaire.findOne({ _id: res.body.question._id })
+        expect(question).toBeDefined()
+        expect(question.root).toBe(true)
+        expect(question.next).toContainEqual(root._id)
+
+        root = await Questionnaire.findOne({_id: root._id })
+        expect(root.root).toBe(false)
+    })
+
+    it("should insert question", async () => {
+        let q = await Questionnaire.findOne({name: "ms_timerange" })
+        expect(q.root).toBe(false)
+
+        let res = await request(app)
+            .post(`/${q._id}`)
+            .query({ insert: true })
+            .send({
+                question: {
+                    name: "test",
+                    root: false,
+                    condition: [],
+                    options: [],
+                    next: [],
+                    type: "string"
+                }
+            })
+            .expect("Content-Type", /json/)
+            .expect(200)
+    
+        expect(res.body.ok).toBeTruthy()        
+
+        let question = await Questionnaire.findOne({ _id: res.body.question._id })
+        expect(question).toBeDefined()
+        expect(question.root).toBe(false)
+        expect(question.next).toContainEqual(q._id)
+
+        q = await Questionnaire.findOne({_id: q._id })
+        expect(q.root).toBe(false)
+    })
+
+
+    it("should delete question", async () => {
+        let incontience = await Questionnaire.findOne({ name: "incontience" })
+        expect(incontience).toBeDefined()
+        let next = incontience.next[0]
+
+        let digestionDisorder = await Questionnaire.findOne({ _id: next })
+        expect(digestionDisorder.root).toBe(false)
+
+        let res = await request(app)
+            .delete(`/${incontience._id}`)
+            .query({ cascade: false })
             .expect("Content-Type", /json/)
             .expect(200)
     
         expect(res.body.ok).toBeTruthy()
         
-        let count = await Questionnaire.countDocuments({ _id: question._id })
+        let count = await Questionnaire.countDocuments({ _id: incontience._id })
         expect(count).toEqual(0)
 
-        root = await Questionnaire.findOne({ root: true })
-        expect(root.next).not.toContainEqual(question._id)
+        digestionDisorder = await Questionnaire.findOne({ _id: next })
+        expect(digestionDisorder).toBeDefined()
+        expect(digestionDisorder.root).toBe(false)
+    })
 
+    it("should delete question with cascade", async () => {
+        let incontience = await Questionnaire.findOne({ name: "incontience" })
+        expect(incontience).toBeDefined()
+        let next = incontience.next[0]
+
+        let digestionDisorder = await Questionnaire.findOne({ _id: next })
+        expect(digestionDisorder.root).toBe(false)
+
+        let res = await request(app)
+            .delete(`/${incontience._id}`)
+            .query({ cascade: true })
+            .expect("Content-Type", /json/)
+            .expect(200)
+    
+        expect(res.body.ok).toBeTruthy()
+        
+        let incontienceCount = await Questionnaire.countDocuments({ _id: incontience._id })
+        expect(incontienceCount).toEqual(0)
+
+        let digestionDisorderCount = await Questionnaire.countDocuments({ _id: digestionDisorder._id })
+        expect(incontienceCount).toEqual(0)
     })
 
     it("should add question condition", async () => {

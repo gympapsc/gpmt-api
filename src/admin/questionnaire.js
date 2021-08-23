@@ -13,8 +13,13 @@ router.get("/", async (req, res) => {
 
 router.post("/:id", async (req, res) => {
     let { question } = req.body
-    let parent_id = req.params.id
-    let q = await dispatch("ADD_QUESTION", { parent_id, question })
+    let { insert } = req.query
+
+    if(insert) {
+        q = await dispatch("INSERT_QUESTION", { next_id: req.params.id, question })
+    } else {
+        q = await dispatch("ADD_QUESTION", { parent_id: req.params.id, question })
+    }
 
     res.json({
         question: q,
@@ -78,7 +83,13 @@ router.put("/:id", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
     let { id } = req.params
-    let q = await dispatch("DELETE_QUESTION", { _id: id })
+    let { cascade } = req.query
+    
+    if(cascade) {
+        await dispatch("DELETE_CASCADE_QUESTION", { _id: id })
+    } else {
+        await dispatch("DELETE_QUESTION", { _id: id })
+    }
 
     res.json({
         ok: true

@@ -166,6 +166,46 @@ const dispatch = (action, payload, ack=null) => {
                 })
             })
             break
+        case "INSERT_QUESTION":
+            Questionnaire.create({
+                ...payload.question,
+                next: [
+                    payload.next_id
+                ],
+                condition: []
+            }, (err, q) => {
+                if (err) return ack(err, null)
+                Questionnaire.updateOne({
+                    next: payload.next_id
+                }, {
+                    // $pull: { next: payload.next_id },
+                    $push: { next: q._id }
+                }, (err, op) => {
+                    if (err) return ack(err, null)
+                    Questionnaire.findOne({
+                        _id: payload.next_id
+                    }, (err, doc) => {
+                        if(err) return ack(err, null)
+                        if(doc && doc.root) {
+                            Questionnaire.updateOne({
+                                _id: doc._id
+                            }, {
+                                $set: { root: false}
+                            }, (err, op) => {
+                                if(err) return ack(err, null)
+                                Questionnaire.updateOne({
+                                    _id: q._id
+                                }, {
+                                    $set: {root: true}
+                                }, (err, op) => ack(err, q))
+                            })
+                        } else {
+                            ack(err, q)
+                        }
+                    })
+                })
+            })
+            break
         case "ADD_CONDITION":
             Questionnaire.updateOne({
                 _id: payload._id,
@@ -195,17 +235,21 @@ const dispatch = (action, payload, ack=null) => {
             }, ack)
             break
         case "DELETE_QUESTION":
+            Questionnaire.deleteOne({
+                _id: payload._id
+            }, (err, _) => {
+                if(err) return ack(err, null)
+                ack(null, _)
+            })
+            break
+        case "DELETE_CASCADE_QUESTION":
             Questionnaire.updateMany({
                 next: payload._id
             }, {
                 $pull: { next: payload._id }
             }, (err, n) => {
-                Questionnaire.deleteOne({
-                    _id: payload._id
-                }, (err, _) => {
-                    if(err) return ack(err, null)
-                    ack(null, _)
-                })
+                if(err) return ack(err, null)
+                dispatch("DELETE_QUESTION", payload, ack)
             })
             break
         case "ADD_STRESS":

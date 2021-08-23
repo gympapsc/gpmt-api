@@ -41,9 +41,9 @@ describe("/photo", () => {
     })
 
     afterEach(async () => {
-        await Photo.deleteMany({})
+        await mongoose.connection.db.dropDatabase()
+        await seedDatabase()
     })
-
 
     it("should get photos", async () => {
         await request(app)

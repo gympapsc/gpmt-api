@@ -54,7 +54,7 @@ router.get("/", (req, res) => {
 
 router.get("/:start/:end", (req, res) => {
     let {start, end} = req.params
-    query("PHOTO", {user: req.user, date: {$gt: new Date(start), $lte: new Date(end)}}, (err, photos) => {
+    query("PHOTO", {user: req.user, date: {$gt: new Date(parseInt(start)), $lte: new Date(parseInt(end))}}, (err, photos) => {
         res.json({
             photos
         })
