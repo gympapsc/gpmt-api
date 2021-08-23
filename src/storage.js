@@ -8,6 +8,10 @@ module.exports = async name =>  {
     return {
         readtoString: async (blobName) => {
             let blockBlobClient = containerClient.getBlockBlobClient(blobName)
+            return await blockBlobClient.downloadToBuffer().then(b => b.toString())
+        },
+        readtoBuffer: async (blobName) => {
+            let blockBlobClient = containerClient.getBlockBlobClient(blobName)
             return await blockBlobClient.downloadToBuffer()
         },
         readToFile: async (blobName, path) => {

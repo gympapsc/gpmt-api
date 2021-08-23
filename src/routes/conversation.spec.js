@@ -58,6 +58,6 @@ describe("/conversation", () => {
         
         let messages = await Message.find({})
 
-        expect(res.body.messages).toEqual(messages)
+        expect(JSON.stringify(res.body.messages)).toEqual(JSON.stringify(messages))
     })
 })

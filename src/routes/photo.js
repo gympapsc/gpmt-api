@@ -2,7 +2,6 @@ const express = require("express")
 const multer = require("multer")
 const path = require("path")
 const fs = require("fs")
-const classifier = require("../classifier")
 const net = require("../net")
 const inMemoryStorage = multer.memoryStorage()
 

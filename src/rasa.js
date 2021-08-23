@@ -68,7 +68,10 @@ let processAction = async action => {
 }
 
 let processMessages = async (m, u) => {
-    let messages, buttons, entries, events
+    let messages = [], 
+        buttons = [], 
+        entries = [], 
+        events = []
     for(let message of m) {
         if(message.text) {
             let botMessage = await dispatch("ADD_BOT_MESSAGE", { user: u, text: message.text })
@@ -89,7 +92,7 @@ let processMessages = async (m, u) => {
     }
 
     if(buttons.length == 0) {
-        await dispatch("SET_UTTER_BUTTONS", { user: req.user, buttons: [] })
+        await dispatch("SET_UTTER_BUTTONS", { user: u, buttons: [] })
     }
 
     return {

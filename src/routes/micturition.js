@@ -1,12 +1,10 @@
 const express = require("express")
-const analysis = require("../forecast")
 
 const { query, dispatch } = require("../store")
 
 const router = express.Router()
 
 router.get("/", async (req, res) => {
-    let { start, end } = req.params
     let entries = await query("MICTURITION", { user: req.user })
     res.json({
         entries

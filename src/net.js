@@ -1,7 +1,6 @@
 const axios = require("axios")
 const FormData = require("form-data");
 
-
 let client = axios.create({
     baseURL: process.env.ANALYSIS_URL
 })
@@ -12,7 +11,7 @@ module.exports = {
             baseURL
         })
     },
-    forecast: (user, micturition, drinking, stress, nutrition, medication) => {
+    forecastMicturition: (user, micturition, drinking, stress, nutrition, medication) => {
         if(!client) { 
             return 
         }

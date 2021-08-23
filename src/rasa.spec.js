@@ -1,39 +1,70 @@
 const express = require("express")
-const rasa = require("./rasa")
+const mongoose = require("mongoose")
 
-describe("rasa api", () => {
+const rasa = require("./rasa")
+const seedDatabase = require("./seed")
+
+const {
+    User
+} = require("./models")
+
+describe("gpmt-rasa api", () => {
     let app, server
 
     beforeAll(done => {
         app = express()
         app.use(express.json())
+
+
         app.post("/webhooks/rest/webhook", (req, res) => {
-            const { message, sender } = req.body
-            // echo back POST request
-            res.json([
-                {
-                    text: message,
-                    recipient_id: sender
-                }
-            ])
+            let {sender, message} = req.body
+            switch(message) {
+                case "Hallo":
+                    return res.json([
+                        {
+                            recipient_id: sender,
+                            text: "Hallo"
+                        }
+                    ])
+            }
         })
 
         server = app.listen(() => done())
     })
 
-    afterAll(() => {
-        server.close()
+    beforeAll(async () => {
+        // connect to mongodb
+        await mongoose.connect(process.env.MONGO_URL, {
+            useCreateIndex: true,
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        })
+        await mongoose.connection.db.dropDatabase()
+        // seed database
+        await seedDatabase()
     })
 
-    // it("initialize client", async () => {
-    //     rasa.init(`http://localhost:${server.address().port}`)
+    afterAll(async () => {
+        server.close()
+        await mongoose.connection.close()
+    })
+
+    it("initialize client", async () => {
+        rasa.init(`http://localhost:${server.address().port}`)
+
+        let user = await User.findOne({ email: "testing@taylor.com" })
         
-    //     let res = await rasa.send({
-    //         user: {
-    //             _id: "123456789"
-    //         },
-    //         text: "Hello"
-    //     })
-    //     expect(res[0].text).toEqual("Hello")
-    // })
+        let {
+            messages,
+            events,
+            entries,
+            buttons
+        } = await rasa.send({
+            user: user,
+            text: "Hallo"
+        })
+
+        expect(messages[0].text).toEqual("Hallo")
+
+    })
 })
