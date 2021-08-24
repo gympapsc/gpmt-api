@@ -337,15 +337,16 @@ describe("dispatch to database", () => {
     })
 
     it("should add user message", done => {
-        dispatch("ADD_MICTURITION", {
-            date: new Date(),
-            user: user._id
+        dispatch("ADD_USER_MESSAGE", {
+            user: user._id,
+            text: "Hallo"
         }, (err, m) => {
             expect(err).toBeFalsy()
-            Micturition.findOne({_id: m._id}, (err, doc) => {
+            Message.findOne({_id: m._id}, (err, doc) => {
                 expect(doc).toMatchObject({
-                    date: m.date,
-                    user: m.user
+                    user: m.user,
+                    text: m.text,
+                    sender: "user"
                 })
                 done()
             })
@@ -353,15 +354,15 @@ describe("dispatch to database", () => {
     })
 
     it("should add photo", done => {
-        dispatch("ADD_MICTURITION", {
-            date: new Date(),
-            user: user._id
-        }, (err, m) => {
+        dispatch("CREATE_PHOTO", {
+            user: user._id,
+            name: "test"
+        }, (err, p) => {
             expect(err).toBeFalsy()
-            Micturition.findOne({_id: m._id}, (err, doc) => {
+            Photo.findOne({_id: p._id}, (err, doc) => {
                 expect(doc).toMatchObject({
-                    date: m.date,
-                    user: m.user
+                    user: p.user,
+                    name: "test"
                 })
                 done()
             })
@@ -403,6 +404,38 @@ describe("dispatch to database", () => {
 
 
     it("should add question", done => {
+        dispatch("ADD_MICTURITION", {
+            date: new Date(),
+            user: user._id
+        }, (err, m) => {
+            expect(err).toBeFalsy()
+            Micturition.findOne({_id: m._id}, (err, doc) => {
+                expect(doc).toMatchObject({
+                    date: m.date,
+                    user: m.user
+                })
+                done()
+            })
+        })
+    })
+
+    it("should insert question", done => {
+        dispatch("ADD_MICTURITION", {
+            date: new Date(),
+            user: user._id
+        }, (err, m) => {
+            expect(err).toBeFalsy()
+            Micturition.findOne({_id: m._id}, (err, doc) => {
+                expect(doc).toMatchObject({
+                    date: m.date,
+                    user: m.user
+                })
+                done()
+            })
+        })
+    })
+
+    it("should append question", done => {
         dispatch("ADD_MICTURITION", {
             date: new Date(),
             user: user._id
@@ -483,7 +516,7 @@ describe("query database", () => {
         // seed database
         await seedDatabase()
 
-        user = await User.findOne({email: "testing@taylor.com"})
+        user = await User.findOne({ email: "testing@taylor.com" })
     })
 
     afterAll(async () => {
@@ -491,11 +524,47 @@ describe("query database", () => {
         await mongoose.connection.close()
     })
 
-    it("should get user registrations", () => {
+    it("should query micturition", () => {
 
     })
 
-    it("should get user gender statistics", () => {
+    it("should query drinking", () => {
 
+    })
+
+    it("should query stress", () => {
+
+    })
+
+    it("should get user registrations within the last 100 days", done => {
+        let now = new Date()
+        let today = now.valueOf() - now.valueOf() % (24 * 3600 * 1000)
+        now = today + 24 * 3600 * 1000
+        query("USER_REGISTRATIONS_STATS", { role: "user", startDate: (now - (100 * 24 * 3600 * 1000)) / 1000, endDate: now / 1000 }, (err, doc) => {
+            expect(doc.length).toBe(100)
+            expect(doc.find(d => d.registrations === 2).date).toEqual(new Date(today))
+            done()
+        })
+    })
+
+    it("should get user gender statistics", done => {
+        query("USER_GENDER_STATS", { role: "user" }, (err, doc) => {
+            console.log(doc)
+            done()
+        })
+    })
+
+    it("should get ms statistics", done => {
+        query("MS_USER_STATS", { role: "user" }, (err, doc) => {
+            console.log(doc)
+            done()
+        })
+    })
+
+    it("should get incontinence statistics", done => {
+        query("INCONTINENCE_USER_STATS", { role: "user" }, (err, doc) => {
+            console.log(doc)
+            done()
+        })
     })
 })

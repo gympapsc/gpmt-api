@@ -61,8 +61,8 @@ router.get("/export/csv", async (req, res) => {
     })), [
         { id: "id", title: "ID" },
         { id: "user", title: "USER_ID" },
-        { id: "question", title: "QUESTION" },
-        { id: "answer", title: "ANSWER" }
+        { id: "question", title: "KEY" },
+        { id: "answer", title: "VALUE" }
     ])
 
     let micturition = await query("MICTURITION", {})

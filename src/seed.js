@@ -34,10 +34,10 @@ module.exports = async function seed() {
                 options: []
             })
 
-            let incontience = await Questionnaire.create({
+            let incontinence = await Questionnaire.create({
                 root: false,
                 type: "bool",
-                name: "incontience",
+                name: "incontinence",
                 condition: [
                     { value: "", type: false }
                 ],
@@ -64,7 +64,7 @@ module.exports = async function seed() {
                 name: "disease",
                 condition: [],
                 next: [
-                    incontience._id,
+                    incontinence._id,
                     msTimerange._id
                 ],
                 options: []
@@ -82,7 +82,7 @@ module.exports = async function seed() {
                 birthDate: new Date(2002, 8, 12)
             })
 
-            await User.create({
+            let testingTaylor = await User.create({
                 role: "user",
                 email: "testing@taylor.com",
                 firstname: "Testing",
@@ -92,6 +92,24 @@ module.exports = async function seed() {
                 height: 180,
                 passwordHash: bcrypt.hashSync("Password", parseInt(process.env.HASH_SALT_ROUNDS)),
                 birthDate: new Date(2002, 8, 12)
+            })
+
+            await User.create({
+                role: "user",
+                email: "fiona@taylor.com",
+                firstname: "Fiona",
+                surname: "Taylor",
+                sex: "w",
+                weight: 80,
+                height: 180,
+                passwordHash: bcrypt.hashSync("Password", parseInt(process.env.HASH_SALT_ROUNDS)),
+                birthDate: new Date(2002, 8, 12)
+            })
+
+            await Answer.create({
+                answer: true,
+                question: disease,
+                user: testingTaylor
             })
             break
         case "production":

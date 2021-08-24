@@ -1,4 +1,5 @@
 const express = require("express")
+const net = require("../net")
 
 const rasa = require("../rasa")
 const { query, dispatch } = require("../store")
@@ -6,6 +7,21 @@ const { query, dispatch } = require("../store")
 const router = express.Router()
 
 rasa.init()
+
+router.post("/bonjour", async (req, res) => {
+    let {
+        messages, 
+        events, 
+        buttons, 
+        entries
+    } = await rasa.startConversation(req.user)
+
+    res.json({
+        ok: true,
+        messages,
+        buttons
+    })
+})
 
 router.post("/utter", async (req, res) => {
     let { text } = req.body
@@ -31,12 +47,12 @@ router.post("/utter", async (req, res) => {
         text
     })
 
-    let { forecast } = await net.forecast(req.user._id)
-    await dispatch("OVERRIDE_MICTURITION_PREDICTION", { predictions: forecast })
+    if(entries) {
+        
+    }
+    await net.forecastMicturition(req.user)
 
-    const start = new Date().valueOf()
-    const end = start + 24 * 60 * 60 * 1000
-    forecast = await query("MICTURITION_PREDICTION", { user: req.user, date: { $gte: start, $lte: end } })
+    
 
     res.json({
         buttons,
@@ -50,34 +66,19 @@ router.get("/", async (req, res) => {
     let messages = await query("MESSAGE", { user: req.user })
 
     res.json({
+        ok: true,
         messages
     })
 })
 
-// router.get("/:start/:end", async (req, res) => {
-//     let {start, end} = req.params
-//     let messages = await query("MESSAGE", {user: req.user, timestamp: { $gt: new Date(start), $lte: new Date(end) }})
+router.get("/:start/:end", async (req, res) => {
+    let { start, end } = req.params
+    let messages = await query("MESSAGE", { user: req.user, date: { $gt: new Date(parseInt(start)), $lte: new Date(parseInt(end))}})
 
-//     if(messages.length === 0) {
-//         let botMessages = await rasa.send({ user: req.user , text: "Hallo" })
-//         if(botMessages) {
-//             for (let message of botMessages) {
-//                 if(message.text) {
-//                     let botMessage = await dispatch("ADD_BOT_MESSAGE", {user: req.user, text: message.text })
-//                     messages.push({
-//                         sender: "bot",
-//                         text: botMessage.text,
-//                         timestamp: botMessage.timestamp
-//                     })
-//                 }
-//             }    
-//         }
-//     }
-
-//     res.json({
-//         messages
-//     })
-// })
-
+    res.json({
+        ok: true,
+        messages
+    })
+})
 
 module.exports = router

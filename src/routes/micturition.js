@@ -1,6 +1,8 @@
 const express = require("express")
 
+const net = require("../net")
 const { query, dispatch } = require("../store")
+
 
 const router = express.Router()
 
@@ -16,6 +18,14 @@ router.get("/:start/:end", async (req, res) => {
     let entries = await query("MICTURITION", {user: req.user, date: { $gt: new Date(parseInt(start)), $lte: new Date(parseInt(end)) } })
     res.json({
         entries
+    })
+})
+
+router.get("/forecast", async (req, res) => {
+    let { forecast } = await net.forecastMicturition(req.user)
+
+    res.json({
+        forecast
     })
 })
 
@@ -65,6 +75,7 @@ router.get("/predictions", async (req, res) => {
         predictions
     })
 })
+
 
 
 module.exports = router

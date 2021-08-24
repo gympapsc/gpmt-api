@@ -83,7 +83,7 @@ let processMessages = async (m, u) => {
             })
         } else if(message.buttons) {
             await dispatch("SET_UTTER_BUTTONS", { user: u, buttons: message.buttons })
-            buttons.extend(message.buttons)
+            buttons = message.buttons
         } else if(message.custom) {
             let { entry: en, event: ev } = await processAction(message.custom)
             if(en) entries.extend(en)
@@ -126,5 +126,21 @@ module.exports = {
                     }
                 })
         }   
+    },
+    startConversation: (user) => {
+        if(client) {
+            return client.post("/webhooks/rest/webhook", {
+                sender: user._id,
+                message: "Hallo"
+            })
+                .then(res => res.data)
+                .then(messages => {
+                    if(messages.length === 0) return null
+
+                    if(messages.every(m => m.recipient_id == user._id)) {
+                        return processMessages(messages, user)
+                    }
+                })
+        }
     }
 }

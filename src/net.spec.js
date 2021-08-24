@@ -5,7 +5,7 @@ const mongoose = require("mongoose")
 const seedDatabase = require("./seed")
 
 const {
-    User
+    User, Micturition
 } = require("./models")
 
 const inMemoryStorage = multer.memoryStorage()
@@ -26,19 +26,23 @@ describe("gpmt-net api", () => {
         })
 
         app.post("/forecast/micturition",  (req, res) => {
+
             res.json({
                 forecast: [
                     {
                         date: new Date(2000, 0, 1),
-                        probability: 0.7
+                        prediction: 0.7,
+                        user: req.body.user
                     },
                     {
                         date: new Date(2000, 0, 1),
-                        probability: 0.3
+                        prediction: 0.3,
+                        user: req.body.user
                     },
                     {
                         date: new Date(2000, 0, 1),
-                        probability: 0.2
+                        prediction: 0.2,
+                        user: req.body.user
                     }
                 ]
             })
@@ -77,7 +81,12 @@ describe("gpmt-net api", () => {
         net.init(`http://localhost:${server.address().port}`)
 
         let user = await User.findOne({ email: "testing@taylor.com" })
-        let forecast = await net.forecastMicturition(user, [], [], [], [], [])
+        await Micturition.create({
+            user,
+            date: new Date()
+        })
+
+        let forecast = await net.forecastMicturition(user)
 
         expect(forecast).toBeDefined()
     })

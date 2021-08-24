@@ -1,9 +1,11 @@
+const { query, dispatch } = require("../store")
+
 module.exports = {
     init: jest.fn((url) => {
 
     }),
     send: jest.fn(async (m, u) => {
-        
+
         switch(m) {
             case "ADD MICTURITION":
                 break
@@ -20,5 +22,8 @@ module.exports = {
             default:
                 break
         }
+    }),
+    startConversation: jest.fn(user => {
+
     })
 }

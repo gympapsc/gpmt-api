@@ -14,11 +14,19 @@ router.get("/", async (req, res) => {
 router.post("/:id", async (req, res) => {
     let { question } = req.body
     let { insert } = req.query
+    let q
 
     if(insert) {
         q = await dispatch("INSERT_QUESTION", { next_id: req.params.id, question })
-    } else {
+    } else if(question.name) {
         q = await dispatch("ADD_QUESTION", { parent_id: req.params.id, question })
+    } else if(question._id){
+        // TODO check for infinite loop in questionnaire
+        q = await dispatch("APPEND_QUESTION", { parent_id: req.params.id, _id: question._id })
+    } else {
+        return res.json({
+            ok: false
+        })
     }
 
     res.json({
@@ -84,6 +92,8 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
     let { id } = req.params
     let { cascade } = req.query
+
+    // TODO remove cascade delete
     
     if(cascade) {
         await dispatch("DELETE_CASCADE_QUESTION", { _id: id })

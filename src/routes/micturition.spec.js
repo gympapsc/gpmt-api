@@ -9,6 +9,8 @@ const {
     User
 } = require("../models")
 
+jest.mock("../net")
+
 
 describe("/micturition", () => {
 
@@ -149,5 +151,15 @@ describe("/micturition", () => {
         entry = await Micturition.findOne({_id: entry._id})
 
         expect(entry.date).toEqual(new Date(2000, 0, 1))
+    })
+
+    it("should get forecast", async () => {
+        let res = await request(app)
+            .get("/forecast")
+            .expect("Content-Type", /json/)
+            .expect(200)
+        
+        expect(res.body.forecast).toBeDefined()
+        console.log(res.body)
     })
 })

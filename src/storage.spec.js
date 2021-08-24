@@ -1,4 +1,6 @@
 const storage = require("./storage")
+const { v4: uuid } = require("uuid")
+const fs = require("fs")
 
 describe("storage api", () => {
     let storageClient
@@ -47,6 +49,26 @@ describe("storage api", () => {
 
         let body = await storageClient.readtoString("hello_world")
         expect(body).toEqual("Hello World")
+    })
+
+    it("should upload and read into file", async () => {
+        storageClient = await storage("test")
+
+        let buffer = Buffer.from("Hello World")
+        await storageClient.upload("hello_world", buffer, buffer.length)
+
+        let blobNames = []
+        for await(let blob of storageClient.list()) {
+            blobNames.push(blob.name)
+        }
+        expect(blobNames).toContainEqual("hello_world")
+
+        let path = `./${uuid()}`
+        await storageClient.readToFile("hello_world", path)
+        let body = fs.readFileSync(path)
+        expect(body.toString()).toEqual("Hello World")
+
+        fs.unlinkSync(path)
     })
 
     it("should upload and delete blob if exists", async () => {

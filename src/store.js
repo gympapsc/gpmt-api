@@ -206,6 +206,13 @@ const dispatch = (action, payload, ack=null) => {
                 })
             })
             break
+        case "APPEND_QUESTION":
+            Questionnaire.updateOne({
+                _id: payload.parent_id
+            }, {
+                $push: { next: payload._id }
+            }, ack)
+            break
         case "ADD_CONDITION":
             Questionnaire.updateOne({
                 _id: payload._id,
@@ -434,9 +441,9 @@ const query = (model, selector, cb=null) => {
         case "USER_REGISTRATIONS_STATS":
             User
                 .aggregate([
-                    // { 
-                    //     $match: { timestamp: { $gte: selector.startDate, $lte: selector.endDate } } 
-                    // },
+                    { 
+                        $match: { role: selector.role } 
+                    },
                     { 
                         $addFields:{
                             date:{
@@ -448,8 +455,8 @@ const query = (model, selector, cb=null) => {
                             },
                             dateRange: {
                                 $map:{
-                                    input: { $range: [0, {$subtract:[ selector.endDate, selector.startDate]}, 1000*60*60*24] },
-                                    in: { $toDate: { $add: [ selector.startDate, "$$this" ] } }
+                                    input: { $range: [0, { $subtract:[ selector.endDate, selector.startDate] }, 60*60*24] },
+                                    in: { $toDate: { $multiply: [ { $add: [ selector.startDate, "$$this" ] }, 1000] } }
                                 }
                             }
                         }
@@ -486,7 +493,27 @@ const query = (model, selector, cb=null) => {
         case "USER_ENTRIES_STATS":
             break
         case "USER_GENDER_STATS":
-            break
+            User
+                .aggregate([
+                    {
+                        $match: { role: selector.role }
+                    },
+                    {
+                        $group: {
+                            _id: "$sex",
+                            users: { $sum: 1 }
+                        }
+                    }, 
+                    {
+                        $project : {
+                            _id: 0,
+                            sex: "$_id",
+                            users: "$users"
+                        }
+                    }
+                ])
+                .exec(cb)
+                break
         case "USER_BMI_STATS":
             User
                 .aggregate([
@@ -521,6 +548,50 @@ const query = (model, selector, cb=null) => {
                 ])
                 .exec(cb)
             break
+            case "MS_USER_STATS":
+                Answer
+                    .aggregate([
+                        {
+                            $match: { question: { name: "disease" } }
+                        },
+                        {
+                            $group: {
+                                _id: "$answer",
+                                users: { $sum: 1 }
+                            }
+                        }, 
+                        {
+                            $project : {
+                                _id: 0,
+                                ms: "$_id",
+                                users: "$users"
+                            }
+                        }
+                    ])
+                    .exec(cb)
+                break
+            case "INCONTINENCE_USER_STATS":
+                Answer
+                    .aggregate([
+                        {
+                            $match: { question: { name: "incontinence" } }
+                        },
+                        {
+                            $group: {
+                                _id: "$answer",
+                                users: { $sum: 1 }
+                            }
+                        }, 
+                        {
+                            $project : {
+                                _id: 0,
+                                incontinence: "$_id",
+                                users: "$users"
+                            }
+                        }
+                    ])
+                    .exec(cb)
+                break
         default:
             throw new Error("Unknown model type " + model)
     }
