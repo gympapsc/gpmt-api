@@ -14,6 +14,54 @@ const {
     Medication
 } = require("./models")
 
+const collectEntryStats = collection => (start, end, cb) => {
+    collection
+        .aggregate([
+            { 
+                $addFields:{
+                    date:{
+                        $dateFromParts:{
+                            year:   {$year:"$timestamp"},
+                            month:  {$month:"$timestamp"},
+                            day:    {$dayOfMonth:"$timestamp"}
+                        }
+                    },
+                    dateRange: {
+                        $map:{
+                            input: { $range: [0, { $subtract:[ end, start] }, 60*60*24] },
+                            in: { $toDate: { $multiply: [ { $add: [ start, "$$this" ] }, 1000] } }
+                        }
+                    }
+                }
+            },
+            {
+                $unwind:"$dateRange"
+            },
+            {
+                $group: {
+                    _id:"$dateRange", 
+                    entries: {
+                        $push: {
+                            $cond: [
+                                { $eq:["$dateRange","$date"] },
+                                { count: 1 },
+                                { count: 0 }
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    date: "$_id",
+                    entries: { $sum: "$entries.count" }
+                }
+            }
+        ])
+        .exec(cb)
+}
+
 const dispatch = (action, payload, ack=null) => {
     if(!ack) {
         return new Promise((res, rej) => {
@@ -490,7 +538,14 @@ const query = (model, selector, cb=null) => {
             break
         case "USER_SIGNINS_STATS":
             break
-        case "USER_ENTRIES_STATS":
+        case "USER_MICTURITION_ENTRY_STATS":
+            collectEntryStats(Micturition)(selector.startDate, selector.endDate, cb)
+            break
+        case "USER_DRINKING_ENTRY_STATS":
+            collectEntryStats(Drinking)(selector.startDate, selector.endDate, cb)
+            break
+        case "USER_NUTRITION_ENTRY_STATS":
+            collectEntryStats(Nutrition)(selector.startDate, selector.endDate, cb)
             break
         case "USER_GENDER_STATS":
             User
@@ -548,52 +603,99 @@ const query = (model, selector, cb=null) => {
                 ])
                 .exec(cb)
             break
-            case "MS_USER_STATS":
-                Answer
-                    .aggregate([
-                        {
-                            $match: { question: { name: "disease" } }
-                        },
-                        {
-                            $group: {
-                                _id: "$answer",
-                                users: { $sum: 1 }
-                            }
-                        }, 
-                        {
-                            $project : {
-                                _id: 0,
-                                ms: "$_id",
-                                users: "$users"
+        case "MS_USER_STATS":
+            Answer
+                .aggregate([
+                    {
+                        $match: { question: { name: "disease" } }
+                    },
+                    {
+                        $group: {
+                            _id: "$answer",
+                            users: { $sum: 1 }
+                        }
+                    }, 
+                    {
+                        $project : {
+                            _id: 0,
+                            ms: "$_id",
+                            users: "$users"
+                        }
+                    }
+                ])
+                .exec(cb)
+            break
+        case "INCONTINENCE_USER_STATS":
+            Answer
+                .aggregate([
+                    {
+                        $match: { question: { name: "incontinence" } }
+                    },
+                    {
+                        $group: {
+                            _id: "$answer",
+                            users: { $sum: 1 }
+                        }
+                    }, 
+                    {
+                        $project : {
+                            _id: 0,
+                            incontinence: "$_id",
+                            users: "$users"
+                        }
+                    }
+                ])
+                .exec(cb)
+            break
+        case "PHOTO_UPLOAD_STATS":
+            Photo
+                .aggregate([
+                    { 
+                        $addFields:{
+                            date:{
+                                $dateFromParts:{
+                                    year:   {$year:"$timestamp"},
+                                    month:  {$month:"$timestamp"},
+                                    day:    {$dayOfMonth:"$timestamp"}
+                                }
+                            },
+                            dateRange: {
+                                $map:{
+                                    input: { $range: [0, { $subtract:[ selector.endDate, selector.startDate] }, 60*60*24] },
+                                    in: { $toDate: { $multiply: [ { $add: [ selector.startDate, "$$this" ] }, 1000] } }
+                                }
                             }
                         }
-                    ])
-                    .exec(cb)
-                break
-            case "INCONTINENCE_USER_STATS":
-                Answer
-                    .aggregate([
-                        {
-                            $match: { question: { name: "incontinence" } }
-                        },
-                        {
-                            $group: {
-                                _id: "$answer",
-                                users: { $sum: 1 }
-                            }
-                        }, 
-                        {
-                            $project : {
-                                _id: 0,
-                                incontinence: "$_id",
-                                users: "$users"
+                    },
+                    {
+                        $unwind:"$dateRange"
+                    },
+                    {
+                        $group: {
+                            _id:"$dateRange", 
+                            uploads: {
+                                $push: {
+                                    $cond: [
+                                        { $eq:["$dateRange", "$date"] },
+                                        { count: 1 },
+                                        { count: 0 }
+                                    ]
+                                }
                             }
                         }
-                    ])
-                    .exec(cb)
-                break
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            date: "$_id",
+                            uploads: { $sum: "$uploads.count" }
+                        }
+                    }
+                ])
+                .exec(cb)
+            break
         default:
-            throw new Error("Unknown model type " + model)
+            throw new Error("Unknown query type " + model)
     }
 }
 

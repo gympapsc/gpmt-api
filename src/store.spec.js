@@ -567,4 +567,69 @@ describe("query database", () => {
             done()
         })
     })
+
+    it("should get photo upload statistics", done => {
+        let now = new Date()
+        let today = now.valueOf() - now.valueOf() % (24 * 3600 * 1000)
+        now = today + 24 * 3600 * 1000
+        Photo.create({
+            user
+        }, (err, doc) => {
+            query("PHOTO_UPLOAD_STATS", { startDate: (now - (100 * 24 * 3600 * 1000)) / 1000, endDate: now / 1000 }, (err, doc) => {
+                expect(doc.length).toBe(100)
+                expect(doc.find(d => d.uploads === 1).date).toEqual(new Date(today))
+                done()
+            })
+        })
+    })
+
+    it("should get user micturition statistics", done => {
+        let now = new Date()
+        let today = now.valueOf() - now.valueOf() % (24 * 3600 * 1000)
+        now = today + 24 * 3600 * 1000
+        Micturition.create({
+            user,
+            date: new Date()
+        }, (err, doc) => {
+            query("USER_MICTURITION_ENTRY_STATS", { startDate: (now - (100 * 24 * 3600 * 1000)) / 1000, endDate: now / 1000 }, (err, doc) => {
+                expect(doc.length).toBe(100)
+                done()
+            })
+        })
+    })
+
+    it("should get user nutrition statistics", done => {
+        let now = new Date()
+        let today = now.valueOf() - now.valueOf() % (24 * 3600 * 1000)
+        now = today + 24 * 3600 * 1000
+        Nutrition.create({
+            user,
+            date: new Date(),
+            mass: 0.1,
+            type: "Burger"
+        }, (err, doc) => {
+            query("USER_NUTRITION_ENTRY_STATS", { startDate: (now - (100 * 24 * 3600 * 1000)) / 1000, endDate: now / 1000 }, (err, doc) => {
+                expect(doc.length).toBe(100)
+                done()
+            })
+        })
+    })
+
+    it("should get user drinking statistics", done => {
+        let now = new Date()
+        let today = now.valueOf() - now.valueOf() % (24 * 3600 * 1000)
+        now = today + 24 * 3600 * 1000
+        Drinking.create({
+            user,
+            date: new Date(),
+            amount: 0.1,
+            type: "Burger"
+        }, (err, doc) => {
+            query("USER_DRINKING_ENTRY_STATS", { startDate: (now - (100 * 24 * 3600 * 1000)) / 1000, endDate: now / 1000 }, (err, doc) => {
+                expect(doc.length).toBe(100)
+                done()
+            })
+        })
+    })
+
 })
