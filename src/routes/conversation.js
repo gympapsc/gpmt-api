@@ -48,7 +48,7 @@ router.post("/utter", async (req, res) => {
     })
 
     if(entries) {
-        
+
     }
     await net.forecastMicturition(req.user)
 
@@ -58,7 +58,8 @@ router.post("/utter", async (req, res) => {
         buttons,
         micturitionPrediction: forecast,
         events,
-        entries
+        entries,
+        messages
     })
 })
 
