@@ -34,12 +34,18 @@ module.exports = {
             })
             .then(async res => {
 
-                await dispatch("OVERRIDE_MICTURITION_PREDICTION", { predictions: res.data.forecast })
+                let {forecast} = res.data
+                forecast = forecast.map(p => ({
+                    ...p,
+                    user: user
+                }))
+
+                await dispatch("OVERRIDE_MICTURITION_PREDICTION", { predictions: forecast })
 
                 // forecast single day
                 const start = new Date().valueOf()
                 const end = start + 24 * 60 * 60 * 1000
-                let forecast = await query("MICTURITION_PREDICTION", { user: user, date: { $gte: start, $lte: end } })
+                forecast = await query("MICTURITION_PREDICTION", { user: user, date: { $gte: start, $lte: end } })
 
                 return {
                     forecast

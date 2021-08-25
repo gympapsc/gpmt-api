@@ -7,7 +7,7 @@ let extractLast = arr => {
     return Array.isArray(arr) ? arr[arr.length - 1] : arr
 }
 
-let processAction = async action => {
+let processAction = async (action, user) => {
     let event
     let entry
 
@@ -28,7 +28,7 @@ let processAction = async action => {
         case "ADD_DRINKING":
             entry = await dispatch("ADD_DRINKING", {
                 ...action.payload,
-                amount: action.payload.amount[action.payload.amount.length - 1],
+                amount: extractLast(action.payload.amount),
                 date: new Date(extractLast(action.payload.date))
             })
             break
@@ -56,10 +56,26 @@ let processAction = async action => {
         case "SIGNOUT_USER":
             event = {
                 type: "SIGNOUT_USER",
-                user: req.user
+                user: user
             }
             break
     }
+
+    if(entry) {
+        entry = {
+            ...entry._doc,
+            type: action.type
+        }
+    }
+    if(event) {
+        event = {
+            ...event._doc,
+            type: action.type
+        }
+    }
+
+    console.log(entry)
+    console.log(event)
 
     return {
         event,
@@ -85,9 +101,9 @@ let processMessages = async (m, u) => {
             await dispatch("SET_UTTER_BUTTONS", { user: u, buttons: message.buttons })
             buttons = message.buttons
         } else if(message.custom) {
-            let { entry: en, event: ev } = await processAction(message.custom)
-            if(en) entries.extend(en)
-            if(ev) events.extend(ev)
+            let { entry, event } = await processAction(message.custom, u)
+            if(entry) entries.push(entry)
+            if(event) events.push(event)
         }
     }
 

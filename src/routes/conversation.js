@@ -31,12 +31,6 @@ router.post("/utter", async (req, res) => {
         text
     })
 
-    messages.push({
-        sender: "user",
-        text,
-        timestamp: userMessage.timestamp
-    })
-
     let {
         messages, 
         events, 
@@ -47,11 +41,13 @@ router.post("/utter", async (req, res) => {
         text
     })
 
-    if(entries) {
+    messages.push({
+        sender: "user",
+        text,
+        timestamp: userMessage.timestamp
+    })
 
-    }
-    await net.forecastMicturition(req.user)
-
+    let {forecast} = await net.forecastMicturition(req.user)
     
 
     res.json({
