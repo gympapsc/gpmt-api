@@ -20,7 +20,6 @@ const speechRouter = require("./routes/speech")
 const nutritionRouter = require("./routes/nutrition")
 const medicationRouter = require("./routes/medication")
 
-const adminSigninRouter = require("./admin/signin")
 const adminRouter = require("./admin")
 const seedDatabase = require("./seed")
 
@@ -75,7 +74,6 @@ app.use("/speech", auth.http("user"), speechRouter)
 app.use("/nutrition", auth.http("user"), nutritionRouter)
 app.use("/medication", auth.http("user"), medicationRouter)
 
-app.use("/admin/signin", adminSigninRouter)
 app.use("/admin", auth.http("admin"), adminRouter)
 
 connection

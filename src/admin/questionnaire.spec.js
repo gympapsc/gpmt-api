@@ -194,29 +194,6 @@ describe("/admin/questionnaire", () => {
         expect(digestionDisorder.root).toBe(false)
     })
 
-    it.skip("should delete question with cascade", async () => {
-        let incontinence = await Questionnaire.findOne({ name: "incontinence" })
-        expect(incontinence).toBeDefined()
-        let next = incontinence.next[0]
-
-        let digestionDisorder = await Questionnaire.findOne({ _id: next })
-        expect(digestionDisorder.root).toBe(false)
-
-        let res = await request(app)
-            .delete(`/${incontinence._id}`)
-            .query({ cascade: true })
-            .expect("Content-Type", /json/)
-            .expect(200)
-    
-        expect(res.body.ok).toBeTruthy()
-        
-        let incontienceCount = await Questionnaire.countDocuments({ _id: incontinence._id })
-        expect(incontienceCount).toEqual(0)
-
-        let digestionDisorderCount = await Questionnaire.countDocuments({ _id: digestionDisorder._id })
-        expect(digestionDisorderCount).toEqual(0)
-    })
-
     it("should add question condition", async () => {
         let root = await Questionnaire.findOne({root: true })
 

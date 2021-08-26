@@ -73,10 +73,7 @@ let processAction = async (action, user) => {
             type: action.type
         }
     }
-
-    console.log(entry)
-    console.log(event)
-
+    
     return {
         event,
         entry

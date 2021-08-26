@@ -15,6 +15,8 @@ const {
 } = require("./models")
 
 const collectEntryStats = collection => (start, end, cb) => {
+    end = end / 1000
+    start = start / 1000
     collection
         .aggregate([
             { 
@@ -223,13 +225,14 @@ const dispatch = (action, payload, ack=null) => {
                 condition: []
             }, (err, q) => {
                 if (err) return ack(err, null)
-                Questionnaire.updateOne({
-                    next: payload.next_id
+                Questionnaire.updateMany({
+                    next: payload.next_id,
+                    _id: { $ne: q._id }
                 }, {
-                    // $pull: { next: payload.next_id },
-                    $push: { next: q._id }
+                    $set: { "next.$": q._id }
                 }, (err, op) => {
                     if (err) return ack(err, null)
+
                     Questionnaire.findOne({
                         _id: payload.next_id
                     }, (err, doc) => {
@@ -290,22 +293,11 @@ const dispatch = (action, payload, ack=null) => {
             }, ack)
             break
         case "DELETE_QUESTION":
-            Questionnaire.deleteOne({
-                _id: payload._id
-            }, (err, _) => {
-                if(err) return ack(err, null)
-                ack(null, _)
-            })
-            break
-        case "DELETE_CASCADE_QUESTION":
-            Questionnaire.updateMany({
-                next: payload._id
+            Questionnaire.updateOne({
+                _id: payload.parent_id
             }, {
                 $pull: { next: payload._id }
-            }, (err, n) => {
-                if(err) return ack(err, null)
-                dispatch("DELETE_QUESTION", payload, ack)
-            })
+            }, ack)
             break
         case "ADD_STRESS":
             Stress.create({
@@ -420,7 +412,7 @@ const dispatch = (action, payload, ack=null) => {
     }
 }
 
-const query = (model, selector, cb=null) => {
+const query = (model, selector={}, cb=null) => {
     if(!cb) {
         return new Promise((res, rej) => {
             query(model, selector, (err, result) => {
@@ -487,10 +479,12 @@ const query = (model, selector, cb=null) => {
             }, cb)
             break
         case "USER_REGISTRATIONS_STATS":
+            let endDate = selector.endDate / 1000
+            let startDate = selector.startDate / 1000
             User
                 .aggregate([
                     { 
-                        $match: { role: selector.role } 
+                        $match: { role: "user" } 
                     },
                     { 
                         $addFields:{
@@ -503,8 +497,8 @@ const query = (model, selector, cb=null) => {
                             },
                             dateRange: {
                                 $map:{
-                                    input: { $range: [0, { $subtract:[ selector.endDate, selector.startDate] }, 60*60*24] },
-                                    in: { $toDate: { $multiply: [ { $add: [ selector.startDate, "$$this" ] }, 1000] } }
+                                    input: { $range: [0, { $subtract:[ endDate, startDate] }, 60*60*24] },
+                                    in: { $toDate: { $multiply: [ { $add: [ startDate, "$$this" ] }, 1000] } }
                                 }
                             }
                         }
@@ -547,6 +541,48 @@ const query = (model, selector, cb=null) => {
         case "USER_NUTRITION_ENTRY_STATS":
             collectEntryStats(Nutrition)(selector.startDate, selector.endDate, cb)
             break
+        case "USER_AGE_STATS":
+            let now = new Date()
+            User
+                .aggregate([
+                    {
+                        $match: { role: "user" }
+                    },
+                    {
+                        $project: {
+                            _id: "$_id",
+                            age: {
+                                $round: [
+                                    {
+                                        $divide: [
+                                            {
+                                                $subtract: [
+                                                    now,
+                                                    "$birthDate"
+                                                ]
+                                            },
+                                            (365 * 24 * 3600 * 1000)
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: "$age",
+                            users: { $sum: 1 }
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            age: "$_id",
+                            users: "$users"
+                        }
+                    }
+                ]).exec(cb)
+                break
         case "USER_GENDER_STATS":
             User
                 .aggregate([
@@ -572,18 +608,23 @@ const query = (model, selector, cb=null) => {
         case "USER_BMI_STATS":
             User
                 .aggregate([
+                    {
+                        $match: {role: "user"}
+                    },
                     { 
                         $addFields:{
                             bmi: {
-                                $divide: [
-                                    "$weight",
-                                    { 
-                                        $pow: [
-                                            "$height",
-                                            2
-                                        ] 
-                                    }
-                                ]
+                                $round: {
+                                    $divide: [
+                                        "$weight",
+                                        { 
+                                            $pow: [
+                                                "$height",
+                                                2
+                                            ] 
+                                        }
+                                    ]
+                                }
                             }
                         }
                     },
@@ -604,50 +645,56 @@ const query = (model, selector, cb=null) => {
                 .exec(cb)
             break
         case "MS_USER_STATS":
-            Answer
-                .aggregate([
-                    {
-                        $match: { question: { name: "disease" } }
-                    },
-                    {
-                        $group: {
-                            _id: "$answer",
-                            users: { $sum: 1 }
+            Questionnaire.findOne({ name: "disease"}, (err, doc) => {
+                Answer
+                    .aggregate([
+                        {
+                            $match: { question: doc._id }
+                        },
+                        {
+                            $group: {
+                                _id: "$answer",
+                                users: { $sum: 1 }
+                            }
+                        }, 
+                        {
+                            $project : {
+                                _id: 0,
+                                ms: "$_id",
+                                users: "$users"
+                            }
                         }
-                    }, 
-                    {
-                        $project : {
-                            _id: 0,
-                            ms: "$_id",
-                            users: "$users"
-                        }
-                    }
-                ])
-                .exec(cb)
+                    ])
+                    .exec(cb)
+            })
             break
         case "INCONTINENCE_USER_STATS":
-            Answer
-                .aggregate([
-                    {
-                        $match: { question: { name: "incontinence" } }
-                    },
-                    {
-                        $group: {
-                            _id: "$answer",
-                            users: { $sum: 1 }
+            Questionnaire.findOne({ name: "incontinence"}, (err, doc) => {
+                Answer
+                    .aggregate([
+                        {
+                            $match: { question: doc._id }
+                        },
+                        {
+                            $group: {
+                                _id: "$answer",
+                                users: { $sum: 1 }
+                            }
+                        }, 
+                        {
+                            $project : {
+                                _id: 0,
+                                ms: "$_id",
+                                users: "$users"
+                            }
                         }
-                    }, 
-                    {
-                        $project : {
-                            _id: 0,
-                            incontinence: "$_id",
-                            users: "$users"
-                        }
-                    }
-                ])
-                .exec(cb)
+                    ])
+                    .exec(cb)
+            })
             break
         case "PHOTO_UPLOAD_STATS":
+            let start = selector.startDate / 1000
+            let end = selector.endDate / 1000
             Photo
                 .aggregate([
                     { 
@@ -661,8 +708,8 @@ const query = (model, selector, cb=null) => {
                             },
                             dateRange: {
                                 $map:{
-                                    input: { $range: [0, { $subtract:[ selector.endDate, selector.startDate] }, 60*60*24] },
-                                    in: { $toDate: { $multiply: [ { $add: [ selector.startDate, "$$this" ] }, 1000] } }
+                                    input: { $range: [0, { $subtract:[ end, start] }, 60*60*24] },
+                                    in: { $toDate: { $multiply: [ { $add: [ start, "$$this" ] }, 1000] } }
                                 }
                             }
                         }

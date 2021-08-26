@@ -9,7 +9,7 @@ const userSchema = new Schema({
     sex: { type: String, enum: ["m", "w", "d"], required: true },
     weight: { type: Number, required: true },
     birthDate: { type: Date, required: true },
-    height: { type: Number, required: true, min: 20, max: 300},
+    height: { type: Number, required: true },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     utterButtons: [{
         payload: { type: String, required: true },

@@ -11,7 +11,8 @@ const {
     MicturitionPrediction,
     MicturitionModel,
     ClassificationModel,
-    PhotoClassificationModel
+    PhotoClassificationModel,
+    Nutrition
 } = require("./models")
 const mongoose = require("mongoose")
 
@@ -77,7 +78,7 @@ module.exports = async function seed() {
                 surname: "rachidi",
                 sex: "m",
                 weight: 80,
-                height: 180,
+                height: 1.80,
                 passwordHash: bcrypt.hashSync("Password", parseInt(process.env.HASH_SALT_ROUNDS)),
                 birthDate: new Date(2002, 8, 12)
             })
@@ -88,8 +89,8 @@ module.exports = async function seed() {
                 firstname: "Testing",
                 surname: "Taylor",
                 sex: "m",
-                weight: 80,
-                height: 180,
+                weight: 90,
+                height: 1.80,
                 passwordHash: bcrypt.hashSync("Password", parseInt(process.env.HASH_SALT_ROUNDS)),
                 birthDate: new Date(2002, 8, 12)
             })
@@ -101,14 +102,43 @@ module.exports = async function seed() {
                 surname: "Taylor",
                 sex: "w",
                 weight: 80,
-                height: 180,
+                height: 1.80,
                 passwordHash: bcrypt.hashSync("Password", parseInt(process.env.HASH_SALT_ROUNDS)),
                 birthDate: new Date(2002, 8, 12)
             })
 
             await Answer.create({
-                answer: true,
+                answer: "Ja",
                 question: disease,
+                user: testingTaylor
+            })
+
+            await Answer.create({
+                answer: "Ja",
+                question: incontinence,
+                user: testingTaylor
+            })
+
+            await Micturition.create({
+                user: testingTaylor,
+                date: new Date()
+            })
+
+            await Drinking.create({
+                user: testingTaylor,
+                date: new Date(),
+                type: "Water",
+                amount: 0.2
+            })
+
+            await Nutrition.create({
+                user: testingTaylor,
+                date: new Date(),
+                type: "Meat",
+                mass: 0.3
+            })
+
+            await Photo.create({
                 user: testingTaylor
             })
             break

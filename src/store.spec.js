@@ -3,6 +3,7 @@ const express = require("express")
 const mongoose = require("mongoose")
 const seedDatabase = require("./seed")
 const cookieParser = require("cookie-parser")
+const bcrypt = require("bcrypt")
 
 const { http } = require("./auth")
 const { query, dispatch } = require("./store")
@@ -540,10 +541,54 @@ describe("query database", () => {
         let now = new Date()
         let today = now.valueOf() - now.valueOf() % (24 * 3600 * 1000)
         now = today + 24 * 3600 * 1000
-        query("USER_REGISTRATIONS_STATS", { role: "user", startDate: (now - (100 * 24 * 3600 * 1000)) / 1000, endDate: now / 1000 }, (err, doc) => {
+        query("USER_REGISTRATIONS_STATS", { role: "user", startDate: now - (100 * 24 * 3600 * 1000), endDate: now }, (err, doc) => {
             expect(doc.length).toBe(100)
             expect(doc.find(d => d.registrations === 2).date).toEqual(new Date(today))
             done()
+        })
+    })
+
+    it("should get user bmi stats", done => {
+        User.deleteMany({}, (err, _) => {
+            User.create({
+                role: "user",
+                email: "fiona@taylor.com",
+                firstname: "Fiona",
+                surname: "Taylor",
+                sex: "w",
+                weight: 80,
+                height: 1.80,
+                passwordHash: "test",
+                birthDate: new Date(2002, 8, 12)
+            }, (err, doc) => {
+                User.create({
+                    role: "user",
+                    email: "testing@taylor.com",
+                    firstname: "Testing",
+                    surname: "Taylor",
+                    sex: "m",
+                    weight: 90,
+                    height: 1.80,
+                    passwordHash: "test",
+                    birthDate: new Date(2002, 8, 12)
+                }, (err, doc) => {
+                    
+                    query("USER_BMI_STATS", {}, (err, doc) => {
+                        console.log(doc)
+                        expect(doc.length).toBe(2)
+                        expect(doc).toContainEqual({
+                            users: 1,
+                            bmi: Math.round(90 / Math.pow(1.8, 2))
+                        })
+                        expect(doc).toContainEqual({
+                            users: 1,
+                            bmi: Math.round(80 / Math.pow(1.8, 2))
+                        })
+                        done()
+                    })
+
+                })
+            }) 
         })
     })
 
@@ -554,9 +599,10 @@ describe("query database", () => {
         })
     })
 
-    it("should get ms statistics", done => {
+    it.only("should get ms statistics", done => {
         query("MS_USER_STATS", { role: "user" }, (err, doc) => {
             console.log(doc)
+            expect(doc.length).not.toEqual(0)
             done()
         })
     })

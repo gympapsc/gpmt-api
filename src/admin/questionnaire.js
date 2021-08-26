@@ -29,8 +29,11 @@ router.post("/:id", async (req, res) => {
         })
     }
 
+    let questionnaire = await query("QUESTIONNAIRE")
+
     res.json({
         question: q,
+        questionnaire,
         ok: true
     })
 })
@@ -89,20 +92,15 @@ router.put("/:id", async (req, res) => {
     })
 })
 
-router.delete("/:id", async (req, res) => {
-    let { id } = req.params
-    let { cascade } = req.query
+router.delete("/:pid/:id", async (req, res) => {
+    let { id, pid } = req.params
 
-    // TODO remove cascade delete
-    
-    if(cascade) {
-        await dispatch("DELETE_CASCADE_QUESTION", { _id: id })
-    } else {
-        await dispatch("DELETE_QUESTION", { _id: id })
-    }
+    await dispatch("DELETE_QUESTION", { _id: id, parent_id: pid })
+    let questionnaire = await query("QUESTIONNAIRE")
 
     res.json({
-        ok: true
+        ok: true,
+        questionnaire
     })
 })
 
