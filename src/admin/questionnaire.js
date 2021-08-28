@@ -38,6 +38,10 @@ router.post("/:id", async (req, res) => {
     })
 })
 
+/*
+*   Question option routes
+*/
+
 router.post("/:id/option", async (req, res) => {
     let { option } = req.body
     let { id } = req.params
@@ -61,21 +65,27 @@ router.delete("/:id/option/:oid", async (req, res) => {
     })
 })
 
-router.post("/:id/condition", async (req, res) => {
+
+/*
+*   Question condition routes
+*/
+
+router.post("/:id/:nid/condition", async (req, res) => {
     let { condition } = req.body
-    let _id = req.params.id
-    await dispatch("ADD_CONDITION", { _id, condition })
+    let { id:_id, nid: next_id } = req.params
+    await dispatch("ADD_CONDITION", { _id, next_id, condition })
     let questions = await query("QUESTIONNAIRE", { _id })
 
     res.json({
         ok: true,
-        question: questions[0]
+        question: questions[0],
+        questionnaire: questions
     })
 })
 
-router.delete("/:id/condition/:cid", async (req, res) => {
-    let { id, cid } = req.params
-    await dispatch("DELETE_QUESTION_CONDITION", { _id: id, condition_id: cid })
+router.delete("/:id/:nid/condition/:cid", async (req, res) => {
+    let { id: _id, nid: next_id, cid: condition_id } = req.params
+    await dispatch("DELETE_QUESTION_CONDITION", { _id, next_id, condition_id })
 
     res.json({
         ok: true
@@ -93,9 +103,9 @@ router.put("/:id", async (req, res) => {
 })
 
 router.delete("/:pid/:id", async (req, res) => {
-    let { id, pid } = req.params
+    let { id: _id, pid: parent_id } = req.params
 
-    await dispatch("DELETE_QUESTION", { _id: id, parent_id: pid })
+    await dispatch("DELETE_QUESTION", { _id, parent_id })
     let questionnaire = await query("QUESTIONNAIRE")
 
     res.json({

@@ -47,13 +47,10 @@ describe("dispatch to database", () => {
     })
 
     afterEach(async () => {
-        await Micturition.deleteMany({})
-        await Drinking.deleteMany({})
-        await Stress.deleteMany({})
-        await Nutrition.deleteMany({})
-        await Medication.deleteMany({})
-
+        await mongoose.connection.db.dropDatabase()
+        await seedDatabase()
     })
+
 
     it("should return promise with no callback", async () => {
         let res = dispatch("ADD_MICTURITION", { date: new Date(), user: user._id })
@@ -403,37 +400,63 @@ describe("dispatch to database", () => {
     })
 
 
-
     it("should add question", done => {
-        dispatch("ADD_MICTURITION", {
-            date: new Date(),
-            user: user._id
-        }, (err, m) => {
-            expect(err).toBeFalsy()
-            Micturition.findOne({_id: m._id}, (err, doc) => {
-                expect(doc).toMatchObject({
-                    date: m.date,
-                    user: m.user
+        Questionnaire.findOne({
+            name: "ms_timerange"
+        }, (err, q) => {
+
+            dispatch("ADD_QUESTION", {
+                parent_id: q._id,
+                question: {
+                    name: "test",
+                    type: "string",
+                    options: []
+                }
+            }, (err, r) => {
+                
+                Questionnaire.findOne({
+                    name: "ms_timerange"
+                }, (err, q) => {
+                    expect(q.next.length).toBe(1)
+                    expect(q.next[0].condition.length).toBe(0)
+                    expect(q.next[0]._id).toEqual(r._id)
+
+                    done()
                 })
-                done()
             })
         })
     })
 
     it("should insert question", done => {
-        dispatch("ADD_MICTURITION", {
-            date: new Date(),
-            user: user._id
-        }, (err, m) => {
-            expect(err).toBeFalsy()
-            Micturition.findOne({_id: m._id}, (err, doc) => {
-                expect(doc).toMatchObject({
-                    date: m.date,
-                    user: m.user
+        Questionnaire.findOne({
+            name: "ms_timerange"
+        }, (err, q) => {
+
+
+            dispatch("INSERT_QUESTION", {
+                next_id: q._id,
+                question: {
+                    name: "test",
+                    type: "string",
+                    options: []
+                }
+            }, (err, r) => {
+                expect(r.next.length).toBe(1)
+                expect(r.next[0]._id).toEqual(q._id)
+                expect(r.next[0].condition.length).toEqual(0)
+
+                Questionnaire.findOne({
+                    name: "disease"
+                }, (err, s) => {
+                    expect(s.next.map(n => n._id)).not.toContainEqual(q._id)
+                    expect(s.next.map(n => n._id)).toContainEqual(r._id)
+
+                    done()
                 })
-                done()
+
             })
         })
+
     })
 
     it("should append question", done => {
@@ -470,33 +493,68 @@ describe("dispatch to database", () => {
 
 
     it("should add question condition", done => {
-        dispatch("ADD_MICTURITION", {
-            date: new Date(),
-            user: user._id
-        }, (err, m) => {
-            expect(err).toBeFalsy()
-            Micturition.findOne({_id: m._id}, (err, doc) => {
-                expect(doc).toMatchObject({
-                    date: m.date,
-                    user: m.user
+        Questionnaire.findOne({
+            name: "disease"
+        }, (err, q) => {
+            let count = q.next[0].condition.length
+
+            dispatch("ADD_CONDITION", {
+                condition: {
+                    type: "test",
+                    value: "test"
+                },
+                _id: q._id,
+                next_id: q.next[0]._id
+            }, (err, m) => {
+
+                Questionnaire.findOne({
+                    name: "disease",
+                }, (err, q) => {
+                    expect(q.next[0].condition.map(c => c.type)).toContainEqual("test")
+                    expect(q.next[0].condition.map(c => c.value)).toContainEqual("test")
+                    expect(q.next[0].condition.length).toBe(count + 1)
+                    done()
                 })
-                done()
             })
         })
     })
 
     it("should delete question condition", done => {
-        dispatch("ADD_MICTURITION", {
-            date: new Date(),
-            user: user._id
-        }, (err, m) => {
-            expect(err).toBeFalsy()
-            Micturition.findOne({_id: m._id}, (err, doc) => {
-                expect(doc).toMatchObject({
-                    date: m.date,
-                    user: m.user
+        Questionnaire.findOne({
+            name: "disease"
+        }, (err, q) => {
+
+            dispatch("ADD_CONDITION", {
+                condition: {
+                    type: "test",
+                    value: "test"
+                },
+                _id: q._id,
+                next_id: q.next[0]._id
+            }, (err, m) => {
+
+                Questionnaire.findOne({
+                    name: "disease",
+                }, (err, q) => {
+                    expect(q.next[0].condition.map(c => c.type)).toContainEqual("test")
+                    expect(q.next[0].condition.map(c => c.value)).toContainEqual("test")
+                    let count = q.next[0].condition.length
+                    
+                    dispatch("DELETE_QUESTION_CONDITION", {
+                        _id: q._id,
+                        next_id: q.next[0]._id,
+                        condition_id: q.next[0].condition.find(c => c.type === "test")._id
+                    }, (err, doc) => {
+                        
+                        Questionnaire.findOne({
+                            name: "disease",
+                        }, (err, q) => {
+                            expect(q.next[0].condition.length).toBe(count - 1)
+                            expect(q.next[0].condition.map(c => c.type)).not.toContainEqual("test")
+                            done()
+                        })
+                    })
                 })
-                done()
             })
         })
     })
@@ -574,7 +632,6 @@ describe("query database", () => {
                 }, (err, doc) => {
                     
                     query("USER_BMI_STATS", {}, (err, doc) => {
-                        console.log(doc)
                         expect(doc.length).toBe(2)
                         expect(doc).toContainEqual({
                             users: 1,
@@ -594,14 +651,12 @@ describe("query database", () => {
 
     it("should get user gender statistics", done => {
         query("USER_GENDER_STATS", { role: "user" }, (err, doc) => {
-            console.log(doc)
             done()
         })
     })
 
-    it.only("should get ms statistics", done => {
+    it("should get ms statistics", done => {
         query("MS_USER_STATS", { role: "user" }, (err, doc) => {
-            console.log(doc)
             expect(doc.length).not.toEqual(0)
             done()
         })
@@ -609,7 +664,6 @@ describe("query database", () => {
 
     it("should get incontinence statistics", done => {
         query("INCONTINENCE_USER_STATS", { role: "user" }, (err, doc) => {
-            console.log(doc)
             done()
         })
     })
@@ -621,9 +675,9 @@ describe("query database", () => {
         Photo.create({
             user
         }, (err, doc) => {
-            query("PHOTO_UPLOAD_STATS", { startDate: (now - (100 * 24 * 3600 * 1000)) / 1000, endDate: now / 1000 }, (err, doc) => {
+            query("PHOTO_UPLOAD_STATS", { startDate: now - (100 * 24 * 3600 * 1000), endDate: now }, (err, doc) => {
                 expect(doc.length).toBe(100)
-                expect(doc.find(d => d.uploads === 1).date).toEqual(new Date(today))
+                expect(doc.find(d => d.uploads >= 1).date).toEqual(new Date(today))
                 done()
             })
         })
@@ -637,7 +691,7 @@ describe("query database", () => {
             user,
             date: new Date()
         }, (err, doc) => {
-            query("USER_MICTURITION_ENTRY_STATS", { startDate: (now - (100 * 24 * 3600 * 1000)) / 1000, endDate: now / 1000 }, (err, doc) => {
+            query("USER_MICTURITION_ENTRY_STATS", { startDate: now - (100 * 24 * 3600 * 1000), endDate: now }, (err, doc) => {
                 expect(doc.length).toBe(100)
                 done()
             })
@@ -654,7 +708,7 @@ describe("query database", () => {
             mass: 0.1,
             type: "Burger"
         }, (err, doc) => {
-            query("USER_NUTRITION_ENTRY_STATS", { startDate: (now - (100 * 24 * 3600 * 1000)) / 1000, endDate: now / 1000 }, (err, doc) => {
+            query("USER_NUTRITION_ENTRY_STATS", { startDate: now - (100 * 24 * 3600 * 1000), endDate: now }, (err, doc) => {
                 expect(doc.length).toBe(100)
                 done()
             })
@@ -671,7 +725,7 @@ describe("query database", () => {
             amount: 0.1,
             type: "Burger"
         }, (err, doc) => {
-            query("USER_DRINKING_ENTRY_STATS", { startDate: (now - (100 * 24 * 3600 * 1000)) / 1000, endDate: now / 1000 }, (err, doc) => {
+            query("USER_DRINKING_ENTRY_STATS", { startDate: now - (100 * 24 * 3600 * 1000), endDate: now  }, (err, doc) => {
                 expect(doc.length).toBe(100)
                 done()
             })

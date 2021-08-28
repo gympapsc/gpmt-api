@@ -27,10 +27,6 @@ module.exports = async function seed() {
                 root: false,
                 type: "bool",
                 name: "digestion_disorder",
-                condition: [
-                    { value: "", type: false },
-                    { value: "", type: true },
-                ],
                 next: [],
                 options: []
             })
@@ -39,11 +35,14 @@ module.exports = async function seed() {
                 root: false,
                 type: "bool",
                 name: "incontinence",
-                condition: [
-                    { value: "", type: false }
-                ],
                 next: [
-                    digestionDisorder._id
+                    {
+                        _id: digestionDisorder._id,
+                        condition: [
+                            { value: "", type: true },
+                            { value: "", type: false }
+                        ]
+                    }
                 ],
                 options: []
             })
@@ -52,9 +51,6 @@ module.exports = async function seed() {
                 root: false,
                 type: "number",
                 name: "ms_timerange",
-                condition: [
-                    { value: "", type: true }
-                ],
                 next: [],
                 options: []
             })
@@ -65,8 +61,19 @@ module.exports = async function seed() {
                 name: "disease",
                 condition: [],
                 next: [
-                    incontinence._id,
-                    msTimerange._id
+                    {
+                        _id: incontinence._id,
+                        condition: [
+                            { value: "", type: false }
+                        ]
+                    },
+                    {
+
+                        _id: msTimerange._id,
+                        condition: [
+                            { value: "", type: true }
+                        ]
+                    }
                 ],
                 options: []
             })
@@ -95,7 +102,7 @@ module.exports = async function seed() {
                 birthDate: new Date(2002, 8, 12)
             })
 
-            await User.create({
+            let fionaTaylor = await User.create({
                 role: "user",
                 email: "fiona@taylor.com",
                 firstname: "Fiona",
@@ -113,10 +120,11 @@ module.exports = async function seed() {
                 user: testingTaylor
             })
 
+
             await Answer.create({
-                answer: "Ja",
+                answer: "Nein",
                 question: incontinence,
-                user: testingTaylor
+                user: fionaTaylor
             })
 
             await Micturition.create({

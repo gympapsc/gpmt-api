@@ -210,7 +210,12 @@ const dispatch = (action, payload, ack=null) => {
                 Questionnaire.updateOne({
                     _id: payload.parent_id
                 }, {
-                    $push: { next: doc._id }
+                    $push: { 
+                        next: {
+                            _id: doc._id,
+                            condition: []
+                        }
+                    }
                 }, (err, parent) => {
                     ack(err, doc)
                 })
@@ -219,17 +224,15 @@ const dispatch = (action, payload, ack=null) => {
         case "INSERT_QUESTION":
             Questionnaire.create({
                 ...payload.question,
-                next: [
-                    payload.next_id
-                ],
-                condition: []
+                next: [{ _id: payload.next_id, condition: [] }]
             }, (err, q) => {
                 if (err) return ack(err, null)
+
                 Questionnaire.updateMany({
-                    next: payload.next_id,
+                    "next._id": payload.next_id,
                     _id: { $ne: q._id }
                 }, {
-                    $set: { "next.$": q._id }
+                    $set: { "next.$._id": q._id, "next.$.condition": [] }
                 }, (err, op) => {
                     if (err) return ack(err, null)
 
@@ -238,6 +241,7 @@ const dispatch = (action, payload, ack=null) => {
                     }, (err, doc) => {
                         if(err) return ack(err, null)
                         if(doc && doc.root) {
+
                             Questionnaire.updateOne({
                                 _id: doc._id
                             }, {
@@ -250,6 +254,7 @@ const dispatch = (action, payload, ack=null) => {
                                     $set: {root: true}
                                 }, (err, op) => ack(err, q))
                             })
+
                         } else {
                             ack(err, q)
                         }
@@ -261,14 +266,20 @@ const dispatch = (action, payload, ack=null) => {
             Questionnaire.updateOne({
                 _id: payload.parent_id
             }, {
-                $push: { next: payload._id }
+                $push: { 
+                    next: {
+                        _id: payload._id,
+                        condition: []
+                    } 
+                }
             }, ack)
             break
         case "ADD_CONDITION":
             Questionnaire.updateOne({
                 _id: payload._id,
+                "next._id": payload.next_id
             }, {
-                $push: { condition: payload.condition }
+                $push: { "next.$.condition": payload.condition }
             }, ack)
             break
         case "ADD_QUESTION_OPTION":
@@ -280,23 +291,24 @@ const dispatch = (action, payload, ack=null) => {
             break
         case "DELETE_QUESTION_CONDITION":
             Questionnaire.updateOne({
-                _id: payload._id
+                _id: payload._id,
+                "next._id": payload.next_id
             }, {
-                $pull: { condition: { _id: payload.condition_id } }
+                $pull: { "next.$.condition": { _id: payload.condition_id } }
             }, ack)
             break
         case "UPDATE_QUESTION":
             Questionnaire.updateOne({
                 _id: payload._id
             }, {
-                ...payload.question
+                $set: {...payload.question }
             }, ack)
             break
         case "DELETE_QUESTION":
             Questionnaire.updateOne({
-                _id: payload.parent_id
+                _id: payload.parent_id,
             }, {
-                $pull: { next: payload._id }
+                $pull: { next: { _id: payload._id } }
             }, ack)
             break
         case "ADD_STRESS":

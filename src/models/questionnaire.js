@@ -10,14 +10,22 @@ const questionnaireSchema = new mongoose.Schema({
             value: { type: String, required: true }
         }
     ],
-    condition: [
-        {
-            type: { type: String, require: true},
-            value: { type: String, require: true}
-        }
-    ],
+    // condition: [
+    //     {
+    //         type: { type: String, require: true},
+    //         value: { type: String, require: true}
+    //     }
+    // ],
     next: [
-        { type: mongoose.Schema.Types.ObjectId, ref: "Questionnaire" }
+        {
+            _id: { type: mongoose.Schema.Types.ObjectId, ref: "Questionnaire" },
+            condition: [
+                {
+                    type: { type: String, require: true},
+                    value: { type: String, require: true}
+                }
+            ]
+        }
     ]
 }, {
     timestamps: {
