@@ -1,3 +1,4 @@
+const mongoose = require("mongoose")
 const {
     Message,
     User,
@@ -13,6 +14,8 @@ const {
     Nutrition,
     Medication
 } = require("./models")
+const seedDatabase = require("./seed")
+
 
 const collectEntryStats = collection => (start, end, cb) => {
     end = end / 1000
@@ -418,6 +421,32 @@ const dispatch = (action, payload, ack=null) => {
             }, {
                 $pull: { options: { _id: payload.option_id } }
             }, ack)
+            break
+        case "DELETE_ALL_QUESTIONS":
+            Questionnaire.deleteMany({}, ack)
+            break
+        case "DELETE_ALL_DRINKING":
+            Drinking.deleteMany({}, ack)
+            break
+        case "DELETE_ALL_MICTURITION":
+            Micturition.deleteMany({}, ack)
+            break
+        case "DELETE_ALL_NUTRITION":
+            Nutrition.deleteMany({}, ack)
+            break
+        case "DELETE_ALL_MEDICATION":
+            Medication.deleteMany({}, ack)
+            break
+        case "DELETE_USER":
+            User.deleteOne({
+                _id: payload._id
+            }, ack)
+            break
+        case "RESET":
+            mongoose.connection.db.dropDatabase(() => {
+                seedDatabase()
+                    .then(ack)
+            })
             break
         default:
             throw new Error("Unknown action " + action)

@@ -9,6 +9,51 @@ const router = express.Router()
 const { query, dispatch } = require("../store")
 const CsvSerializer = require("../loaders/csvSerializer")
 
+
+router.delete("/", async (req, res) => {
+    await dispatch("RESET")
+
+    res.json({
+        ok: true
+    })
+})
+
+router.delete("/micturition", async (req, res) => {
+    await dispatch("DELETE_ALL_MICTURITION")
+    res.json({
+        ok: true
+    })
+})
+
+router.delete("/drinking", async (req, res) => {
+    await dispatch("DELETE_ALL_DRINKING")
+    res.json({
+        ok: true
+    })
+})
+
+router.delete("/nutrition", async (req, res) => {
+    await dispatch("DELETE_ALL_NUTRITION")
+    res.json({
+        ok: true
+    })
+})
+
+router.delete("/medication", async (req, res) => {
+    await dispatch("DELETE_ALL_MEDICATION")
+    res.json({
+        ok: true
+    })
+})
+
+router.delete("/stress", async (req, res) => {
+    await dispatch("DELETE_ALL_STRESS")
+    res.json({
+        ok: true
+    })
+})
+
+
 router.get("/users", async (req, res) => {
     let users = await query("USER", {})
     let answers = await query("ANSWER", {})
@@ -23,6 +68,15 @@ router.get("/users", async (req, res) => {
 
     res.json({
         users
+    })
+})
+
+router.delete("/user/:id", async (req, res) => {
+    let { id: _id} = req.params
+    await dispatch("DELETE_USER", { _id })
+    
+    res.json({
+        ok: true
     })
 })
 
@@ -195,5 +249,6 @@ router.delete("/model/:id", async (req, res) => {
         })
     }
 })
+
 
 module.exports = router

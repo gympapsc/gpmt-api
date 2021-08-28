@@ -11,6 +11,14 @@ router.get("/", async (req, res) => {
     })
 })
 
+router.delete("/", async (req, res) => {
+    await dispatch("DELETE_ALL_QUESTIONS", {})
+
+    res.json({
+        ok: true
+    })
+})
+
 router.post("/:id", async (req, res) => {
     let { question } = req.body
     let { insert } = req.query
