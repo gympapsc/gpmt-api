@@ -57,7 +57,7 @@ module.exports = async function seed() {
 
             let disease = await Questionnaire.create({
                 root: true,
-                type: "string",
+                type: "bool",
                 name: "disease",
                 condition: [],
                 next: [
