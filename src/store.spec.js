@@ -635,11 +635,11 @@ describe("query database", () => {
                         expect(doc.length).toBe(2)
                         expect(doc).toContainEqual({
                             users: 1,
-                            bmi: Math.round(90 / Math.pow(1.8, 2))
+                            bmi: Math.floor(90 / Math.pow(1.8, 2))
                         })
                         expect(doc).toContainEqual({
                             users: 1,
-                            bmi: Math.round(80 / Math.pow(1.8, 2))
+                            bmi: Math.floor(80 / Math.pow(1.8, 2))
                         })
                         done()
                     })
