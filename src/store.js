@@ -593,7 +593,7 @@ const query = (model, selector={}, cb=null) => {
                         $project: {
                             _id: "$_id",
                             age: {
-                                $round: [
+                                $floor: [
                                     {
                                         $divide: [
                                             {
@@ -655,7 +655,7 @@ const query = (model, selector={}, cb=null) => {
                     { 
                         $addFields:{
                             bmi: {
-                                $round: {
+                                $floor: {
                                     $divide: [
                                         "$weight",
                                         { 
