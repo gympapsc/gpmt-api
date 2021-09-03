@@ -1,7 +1,7 @@
 controller:
     replicaCount: 1
     service:
-        loadBalancerIP: "20.86.179.57"
+        loadBalancerIP: "40.114.238.3"
         annotations:
             service.beta.kubernetes.io/azure-dns-label-name: "api-gpmt"
 

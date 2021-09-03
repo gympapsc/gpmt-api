@@ -143,9 +143,9 @@ jobs:
   
       - name: Deploy nginx ingress controller
         run: |
-          helm upgrade nginx-ingress ingress-nginx/ingress-nginx \
+          helm template nginx-ingress ingress-nginx/ingress-nginx \
           --values ./manifest/nginx.values.yaml \
-          --namespace "default" --install
+          --namespace "default" | kubectl apply -f -
       
       - name: Deploy certificate manager
         run: |
