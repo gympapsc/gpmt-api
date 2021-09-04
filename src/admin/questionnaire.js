@@ -87,7 +87,6 @@ router.post("/:id/:nid/condition", async (req, res) => {
     res.json({
         ok: true,
         question: questions[0],
-        questionnaire: questions
     })
 })
 
@@ -95,8 +94,12 @@ router.delete("/:id/:nid/condition/:cid", async (req, res) => {
     let { id: _id, nid: next_id, cid: condition_id } = req.params
     await dispatch("DELETE_QUESTION_CONDITION", { _id, next_id, condition_id })
 
+    let questions = await query("QUESTIONNAIRE", { _id })
+
+
     res.json({
-        ok: true
+        ok: true,
+        question: questions[0]
     })
 })
 

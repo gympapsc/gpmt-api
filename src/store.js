@@ -711,7 +711,8 @@ const query = (model, selector={}, cb=null) => {
             break
         case "INCONTINENCE_USER_STATS":
             Questionnaire.findOne({ name: "incontinence"}, (err, doc) => {
-                Answer
+                if(!err && doc) {
+                    Answer
                     .aggregate([
                         {
                             $match: { question: doc._id }
@@ -731,6 +732,9 @@ const query = (model, selector={}, cb=null) => {
                         }
                     ])
                     .exec(cb)
+                } else {
+                    cb(err, null)
+                }
             })
             break
         case "PHOTO_UPLOAD_STATS":
