@@ -173,7 +173,7 @@ module.exports = async function seed() {
                         surname: "rachidi",
                         sex: "m",
                         weight: 80,
-                        height: 180,
+                        height: 1.80,
                         passwordHash: bcrypt.hashSync(process.env.ADMIN_PASSWORD, parseInt(process.env.HASH_SALT_ROUNDS)),
                         birthDate: new Date(2002, 8, 12)
                     })
