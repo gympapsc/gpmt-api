@@ -21,8 +21,8 @@ let processAction = async (action, user) => {
         case "ADD_STRESS":
             entry = await dispatch("ADD_STRESS", {
                 ...action.payload,
-                date: new Date(extractLast(action.payload.date))
-
+                date: new Date(extractLast(action.payload.date)),
+                level: extractLast(action.payload.level)
             })
             break
         case "ADD_DRINKING":
@@ -132,8 +132,6 @@ module.exports = {
             })
                 .then(res => res.data)
                 .then(messages => {
-                    if(messages.length === 0) return null
-
                     if(messages.every(m => m.recipient_id == user._id)) {
                         return processMessages(messages, user)
                     }
@@ -148,8 +146,6 @@ module.exports = {
             })
                 .then(res => res.data)
                 .then(messages => {
-                    if(messages.length === 0) return null
-
                     if(messages.every(m => m.recipient_id == user._id)) {
                         return processMessages(messages, user)
                     }
