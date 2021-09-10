@@ -19,7 +19,8 @@ const userSchema = new Schema({
     settings: {
         voiceInput: { type: Boolean, default: false },
         voiceOutput: { type: Boolean, default: false },
-        cumulativePrediction: { type: Boolean, default: false }
+        cumulativePrediction: { type: Boolean, default: false },
+        highContrast: { type: Boolean, default: false }
     }
 }, {
     timestamps: {
