@@ -28,7 +28,8 @@ let processAction = async (action, user) => {
         case "ADD_DRINKING":
             entry = await dispatch("ADD_DRINKING", {
                 ...action.payload,
-                amount: extractLast(action.payload.amount),
+                // TODO As we are getting volume in milliliters divide by 1000
+                amount: extractLast(action.payload.amount) / 1000, 
                 date: new Date(extractLast(action.payload.date))
             })
             break
@@ -53,6 +54,10 @@ let processAction = async (action, user) => {
                 substance: action.payload.substance
             })
             break
+        case "UPDATE_USER":
+            await dispatch("UPDATE_USER", {
+                ...action.payload
+            })
         case "SIGNOUT_USER":
             event = {
                 type: "SIGNOUT_USER",
