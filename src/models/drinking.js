@@ -2,7 +2,7 @@ const mongoose = require("mongoose")
 const { Schema } = mongoose
 
 
-const drinkingSchema = new Schema({
+const hydrationSchema = new Schema({
     user: { type: Schema.Types.ObjectId, required: true, ref: "User" },
     date: { type: Date, default: Date.now },
     amount: { type: Number, required: true },
@@ -14,4 +14,4 @@ const drinkingSchema = new Schema({
 })
 
 
-module.exports = mongoose.model("Drinking", drinkingSchema, "Drinking")
+module.exports = mongoose.model("Hydration", hydrationSchema, "Hydration")

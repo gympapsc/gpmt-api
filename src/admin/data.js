@@ -25,7 +25,7 @@ router.delete("/micturition", async (req, res) => {
     })
 })
 
-router.delete("/drinking", async (req, res) => {
+router.delete("/hydration", async (req, res) => {
     await dispatch("DELETE_ALL_DRINKING")
     res.json({
         ok: true
@@ -147,8 +147,8 @@ router.get("/export/csv", async (req, res) => {
         { id: "user", title: "USER_ID" }
     ])
 
-    let drinking = await query("DRINKING", {})
-    await csvSerializer.dump("hydration", drinking.map(d => ({
+    let hydration = await query("DRINKING", {})
+    await csvSerializer.dump("hydration", hydration.map(d => ({
         id: d._id.toString(),
         date: d.date?.toISOString(),
         timestamp: d.timestamp?.toISOString(),

@@ -3,14 +3,14 @@ const express = require("express")
 const mongoose = require("mongoose")
 const seedDatabase = require("../seed")
 
-const drinkingRouter = require("./drinking")
+const hydrationRouter = require("./hydration")
 const {
-    Drinking,
+    Hydration,
     User
 } = require("../models")
 
 
-describe("/drinking", () => {
+describe("/hydration", () => {
 
     const app = express()
     let user
@@ -33,7 +33,7 @@ describe("/drinking", () => {
             req.user = user
             next()
         })
-        app.use(drinkingRouter)
+        app.use(hydrationRouter)
     })
 
     afterAll(async () => {
@@ -42,7 +42,7 @@ describe("/drinking", () => {
     })
 
     afterEach(async () => {
-        await Drinking.deleteMany({})
+        await Hydration.deleteMany({})
     })
 
     it("should get all entries", async () => {
@@ -54,7 +54,7 @@ describe("/drinking", () => {
         }
 
         // create
-        entry = await Drinking.create(entry)
+        entry = await Hydration.create(entry)
         entry = JSON.parse(JSON.stringify(entry))
 
         let res = await request(app)
@@ -74,7 +74,7 @@ describe("/drinking", () => {
         }
 
         // create
-        entry = await Drinking.create(entry)
+        entry = await Hydration.create(entry)
         entry = JSON.parse(JSON.stringify(entry))
 
         let now = new Date().valueOf()
@@ -97,7 +97,7 @@ describe("/drinking", () => {
         }
 
         // create
-        entry = await Drinking.create(entry)
+        entry = await Hydration.create(entry)
         entry = JSON.parse(JSON.stringify(entry))
 
         let now = new Date().valueOf()
@@ -120,7 +120,7 @@ describe("/drinking", () => {
         }
 
         // create
-        entry = await Drinking.create(entry)
+        entry = await Hydration.create(entry)
         entry = JSON.parse(JSON.stringify(entry))
 
 
@@ -131,7 +131,7 @@ describe("/drinking", () => {
         
         expect(res.body.ok).toBeTruthy()
 
-        let count = await Drinking.countDocuments({_id: entry._id})
+        let count = await Hydration.countDocuments({_id: entry._id})
         expect(count).toBe(0)
     })
 
@@ -144,7 +144,7 @@ describe("/drinking", () => {
         }
 
         // create
-        entry = await Drinking.create(entry)
+        entry = await Hydration.create(entry)
         entry = JSON.parse(JSON.stringify(entry))
 
 
@@ -161,7 +161,7 @@ describe("/drinking", () => {
         
         expect(res.body.ok).toBeTruthy()
 
-        entry = await Drinking.findOne({_id: entry._id})
+        entry = await Hydration.findOne({_id: entry._id})
 
         expect(entry.type).toEqual("Beer")
         expect(entry.amount).toEqual(0.4)

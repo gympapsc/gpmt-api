@@ -9,7 +9,7 @@ module.exports = {
     Stress:                     require("./stress"),
     Answer:                     require("./answer"),
     Questionnaire:              require("./questionnaire"),
-    Drinking:                   require("./drinking"),
+    Hydration:                   require("./hydration"),
     Message:                    require("./message"),
     Photo:                      require("./photo")
 }

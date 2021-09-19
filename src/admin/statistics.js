@@ -32,7 +32,7 @@ router.get("/micturition", async (req, res) => {
     })
 })
 
-router.get("/drinking", async (req, res) => {
+router.get("/hydration", async (req, res) => {
     let now = new Date()
     now = now.valueOf() - now.valueOf() % (24 * 3600 * 1000) + 24 * 3600 * 1000
     let stats = await query("USER_DRINKING_ENTRY_STATS", { startDate: now - (365 * 24 * 3600 * 1000), endDate: now })

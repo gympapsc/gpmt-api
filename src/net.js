@@ -18,7 +18,7 @@ module.exports = {
         }
 
         let micturition = await query("MICTURITION", { user })
-        let drinking = await query("DRINKING", { user })
+        let hydration = await query("DRINKING", { user })
         let stress = await query("STRESS", { user })
         let nutrition = await query("NUTRITION", { user })
         let medication = await query("MEDICATION", { user })
@@ -27,7 +27,7 @@ module.exports = {
             .post("/forecast/micturition", {
                 user,
                 micturition,
-                drinking,
+                hydration,
                 stress,
                 nutrition,
                 medication

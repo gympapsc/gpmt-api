@@ -3,7 +3,7 @@ const {
     Message,
     User,
     Micturition,
-    Drinking,
+    Hydration,
     Questionnaire,
     Answer,
     Photo,
@@ -132,7 +132,7 @@ module.exports = async function seed() {
                 date: new Date()
             })
 
-            await Drinking.create({
+            await Hydration.create({
                 user: testingTaylor,
                 date: new Date(),
                 type: "Water",

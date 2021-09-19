@@ -10,7 +10,7 @@ const {
 } = require("../models")
 
 
-describe("/drinking", () => {
+describe("/hydration", () => {
 
     const app = express()
     let user

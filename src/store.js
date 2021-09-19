@@ -3,7 +3,7 @@ const {
     Message,
     User,
     Micturition,
-    Drinking,
+    Hydration,
     Questionnaire,
     Answer,
     Photo,
@@ -142,7 +142,7 @@ const dispatch = (action, payload, ack=null) => {
             }, ack)
             break
         case "ADD_DRINKING":
-            Drinking.create({
+            Hydration.create({
                 amount: payload.amount,
                 date: payload.date,
                 user: payload.user,
@@ -188,7 +188,7 @@ const dispatch = (action, payload, ack=null) => {
             Photo.remove({}, ack)
             break
         case "UPDATE_DRINKING":
-            Drinking.updateOne({
+            Hydration.updateOne({
                 user: payload.user,
                 _id: payload._id
             }, {
@@ -329,7 +329,7 @@ const dispatch = (action, payload, ack=null) => {
             }, ack)
             break
         case "DELETE_DRINKING":
-            Drinking.deleteOne({
+            Hydration.deleteOne({
                 _id: payload._id
             }, ack)
             break
@@ -426,7 +426,7 @@ const dispatch = (action, payload, ack=null) => {
             Questionnaire.deleteMany({}, ack)
             break
         case "DELETE_ALL_DRINKING":
-            Drinking.deleteMany({}, ack)
+            Hydration.deleteMany({}, ack)
             break
         case "DELETE_ALL_MICTURITION":
             Micturition.deleteMany({}, ack)
@@ -479,7 +479,7 @@ const query = (model, selector={}, cb=null) => {
             , cb)
             break
         case "DRINKING":
-            Drinking.find(selector, cb)
+            Hydration.find(selector, cb)
             break
         case "MICTURITION":
             Micturition.find(selector, cb)
@@ -577,7 +577,7 @@ const query = (model, selector={}, cb=null) => {
             collectEntryStats(Micturition)(selector.startDate, selector.endDate, cb)
             break
         case "USER_DRINKING_ENTRY_STATS":
-            collectEntryStats(Drinking)(selector.startDate, selector.endDate, cb)
+            collectEntryStats(Hydration)(selector.startDate, selector.endDate, cb)
             break
         case "USER_NUTRITION_ENTRY_STATS":
             collectEntryStats(Nutrition)(selector.startDate, selector.endDate, cb)

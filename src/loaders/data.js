@@ -15,11 +15,11 @@ class DataLoader {
     dump(name, {
         micturition,
         stress,
-        drinking
+        hydration
     }) {
         let entries = [
             ...micturition.map(e => ({ date: e.date?.toISOString(), type: "MICTURITION" })),
-            ...drinking.map(e => ({ date: e.date?.toISOString(), type: "DRINKING" })),
+            ...hydration.map(e => ({ date: e.date?.toISOString(), type: "DRINKING" })),
             ...stress.map(e => ({ date: e.date?.toISOString(), type: "STRESS" }))
         ]
 

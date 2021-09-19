@@ -11,7 +11,7 @@ const {
     Message,
     User,
     Micturition,
-    Drinking,
+    Hydration,
     Questionnaire,
     Answer,
     Photo,
@@ -129,7 +129,7 @@ describe("dispatch to database", () => {
         })
     })
 
-    it("should add drinking", done => {
+    it("should add hydration", done => {
         dispatch("ADD_DRINKING", {
             date: new Date(),
             user: user._id,
@@ -137,7 +137,7 @@ describe("dispatch to database", () => {
             type: "Water"
         }, (err, m) => {
             expect(err).toBeFalsy()
-            Drinking.findOne({_id: m._id}, (err, doc) => {
+            Hydration.findOne({_id: m._id}, (err, doc) => {
                 expect(doc).toMatchObject({
                     date: m.date,
                     user: m.user,
@@ -149,7 +149,7 @@ describe("dispatch to database", () => {
         })
     })
 
-    it("should update drinking", done => {
+    it("should update hydration", done => {
         dispatch("ADD_DRINKING", {
             date: new Date(),
             user: user._id,
@@ -157,7 +157,7 @@ describe("dispatch to database", () => {
             type: "Water"
         }, (err, m) => {
             expect(err).toBeFalsy()
-            Drinking.findOne({_id: m._id}, (err, doc) => {
+            Hydration.findOne({_id: m._id}, (err, doc) => {
                 expect(doc).toMatchObject({
                     date: m.date,
                     user: m.user,
@@ -174,7 +174,7 @@ describe("dispatch to database", () => {
                 }, (err, n) => {
                     expect(err).toBeFalsy()
 
-                    Drinking.findOne({_id: m._id}, (err, doc) => {
+                    Hydration.findOne({_id: m._id}, (err, doc) => {
                         expect(doc).toMatchObject({
                             date: new Date(2000, 0, 1),
                             user: m.user,
@@ -190,14 +190,14 @@ describe("dispatch to database", () => {
         })
     })
 
-    it("should delete drinking", done => {
-        Drinking.create({date: new Date(), user: user._id, amount: 0.4, type: "Water"}, (err, doc) => {
+    it("should delete hydration", done => {
+        Hydration.create({date: new Date(), user: user._id, amount: 0.4, type: "Water"}, (err, doc) => {
             dispatch("DELETE_DRINKING", {
                 _id: doc._id
             }, (err, n) => {
                 expect(err).toBeFalsy()
 
-                Drinking.countDocuments({_id: doc._id}, (err, count) => {
+                Hydration.countDocuments({_id: doc._id}, (err, count) => {
                     expect(err).toBeFalsy()
                     expect(count).toBe(0)
                     done()
@@ -587,7 +587,7 @@ describe("query database", () => {
 
     })
 
-    it("should query drinking", () => {
+    it("should query hydration", () => {
 
     })
 
@@ -715,11 +715,11 @@ describe("query database", () => {
         })
     })
 
-    it("should get user drinking statistics", done => {
+    it("should get user hydration statistics", done => {
         let now = new Date()
         let today = now.valueOf() - now.valueOf() % (24 * 3600 * 1000)
         now = today + 24 * 3600 * 1000
-        Drinking.create({
+        Hydration.create({
             user,
             date: new Date(),
             amount: 0.1,
