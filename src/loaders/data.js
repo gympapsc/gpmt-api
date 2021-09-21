@@ -19,7 +19,7 @@ class DataLoader {
     }) {
         let entries = [
             ...micturition.map(e => ({ date: e.date?.toISOString(), type: "MICTURITION" })),
-            ...hydration.map(e => ({ date: e.date?.toISOString(), type: "DRINKING" })),
+            ...hydration.map(e => ({ date: e.date?.toISOString(), type: "HYDRATION" })),
             ...stress.map(e => ({ date: e.date?.toISOString(), type: "STRESS" }))
         ]
 

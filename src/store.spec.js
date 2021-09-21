@@ -130,7 +130,7 @@ describe("dispatch to database", () => {
     })
 
     it("should add hydration", done => {
-        dispatch("ADD_DRINKING", {
+        dispatch("ADD_HYDRATION", {
             date: new Date(),
             user: user._id,
             amount: 0.4,
@@ -150,7 +150,7 @@ describe("dispatch to database", () => {
     })
 
     it("should update hydration", done => {
-        dispatch("ADD_DRINKING", {
+        dispatch("ADD_HYDRATION", {
             date: new Date(),
             user: user._id,
             amount: 0.4,
@@ -165,7 +165,7 @@ describe("dispatch to database", () => {
                     type: m.type
                 })
 
-                dispatch("UPDATE_DRINKING", {
+                dispatch("UPDATE_HYDRATION", {
                     _id: m._id,
                     user: user,
                     date: new Date(2000, 0, 1),
@@ -192,7 +192,7 @@ describe("dispatch to database", () => {
 
     it("should delete hydration", done => {
         Hydration.create({date: new Date(), user: user._id, amount: 0.4, type: "Water"}, (err, doc) => {
-            dispatch("DELETE_DRINKING", {
+            dispatch("DELETE_HYDRATION", {
                 _id: doc._id
             }, (err, n) => {
                 expect(err).toBeFalsy()
@@ -725,7 +725,7 @@ describe("query database", () => {
             amount: 0.1,
             type: "Burger"
         }, (err, doc) => {
-            query("USER_DRINKING_ENTRY_STATS", { startDate: now - (100 * 24 * 3600 * 1000), endDate: now  }, (err, doc) => {
+            query("USER_HYDRATION_ENTRY_STATS", { startDate: now - (100 * 24 * 3600 * 1000), endDate: now  }, (err, doc) => {
                 expect(doc.length).toBe(100)
                 done()
             })

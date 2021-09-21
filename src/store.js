@@ -141,7 +141,7 @@ const dispatch = (action, payload, ack=null) => {
                 date: payload.date
             }, ack)
             break
-        case "ADD_DRINKING":
+        case "ADD_HYDRATION":
             Hydration.create({
                 amount: payload.amount,
                 date: payload.date,
@@ -187,7 +187,7 @@ const dispatch = (action, payload, ack=null) => {
         case "DELETE_ALL_PHOTOS":
             Photo.remove({}, ack)
             break
-        case "UPDATE_DRINKING":
+        case "UPDATE_HYDRATION":
             Hydration.updateOne({
                 user: payload.user,
                 _id: payload._id
@@ -328,7 +328,7 @@ const dispatch = (action, payload, ack=null) => {
                 $set: { level: payload.level, date: payload.date }
             }, ack)
             break
-        case "DELETE_DRINKING":
+        case "DELETE_HYDRATION":
             Hydration.deleteOne({
                 _id: payload._id
             }, ack)
@@ -425,7 +425,7 @@ const dispatch = (action, payload, ack=null) => {
         case "DELETE_ALL_QUESTIONS":
             Questionnaire.deleteMany({}, ack)
             break
-        case "DELETE_ALL_DRINKING":
+        case "DELETE_ALL_HYDRATION":
             Hydration.deleteMany({}, ack)
             break
         case "DELETE_ALL_MICTURITION":
@@ -478,7 +478,7 @@ const query = (model, selector={}, cb=null) => {
                 selector
             , cb)
             break
-        case "DRINKING":
+        case "HYDRATION":
             Hydration.find(selector, cb)
             break
         case "MICTURITION":
@@ -576,7 +576,7 @@ const query = (model, selector={}, cb=null) => {
         case "USER_MICTURITION_ENTRY_STATS":
             collectEntryStats(Micturition)(selector.startDate, selector.endDate, cb)
             break
-        case "USER_DRINKING_ENTRY_STATS":
+        case "USER_HYDRATION_ENTRY_STATS":
             collectEntryStats(Hydration)(selector.startDate, selector.endDate, cb)
             break
         case "USER_NUTRITION_ENTRY_STATS":

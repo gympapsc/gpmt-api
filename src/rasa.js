@@ -11,6 +11,8 @@ let processAction = async (action, user) => {
     let event
     let entry
 
+    console.log("action", action)
+
     switch(action.type) {
         case "ADD_MICTURITION":
             entry = await dispatch("ADD_MICTURITION", {
@@ -25,8 +27,8 @@ let processAction = async (action, user) => {
                 level: extractLast(action.payload.level)
             })
             break
-        case "ADD_DRINKING":
-            entry = await dispatch("ADD_DRINKING", {
+        case "ADD_HYDRATION":
+            entry = await dispatch("ADD_HYDRATION", {
                 ...action.payload,
                 // TODO As we are getting volume in milliliters divide by 1000
                 amount: extractLast(action.payload.amount) / 1000, 
@@ -68,13 +70,13 @@ let processAction = async (action, user) => {
 
     if(entry) {
         entry = {
-            ...entry._doc,
+            payload: entry._doc,
             type: action.type
         }
     }
     if(event) {
         event = {
-            ...event._doc,
+            payload: event._doc,
             type: action.type
         }
     }

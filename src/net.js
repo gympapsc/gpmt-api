@@ -18,7 +18,7 @@ module.exports = {
         }
 
         let micturition = await query("MICTURITION", { user })
-        let hydration = await query("DRINKING", { user })
+        let hydration = await query("HYDRATION", { user })
         let stress = await query("STRESS", { user })
         let nutrition = await query("NUTRITION", { user })
         let medication = await query("MEDICATION", { user })

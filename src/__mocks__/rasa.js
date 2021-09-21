@@ -9,7 +9,7 @@ module.exports = {
         switch(m) {
             case "ADD MICTURITION":
                 break
-            case "ADD DRINKING":
+            case "ADD HYDRATION":
                 break
             case "ADD STRESS":
                 break

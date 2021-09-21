@@ -4,7 +4,7 @@ const { dispatch, query } = require("../store")
 const router = express.Router()
 
 router.get("/", async (req, res) => {
-    let entries = await query("DRINKING", { user: req.user })
+    let entries = await query("HYDRATION", { user: req.user })
     res.json({
         entries
     })  
@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
 
 router.get("/:start/:end", async (req, res) => {
     let {start, end} = req.params
-    let entries = await query("DRINKING", { user: req.user, date: { $gt: new Date(parseInt(start)), $lte: new Date(parseInt(end)) }})
+    let entries = await query("HYDRATION", { user: req.user, date: { $gt: new Date(parseInt(start)), $lte: new Date(parseInt(end)) }})
     res.json({
         entries
     })  
@@ -21,7 +21,7 @@ router.get("/:start/:end", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
     let {id} = req.params
-    let entries = await query("DRINKING", { user: req.user, _id: id })
+    let entries = await query("HYDRATION", { user: req.user, _id: id })
     res.json({
         entries
     })  
@@ -30,7 +30,7 @@ router.get("/:id", async (req, res) => {
 router.put("/:id", async (req, res) => {
     let { id } = req.params
     let { date, amount, type } = req.body
-    await dispatch("UPDATE_DRINKING", { user: req.user, date, type, amount, _id: id})
+    await dispatch("UPDATE_HYDRATION", { user: req.user, date, type, amount, _id: id})
     res.json({
         ok: true
     })
@@ -38,7 +38,7 @@ router.put("/:id", async (req, res) => {
 
 router.delete("/:id", async (req, res ) => {
     let { id } = req.params
-    await dispatch("DELETE_DRINKING", {user: req.user, _id: id})
+    await dispatch("DELETE_HYDRATION", {user: req.user, _id: id})
     res.json({
         ok: true
     })
