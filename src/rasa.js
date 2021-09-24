@@ -43,7 +43,7 @@ let processAction = async (action, user) => {
         case "ADD_NUTRITION":
             entry = await dispatch("ADD_NUTRITION", {
                 ...action.payload,
-                mass: extractLast(action.payload.mass),
+                mass: extractLast(action.payload.mass) / 1000,
                 date: new Date(extractLast(action.payload.date)),
                 type: action.payload.type
             })
